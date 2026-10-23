@@ -1,0 +1,37 @@
+@model IEnumerable<LlamitasStore.Models.Permiso>
+
+@{
+    ViewData["Title"] = "Control de Permisos";
+}
+
+<div class="container mt-4">
+    <h2>Matriz de Permisos</h2>
+    <p class="text-muted">Configura los permisos detallados para el catálogo de hardware y gestión de ventas.</p>
+
+    <table class="table table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Permiso</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (var permiso in Model)
+                {
+                    <tr>
+                        <td>@permiso.Id</td>
+                        <td><strong>@permiso.NombrePermiso</strong></td>
+                        <td>@permiso.Descripcion</td>
+                        <td>
+                            <input type="checkbox" checked class="form-check-input" /> Asignado
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

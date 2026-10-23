@@ -1,0 +1,30 @@
+@model IEnumerable<LlamitasStore.Models.Rol>
+
+@{
+    ViewData["Title"] = "Gestión de Roles";
+}
+
+<div class="container mt-4">
+    <h2>Roles del Sistema</h2>
+    <p class="text-muted">Define los perfiles de acceso (Administrador, Técnico, Vendedor).</p>
+
+    <button class="btn btn-success mb-3">Crear Nuevo Rol</button>
+
+    <div class="row">
+        @if (Model != null)
+        {
+            foreach (var rol in Model)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@rol.NombreRol</h5>
+                            <p class="card-text">@rol.Descripcion</p>
+                            <button class="btn btn-outline-primary btn-sm">Ver Permisos</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

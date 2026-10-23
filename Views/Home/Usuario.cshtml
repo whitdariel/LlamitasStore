@@ -1,0 +1,43 @@
+@model IEnumerable<LlamitasStore.Models.Usuario>
+@{
+    ViewData["Title"] = "Gestión de Usuarios - LlamitasStore";
+}
+
+<div class="container mt-4">
+    <h2>Gestión de Usuarios</h2>
+    <p class="text-muted">Administra los usuarios con acceso al sistema de componentes de PC.</p>
+    
+    <button class="btn btn-primary mb-3">Nuevo Usuario</button>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Nombre</td>
+                        <td>@item.Email</td>
+                        <td>@item.Rol?.NombreRol</td>
+                        <td>@(item.Activo ? "Activo" : "Inactivo")</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning">Editar</button>
+                            <button class="btn btn-sm btn-danger">Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

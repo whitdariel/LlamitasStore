@@ -1,0 +1,42 @@
+@model IEnumerable<LlamitasStore.Models.OrdenCompra>
+
+@{
+    ViewData["Title"] = "Órdenes de Compra";
+}
+
+<div class="container mt-4">
+    <h2>Órdenes de Compra a Proveedores</h2>
+    <p class="text-muted">Registro de adquisiciones de componentes de hardware.</p>
+
+    <button class="btn btn-primary mb-3">Registrar Nueva Orden</button>
+
+    <table class="table table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Proveedor</th>
+                <th>Total ($)</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                        <td>@item.Proveedor</td>
+                        <td>$@item.Total.ToString("N2")</td>
+                        <td>
+                            <button class="btn btn-sm btn-info">Ver Detalles</button>
+                            <button class="btn btn-sm btn-danger">Cancelar</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

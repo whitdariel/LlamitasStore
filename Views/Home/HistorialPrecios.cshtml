@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Historial de Precios";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Historial de Precios</h1>
+    <p>Registro de cambios y actualizaciones en los precios de los productos.</p>
+</div>
+
+<table class="table table-hover mt-4">
+    <thead class="table-dark">
+        <tr>
+            <th>Fecha de Cambio</th>
+            <th>Producto</th>
+            <th>Precio Anterior</th>
+            <th>Precio Nuevo</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>2026-10-20 15:45</td>
+            <td>Ejemplo de Producto</td>
+            <td><del class="text-muted">$45.00</del></td>
+            <td><strong class="text-success">$50.00</strong></td>
+        </tr>
+    </tbody>
+</table>
