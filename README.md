@@ -3,8 +3,8 @@
 MinimumVisualStudioVersion = 10.0.40219.1
 
 PowerShelldotnet --version
- Descomprimir el ProyectoDescarga el proyecto (generalmente un .zip) y extráelo en una carpeta de fácil acceso, como Documentos o Escritorio.
- 2. Abrir PowerShell en la Carpeta del ProyectoAbre Windows PowerShell o Terminal y navega hasta la carpeta descargada usando el comando cd:PowerShellcd Documents\LlamitasStore-main
+Descomprimir el ProyectoDescarga el proyecto (generalmente un .zip) y extráelo en una carpeta de fácil acceso, como Documentos o Escritorio.
+2. Abrir PowerShell en la Carpeta del ProyectoAbre Windows PowerShell o Terminal y navega hasta la carpeta descargada usando el comando cd:PowerShellcd Documents\LlamitasStore-main
 (Reemplaza Documents\LlamitasStore-main por la ruta correspondiente si lo guardaste en otro lugar).
 3. Localizar el Archivo del Proyecto (.csproj)Dado que al descomprimir archivos .zip suelen crearse subcarpetas duplicadas, ejecuta este comando para encontrar la ubicación exacta del archivo ejecutable:PowerShellGet-ChildItem -Filter *.csproj -Recurse
 El resultado te mostrará en qué subcarpeta exacta reside el archivo LlamitasStore.csproj.
