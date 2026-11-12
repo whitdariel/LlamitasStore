@@ -1,6 +1,6 @@
 # 🦙 LlamitasStore
 
-> "Tu tienda online de moda y accesorios con catálogo actualizado, carrito de compras y pagos seguros para renovar tu estilo sin salir de casa."
+> Tienda online de componentes de computadoras y hardware de alto rendimiento con catálogo interactivo, carrito de compras y pasarela de pagos integrada para entusiastas de la tecnología y gamers.
 
 ##  Características
 
