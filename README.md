@@ -2,10 +2,6 @@
 
 > [Una frase que diga qué es y para quién: "Tienda online de ... con catálogo, carrito y pagos."]
 
-![Captura de LlamitasStore](docs/screenshot.png)
-
-[🔗 Demo en vivo](https://...) · [Reportar un error](../../issues)
-
 ##  Características
 
 -  Catálogo de productos con búsqueda y filtros
