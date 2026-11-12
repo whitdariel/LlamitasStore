@@ -1,6 +1,6 @@
 # 🦙 LlamitasStore
 
-> [Una frase que diga qué es y para quién: "Tienda online de ... con catálogo, carrito y pagos."]
+> "Tu tienda online de moda y accesorios con catálogo actualizado, carrito de compras y pagos seguros para renovar tu estilo sin salir de casa."
 
 ##  Características
 
