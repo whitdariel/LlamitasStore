@@ -25,5 +25,3 @@ git clone https://github.com/whitdariel/LlamitasStore.git
 
 # 2. Entra a la carpeta generada
 cd LlamitasStore
-
-##  Estructura del proyecto
