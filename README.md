@@ -20,22 +20,10 @@
 
 ## Instalación
 
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/whitdariel/LlamitasStore.git
-   cd LlamitasStore
-   ```
-2. Instala las dependencias:
-   ```bash
-   npm install
-   ```
-3. Configura las variables de entorno:
-   ```bash
-   cp .env.example .env
-   ```
-4. Inicia el proyecto:
-   ```bash
-   npm run dev
-   ```
+# 1. Clona el repositorio
+git clone https://github.com/whitdariel/LlamitasStore.git
+
+# 2. Entra a la carpeta generada
+cd LlamitasStore
 
 ##  Estructura del proyecto
