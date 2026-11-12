@@ -8,7 +8,9 @@
     <h2>Órdenes de Compra a Proveedores</h2>
     <p class="text-muted">Registro de adquisiciones de componentes de hardware.</p>
 
-    <button class="btn btn-primary mb-3">Registrar Nueva Orden</button>
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalOrden">
+        Registrar Nueva Orden
+    </button>
 
     <table class="table table-hover table-bordered">
         <thead class="table-dark">
@@ -39,4 +41,36 @@
             }
         </tbody>
     </table>
+</div>
+
+<!-- Modal Nueva Orden -->
+<div class="modal fade" id="modalOrden" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="CrearOrdenCompra" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar Nueva Orden</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="Fecha" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Proveedor</label>
+                        <input type="text" name="Proveedor" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Total ($)</label>
+                        <input type="number" step="0.01" name="Total" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

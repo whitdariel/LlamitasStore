@@ -1,12 +1,18 @@
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LlamitasStore.Models
+namespace LlamitasStore.Models;
+
+[Table("rol")]
+public class Rol
 {
-    public class Rol
-    {
-        public int Id { get; set; }
-        public string NombreRol { get; set; } = string.Empty;
-        public string Descripcion { get; set; } = string.Empty;
-        public ICollection<Permiso> Permisos { get; set; } = new List<Permiso>();
-    }
+    [Key]
+    [Column("id_rol")]
+    public int Id { get; set; }
+
+    [Column("nombre")]
+    public string NombreRol { get; set; } = string.Empty;
+
+    [Column("descripcion")]
+    public string? Descripcion { get; set; }
 }

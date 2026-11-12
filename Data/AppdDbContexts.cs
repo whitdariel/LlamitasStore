@@ -16,4 +16,16 @@ public class AppDbContext : DbContext
     public DbSet<DetalleOrdenCompra> DetallesOrdenCompra { get; set; }
     public DbSet<MovimientoInventario> MovimientosInventario { get; set; }
     public DbSet<HistorialPrecio> HistorialPrecios { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Usuario>().ToTable("usuario");
+        modelBuilder.Entity<Rol>().ToTable("rol");
+        modelBuilder.Entity<Permiso>().ToTable("permiso");
+        modelBuilder.Entity<Categoria>().ToTable("categoria");
+        modelBuilder.Entity<Marca>().ToTable("marca");
+        modelBuilder.Entity<OrdenCompra>().ToTable("orden_compra"); // Verifica en DBeaver si es 'orden_compra' u 'ordencompra'
+    }
 }

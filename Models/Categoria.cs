@@ -1,11 +1,18 @@
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LlamitasStore.Models
+namespace LlamitasStore.Models;
+
+[Table("categoria")]
+public class Categoria
 {
-    public class Categoria
-    {
-        public int Id { get; set; }
-        public string NombreCategoria { get; set; } = string.Empty; // Ej: Tarjetas Gráficas, Procesadores, Placas Madre
-        public string Descripcion { get; set; } = string.Empty;
-    }
+    [Key]
+    [Column("id_categoria")]
+    public int Id { get; set; }
+
+    [Column("nombre")]
+    public string NombreCategoria { get; set; } = string.Empty;
+
+    [Column("descripcion")]
+    public string? Descripcion { get; set; }
 }

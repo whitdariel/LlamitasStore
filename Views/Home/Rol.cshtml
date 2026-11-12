@@ -8,7 +8,9 @@
     <h2>Roles del Sistema</h2>
     <p class="text-muted">Define los perfiles de acceso (Administrador, Técnico, Vendedor).</p>
 
-    <button class="btn btn-success mb-3">Crear Nuevo Rol</button>
+    <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalRol">
+        Crear Nuevo Rol
+    </button>
 
     <div class="row">
         @if (Model != null)
@@ -26,5 +28,33 @@
                 </div>
             }
         }
+    </div>
+</div>
+
+<!-- Modal Nuevo Rol -->
+<div class="modal fade" id="modalRol" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="CrearRol" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crear Nuevo Rol</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del Rol</label>
+                        <input type="text" name="NombreRol" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea name="Descripcion" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>

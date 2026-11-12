@@ -6,29 +6,33 @@
 
 <div class="container mt-4">
     <h2>Matriz de Permisos</h2>
-    <p class="text-muted">Configura los permisos detallados para el catálogo de hardware y gestión de ventas.</p>
+    <p class="text-muted">Permisos registrados por Rol y Módulo.</p>
 
-    <table class="table table-hover">
+    <table class="table table-hover table-bordered">
         <thead class="table-dark">
             <tr>
-                <th>#</th>
-                <th>Permiso</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
+                <th>ID</th>
+                <th>ID Rol</th>
+                <th>ID Módulo</th>
+                <th>Leer</th>
+                <th>Crear</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
             </tr>
         </thead>
         <tbody>
             @if (Model != null)
             {
-                foreach (var permiso in Model)
+                foreach (var p in Model)
                 {
                     <tr>
-                        <td>@permiso.Id</td>
-                        <td><strong>@permiso.NombrePermiso</strong></td>
-                        <td>@permiso.Descripcion</td>
-                        <td>
-                            <input type="checkbox" checked class="form-check-input" /> Asignado
-                        </td>
+                        <td>@p.Id</td>
+                        <td>@p.IdRol</td>
+                        <td>@p.IdModulo</td>
+                        <td><input type="checkbox" checked="@p.PuedeLeer" disabled /></td>
+                        <td><input type="checkbox" checked="@p.PuedeCrear" disabled /></td>
+                        <td><input type="checkbox" checked="@p.PuedeEditar" disabled /></td>
+                        <td><input type="checkbox" checked="@p.PuedeEliminar" disabled /></td>
                     </tr>
                 }
             }
