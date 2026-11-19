@@ -1,0 +1,77 @@
+@model IEnumerable<LlamitasStore.Models.Modulo>
+@using System.Linq
+@using LlamitasStore.Models
+@{
+    ViewData["Title"] = "Módulos";
+    var modulos = Model?.ToList() ?? new List<Modulo>();
+    var categorias = ViewBag.Categorias as List<Categoria> ?? new List<Categoria>();
+    var databaseReady = ViewBag.DatabaseReady as bool? ?? false;
+}
+
+<section class="page-heading">
+    <div>
+        <span class="eyebrow"><span class="eyebrow-line"></span> ORGANIZACIÓN DEL SISTEMA</span>
+        <h1>Módulos</h1>
+        <p>Registra las áreas del sistema que luego aparecerán en la matriz de permisos.</p>
+    </div>
+    @if (databaseReady && categorias.Count > 0)
+    {
+        <button type="button" class="btn btn-accent" data-bs-toggle="modal" data-bs-target="#modalModulo"><span class="button-plus">+</span> Nuevo módulo</button>
+    }
+</section>
+
+@if (!databaseReady)
+{
+    <div class="database-notice" role="status"><span class="notice-icon">!</span><div><strong>No se pudieron cargar los módulos</strong><p>@(ViewBag.DatabaseMessage ?? "Importa LLamitasbasededatos.sql en la instancia MySQL configurada y vuelve a intentarlo.")</p></div></div>
+}
+else if (categorias.Count == 0)
+{
+    <div class="database-notice notice-soft" role="status"><span class="notice-icon">i</span><div><strong>Primero crea una categoría</strong><p>Los módulos se agrupan por categoría. Registra una categoría para habilitar la creación de módulos.</p></div><a asp-controller="Home" asp-action="Categoria" class="notice-link">Ir a categorías ↗</a></div>
+}
+
+<section class="role-overview">
+    <div class="overview-icon">M</div>
+    <div><span class="eyebrow">ÁREAS DEL SISTEMA</span><strong>@modulos.Count</strong><small>módulo(s) registrado(s)</small></div>
+    <a asp-controller="Home" asp-action="Permiso" class="overview-link">Abrir permisos <span>↗</span></a>
+</section>
+
+@if (modulos.Count > 0)
+{
+    <section class="role-grid">
+        @foreach (var modulo in modulos)
+        {
+            var initial = string.IsNullOrWhiteSpace(modulo.Nombre) ? "M" : modulo.Nombre[..1].ToUpperInvariant();
+            <article class="role-card">
+                <div class="role-card-top"><span class="role-avatar">@initial</span><span class="role-id">MÓDULO · @modulo.Id.ToString("D2")</span></div>
+                <h2>@modulo.Nombre</h2>
+                <p>@(string.IsNullOrWhiteSpace(modulo.Descripcion) ? "Sin descripción." : modulo.Descripcion)</p>
+                <div class="role-card-bottom"><span class="role-status"><span></span>@(modulo.Categoria?.NombreCategoria ?? "Sin categoría")</span><a asp-controller="Home" asp-action="Permiso" class="text-action">Configurar acceso <span>↗</span></a></div>
+            </article>
+        }
+    </section>
+}
+else if (databaseReady && categorias.Count > 0)
+{
+    <section class="data-panel empty-state"><span class="empty-icon">M</span><strong>Aún no hay módulos</strong><p>Crea módulos como Usuarios, Inventario o Ventas para asignar permisos.</p><button type="button" class="btn btn-accent" data-bs-toggle="modal" data-bs-target="#modalModulo">Crear primer módulo</button></section>
+}
+
+@if (databaseReady && categorias.Count > 0)
+{
+    <div class="modal fade" id="modalModulo" tabindex="-1" aria-labelledby="modalModuloLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content app-modal">
+                <form asp-action="CrearModulo" method="post">
+                    <div class="modal-header"><div><span class="eyebrow">NUEVA ÁREA</span><h2 class="modal-title" id="modalModuloLabel">Crear módulo</h2></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+                    <div class="modal-body">
+                        <div class="form-grid">
+                            <div class="form-field form-span"><label for="Nombre">Nombre</label><input id="Nombre" name="Nombre" class="form-control" maxlength="50" placeholder="Ej. Inventario" required /></div>
+                            <div class="form-field form-span"><label for="Descripcion">Descripción <span class="optional-label">Opcional</span></label><textarea id="Descripcion" name="Descripcion" class="form-control" rows="3" maxlength="150" placeholder="Qué se administra desde este módulo"></textarea></div>
+                            <div class="form-field form-span"><label for="CategoriaId">Categoría</label><select id="CategoriaId" name="CategoriaId" class="form-select" required><option value="">Selecciona una categoría</option>@foreach (var categoria in categorias) { <option value="@categoria.Id">@categoria.NombreCategoria</option> }</select></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-accent">Guardar módulo</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

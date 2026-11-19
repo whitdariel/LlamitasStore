@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" role="img" aria-labelledby="title">
+  <title id="title">Llamita</title>
+  <defs>
+    <linearGradient id="badge" x1="8" y1="7" x2="64" y2="66" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF2DD"/>
+      <stop offset="1" stop-color="#FFE2CC"/>
+    </linearGradient>
+    <linearGradient id="wool" x1="22" y1="14" x2="50" y2="55" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD18D"/>
+      <stop offset="1" stop-color="#E99A55"/>
+    </linearGradient>
+  </defs>
+  <circle cx="36" cy="36" r="34" fill="url(#badge)"/>
+  <path d="M22 24C19 16 18 9 20 6c6 2 10 7 12 14m8 3c3-9 8-14 14-15 1 6-1 13-5 20" fill="url(#wool)" stroke="#9B613F" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M25 24c4-5 17-6 22-1 5 5 5 14 2 21-2 5-8 10-14 11-6 0-12-6-14-12-2-7-1-14 4-19Z" fill="url(#wool)" stroke="#9B613F" stroke-width="2.3" stroke-linejoin="round"/>
+  <path d="M33 39c4-3 10-2 13 1 2 2 2 6-1 9-3 3-8 3-12 1-4-2-5-7 0-11Z" fill="#FFE9CD"/>
+  <circle cx="31" cy="32" r="2.2" fill="#30294A"/>
+  <circle cx="45" cy="32" r="2.2" fill="#30294A"/>
+  <path d="M34 45c2 1 5 1 7 0" fill="none" stroke="#9B613F" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M21 49c8 4 20 5 31 1l-2 8c-10 4-20 3-28-2l-1-7Z" fill="#E96F5E"/>
+  <path d="m41 51 4 5 5-6" fill="none" stroke="#FFF2DD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
