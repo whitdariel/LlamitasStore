@@ -24,12 +24,12 @@
     <meta property="og:type" content="@(ViewData["OgTipo"] as string ?? "website")" />
     <meta property="og:url" content="@urlCanonica" />
     <meta property="og:locale" content="es_BO" />
-    @if (ViewData["OgImagen"] is string ogImagen)
-    {
-        <meta property="og:image" content="@(ogImagen.StartsWith("http") ? ogImagen : origen + ogImagen)" />
-    }
+    @{ var ogImagen = ViewData["OgImagen"] as string ?? "/images/marca/llamitas-logo.png"; } @* por defecto, el logo principal *@
+    <meta property="og:image" content="@(ogImagen.StartsWith("http") ? ogImagen : origen + ogImagen)" />
     @await RenderSectionAsync("Head", required: false)
-    <link rel="icon" href="~/images/llamita-mark.svg" type="image/svg+xml" />
+    <link rel="icon" href="~/images/marca/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="~/images/marca/favicon-64.png" type="image/png" sizes="64x64" />
+    <link rel="apple-touch-icon" href="~/images/marca/apple-touch-icon.png" />
     <link rel="preload" href="~/fonts/outfit/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
     <script src="~/js/tema.js" asp-append-version="true"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -70,9 +70,8 @@
                 <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#menu"></use></svg>
             </button>
 
-            <a class="ls-logo" asp-controller="Home" asp-action="Index" aria-label="@Tienda.NombreTienda, inicio">
-                <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="" width="40" height="40" />
-                <span>@Tienda.NombreTienda</span>
+            <a class="ls-logo" asp-controller="Home" asp-action="Index">
+                <img class="ls-logo-principal" src="~/images/marca/llamitas-logo-480.png" asp-append-version="true" alt="@Tienda.NombreTienda, ir al inicio" width="480" height="186" />
             </a>
 
             <nav class="ls-nav-escritorio" aria-label="Principal">
@@ -153,8 +152,7 @@
             <div class="row g-4">
                 <div class="col-lg-4">
                     <a class="ls-logo mb-3" asp-controller="Home" asp-action="Index">
-                        <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="" width="40" height="40" />
-                        <span>@Tienda.NombreTienda</span>
+                        <img class="ls-logo-footer" src="~/images/marca/llamitas-logo-480.png" asp-append-version="true" alt="@Tienda.NombreTienda, ir al inicio" width="480" height="186" loading="lazy" />
                     </a>
                     <p class="mb-3">Componentes de computadora, hardware y periféricos gaming con especificaciones técnicas detalladas.</p>
                     <ul>

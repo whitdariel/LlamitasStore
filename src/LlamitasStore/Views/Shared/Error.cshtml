@@ -1,11 +1,11 @@
-﻿@model ErrorViewModel
+@model ErrorViewModel
 @{
     var (titulo, mensaje) = Model.Texto;
     ViewData["Title"] = titulo;
 }
 
 <section class="ls-contenedor ls-pagina-centro">
-    <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="" width="88" height="88" class="mb-3" />
+    <img class="ls-isotipo-grande mb-3" src="~/images/marca/llamitas-isotipo.png" asp-append-version="true" alt="" width="88" height="88" />
     <p class="ls-codigo-error ls-numero mb-2">@Model.Codigo</p>
     <h1 class="ls-titulo-seccion">@titulo</h1>
     <p class="text-body-secondary mx-auto mt-2 ls-texto-legal">@mensaje</p>

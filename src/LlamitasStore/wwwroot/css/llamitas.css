@@ -297,7 +297,14 @@ a:hover { color: var(--c-primario-hover); }
 .ls-header-fila { display: flex; align-items: center; gap: clamp(.75rem, 2vw, 1.75rem); min-height: 4.5rem; }
 .ls-logo { display: inline-flex; align-items: center; gap: .6rem; color: var(--c-texto); text-decoration: none; flex-shrink: 0; }
 .ls-logo:hover { color: var(--c-texto); }
-.ls-logo img { width: 40px; height: 40px; }
+.ls-logo img { width: auto; height: 40px; }
+/* Logo principal (con texto). Su fondo es negro: en tema claro se presenta como una placa redondeada. */
+.ls-logo-principal { height: 58px !important; border-radius: var(--r-md); }
+.ls-logo-footer { height: 84px !important; border-radius: var(--r-md); }
+.ls-logo-isotipo { width: 38px !important; height: 38px !important; }
+.ls-isotipo-grande { height: auto; border-radius: 22%; }
+[data-bs-theme="light"] .ls-logo-principal, [data-bs-theme="light"] .ls-logo-footer { box-shadow: var(--c-sombra); }
+@media (max-width: 575.98px) { .ls-logo-principal { height: 42px !important; } }
 .ls-logo span { font-weight: 800; font-size: 1.15rem; letter-spacing: .08em; text-transform: uppercase; }
 .ls-nav { display: flex; align-items: center; gap: .25rem; list-style: none; margin: 0; padding: 0; }
 .ls-nav-enlace {
