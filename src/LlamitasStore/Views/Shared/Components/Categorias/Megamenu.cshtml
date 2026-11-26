@@ -1,0 +1,12 @@
+@model IReadOnlyList<CategoriaResumen>
+<ul class="ls-megamenu-grid">
+    @foreach (var c in Model)
+    {
+        <li>
+            <a href="/catalogo/@c.Slug">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#@c.IconoSprite"></use></svg>
+                <span>@c.Nombre <small>@c.TotalProductos productos</small></span>
+            </a>
+        </li>
+    }
+</ul>

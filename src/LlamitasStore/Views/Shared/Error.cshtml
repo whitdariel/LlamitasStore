@@ -4,14 +4,17 @@
     ViewData["Title"] = titulo;
 }
 
-<section class="text-center py-5">
-    <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="" width="96" height="96" class="mb-3" />
-    <p class="text-muted mb-1">Error @Model.Codigo</p>
-    <h1 class="h2">@titulo</h1>
-    <p class="text-muted">@mensaje</p>
-    <a class="btn btn-primary mt-2" asp-controller="Home" asp-action="Index">Volver al inicio</a>
+<section class="ls-contenedor ls-pagina-centro">
+    <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="" width="88" height="88" class="mb-3" />
+    <p class="ls-codigo-error ls-numero mb-2">@Model.Codigo</p>
+    <h1 class="ls-titulo-seccion">@titulo</h1>
+    <p class="text-body-secondary mx-auto mt-2 ls-texto-legal">@mensaje</p>
+    <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+        <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Volver al inicio</a>
+        <a class="btn btn-outline-secondary" href="/catalogo">Ver catálogo</a>
+    </div>
     @if (Model.ShowRequestId && Model.Codigo >= 500)
     {
-        <p class="small text-muted mt-4 mb-0">Código de seguimiento: <code>@Model.RequestId</code></p>
+        <p class="small text-body-secondary mt-4 mb-0">Código de seguimiento: <code>@Model.RequestId</code></p>
     }
 </section>

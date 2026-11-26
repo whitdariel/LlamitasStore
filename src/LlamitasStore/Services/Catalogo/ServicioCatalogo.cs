@@ -211,6 +211,35 @@ public class ServicioCatalogo
         return await ObtenerTarjetasAsync(ids, promociones, ct);
     }
 
+    /// <summary>Sugerencias del buscador del header: hasta 3 categorías y <paramref name="maxProductos"/> productos.</summary>
+    public async Task<Sugerencias> SugerirAsync(string? q, int maxProductos = 6, CancellationToken ct = default)
+    {
+        q = q?.Trim();
+        if (string.IsNullOrEmpty(q) || q.Length < 2) return new Sugerencias([], []);
+        if (q.Length > FiltroCatalogo.LargoMaximoBusqueda) q = q[..FiltroCatalogo.LargoMaximoBusqueda];
+
+        var patron = "%" + EscaparLike(q) + "%";
+        var categorias = await _db.Categorias.AsNoTracking()
+            .Where(c => c.Activa && EF.Functions.Like(c.Nombre, patron, "\\"))
+            .OrderBy(c => c.Orden).Take(3)
+            .Select(c => new SugerenciaCategoria(c.Nombre, c.Slug))
+            .ToListAsync(ct);
+
+        var inicio = EscaparLike(q) + "%";
+        var ids = await AplicarBusqueda(_db.Productos.AsNoTracking()
+                .Where(p => p.Estado == EstadoProducto.Activo && p.Categoria.Activa && p.Marca.Activa), q)
+            .OrderByDescending(p => EF.Functions.Like(p.Nombre, inicio, "\\"))
+            .ThenByDescending(p => p.Stock > 0)
+            .ThenByDescending(p => p.Destacado)
+            .ThenByDescending(p => p.TotalVendidos)
+            .ThenBy(p => p.Nombre)
+            .Select(p => p.Id)
+            .Take(maxProductos)
+            .ToListAsync(ct);
+
+        return new Sugerencias(categorias, await ObtenerTarjetasAsync(ids, ct: ct));
+    }
+
     internal static IQueryable<Producto> AplicarBusqueda(IQueryable<Producto> consulta, string? q)
     {
         if (string.IsNullOrWhiteSpace(q)) return consulta;

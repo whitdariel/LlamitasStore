@@ -1,23 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Memoria RAM">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#352a52"/><stop offset="1" stop-color="#1a1628"/></linearGradient>
-    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e99a55" stop-opacity=".35"/><stop offset="1" stop-color="#e99a55" stop-opacity="0"/></radialGradient>
-    <linearGradient id="disip" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffd18d"/><stop offset=".5" stop-color="#e99a55"/><stop offset="1" stop-color="#e96f5e"/></linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#353049"/><stop offset="1" stop-color="#1B1727"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#EE9450" stop-opacity=".35"/><stop offset="1" stop-color="#EE9450" stop-opacity="0"/></radialGradient>
+    <linearGradient id="disip" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFD19A"/><stop offset=".5" stop-color="#EE9450"/><stop offset="1" stop-color="#E8724F"/></linearGradient>
   </defs>
   <rect width="400" height="300" fill="url(#bg)"/>
   <ellipse cx="200" cy="150" rx="200" ry="110" fill="url(#glow)"/>
   <g transform="translate(0 -32)">
-    <rect x="40" y="120" width="320" height="64" rx="6" fill="#2f2a47" stroke="#c9c3dd" stroke-width="2"/>
+    <rect x="40" y="120" width="320" height="64" rx="6" fill="#353049" stroke="#D9D3EA" stroke-width="2"/>
     <path d="M40 126h320v26H40z" fill="url(#disip)"/>
-    <path d="M40 120h320v6H40z" fill="#86d6ef"/>
-    <rect x="40" y="184" width="320" height="10" fill="#e99a55"/>
-    <rect x="196" y="184" width="10" height="10" fill="#1a1628"/>
+    <path d="M40 120h320v6H40z" fill="#D3C5FF"/>
+    <rect x="40" y="184" width="320" height="10" fill="#EE9450"/>
+    <rect x="196" y="184" width="10" height="10" fill="#1B1727"/>
   </g>
   <g transform="translate(0 46)">
-    <rect x="40" y="120" width="320" height="64" rx="6" fill="#2f2a47" stroke="#c9c3dd" stroke-width="2"/>
+    <rect x="40" y="120" width="320" height="64" rx="6" fill="#353049" stroke="#D9D3EA" stroke-width="2"/>
     <path d="M40 126h320v26H40z" fill="url(#disip)"/>
-    <path d="M40 120h320v6H40z" fill="#7557ce"/>
-    <rect x="40" y="184" width="320" height="10" fill="#e99a55"/>
-    <rect x="196" y="184" width="10" height="10" fill="#1a1628"/>
+    <path d="M40 120h320v6H40z" fill="#7B5CE5"/>
+    <rect x="40" y="184" width="320" height="10" fill="#EE9450"/>
+    <rect x="196" y="184" width="10" height="10" fill="#1B1727"/>
   </g>
 </svg>

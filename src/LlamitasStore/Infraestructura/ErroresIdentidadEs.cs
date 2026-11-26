@@ -5,6 +5,7 @@ namespace LlamitasStore.Infraestructura;
 public static class PoliticasLimite
 {
     public const string Formularios = "formularios";
+    public const string Busqueda = "busqueda";
 }
 
 /// <summary>Mensajes de Identity en español.</summary>

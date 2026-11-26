@@ -9,6 +9,7 @@
     var totalResenas = Model.DistribucionEstrellas.Values.Sum();
 }
 
+<div class="ls-contenedor ls-cabecera-pagina">
 <nav aria-label="Ruta de navegación">
     <ol class="breadcrumb small">
         <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
@@ -46,7 +47,7 @@
 
     <section class="col-md-6">
         <p class="ls-tarjeta-marca mb-1"><a href="/catalogo?marca=@p.Marca.Slug">@p.Marca.Nombre</a></p>
-        <h1 class="h3">@p.Nombre</h1>
+        <h1 class="ls-ficha-titulo mb-2">@p.Nombre</h1>
         <div class="d-flex flex-wrap gap-3 align-items-center small text-body-secondary mb-3">
             <partial name="_Estrellas" model="(p.ValoracionPromedio, p.TotalResenas)" />
             <span>SKU: <strong>@p.Sku</strong></span>
@@ -57,7 +58,7 @@
             <partial name="_Precio" model="Model.Precio" />
             @if (Model.Precio.TieneDescuento)
             {
-                <p class="small mb-0 mt-1 text-success">Ahorras @Tienda.Dinero(Model.Precio.Ahorro) · @Model.Precio.Motivo</p>
+                <p class="small mb-0 mt-1 ls-ahorro">Ahorras @Tienda.Dinero(Model.Precio.Ahorro) · @Model.Precio.Motivo</p>
             }
         </div>
 
@@ -168,7 +169,7 @@
                                 <h3 class="h6 mt-1 mb-1">@r.Titulo</h3>
                                 <p class="small text-body-secondary mb-2">
                                     @r.Autor · <time datetime="@r.Fecha.ToString("yyyy-MM-dd")">@r.Fecha.ToString("dd/MM/yyyy")</time>
-                                    @if (r.CompraVerificada) { <span class="badge text-bg-success ms-1">Compra verificada</span> }
+                                    @if (r.CompraVerificada) { <span class="ls-badge ls-chip-info ms-1">Compra verificada</span> }
                                 </p>
                                 <p class="mb-0">@r.Comentario</p>
                             </article>
@@ -183,7 +184,7 @@
 @if (Model.Relacionados.Count > 0)
 {
     <section class="mt-5" aria-labelledby="relacionados-titulo">
-        <h2 class="h4 mb-3" id="relacionados-titulo">Productos relacionados</h2>
+        <h2 class="ls-titulo-seccion mb-3" id="relacionados-titulo">Productos relacionados</h2>
         <ul class="list-unstyled row row-cols-2 row-cols-lg-4 g-2 g-sm-3">
             @foreach (var r in Model.Relacionados)
             {
@@ -192,6 +193,8 @@
         </ul>
     </section>
 }
+
+</div>
 
 @section Scripts {
     <script src="~/js/catalogo.js" asp-append-version="true"></script>

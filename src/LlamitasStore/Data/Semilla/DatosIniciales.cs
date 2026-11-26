@@ -131,7 +131,8 @@ public class DatosIniciales
             (ClavesAjuste.NombreTienda, "LlamitasStore", "Nombre visible de la tienda"),
             (ClavesAjuste.SimboloMoneda, "Bs.", "Símbolo de moneda"),
             (ClavesAjuste.EmailContacto, "contacto@llamitasstore.local", "Correo de contacto (cámbialo en Configuración)"),
-            (ClavesAjuste.TelefonoContacto, "+591 70000000", "Teléfono de contacto (cámbialo en Configuración)"),
+            // Vacío a propósito: un número de ejemplo podría pertenecer a una persona real.
+            (ClavesAjuste.TelefonoContacto, "", "Teléfono de contacto (se muestra en el sitio solo si se configura)"),
             (ClavesAjuste.DireccionTienda, "Viacha, La Paz, Bolivia", "Dirección de la tienda"),
             (ClavesAjuste.CostoEnvio, "25.00", "Costo de envío estándar"),
             (ClavesAjuste.EnvioGratisDesde, "1500.00", "Subtotal desde el cual el envío es gratis (0 = nunca)"),

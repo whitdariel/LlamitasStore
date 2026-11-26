@@ -132,6 +132,10 @@ public record ResultadoCatalogo(
         Categoria?.Nombre ?? (Filtro.Q is not null ? $"Resultados para “{Filtro.Q}”" : "Catálogo");
 }
 
+public record SugerenciaCategoria(string Nombre, string Slug);
+
+public record Sugerencias(IReadOnlyList<SugerenciaCategoria> Categorias, IReadOnlyList<TarjetaProducto> Productos);
+
 public record GrupoEspecificaciones(string Grupo, IReadOnlyList<(string Nombre, string Valor)> Filas);
 
 public record ResenaVista(string Autor, int Calificacion, string Titulo, string Comentario, DateTime Fecha, bool CompraVerificada);

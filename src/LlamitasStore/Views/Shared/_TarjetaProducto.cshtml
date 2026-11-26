@@ -8,11 +8,11 @@
         <span class="ls-tarjeta-etiquetas">
             @if (Model.Precio.TieneDescuento)
             {
-                <span class="badge ls-badge-oferta">@(Model.Precio.Motivo == "Oferta" ? "Oferta" : "Promo")</span>
+                <span class="ls-badge-oferta">@(Model.Precio.Motivo == "Oferta" ? "Oferta" : "Promo")</span>
             }
             @if (Model.EsNuevo)
             {
-                <span class="badge ls-badge-nuevo">Nuevo</span>
+                <span class="ls-badge-nuevo">Nuevo</span>
             }
         </span>
     </a>

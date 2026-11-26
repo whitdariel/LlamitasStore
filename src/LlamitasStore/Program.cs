@@ -93,6 +93,10 @@ builder.Services.AddRateLimiter(o =>
     o.AddPolicy(PoliticasLimite.Formularios, ctx => RateLimitPartition.GetFixedWindowLimiter(
         ctx.Connection.RemoteIpAddress?.ToString() ?? "desconocida",
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+    // Sugerencias del buscador (se piden mientras se escribe): 90 por minuto por IP.
+    o.AddPolicy(PoliticasLimite.Busqueda, ctx => RateLimitPartition.GetFixedWindowLimiter(
+        ctx.Connection.RemoteIpAddress?.ToString() ?? "desconocida",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 90, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
 });
 
 builder.Services.AddScoped<DatosIniciales>();
@@ -103,6 +107,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<AjustesTienda>();
 builder.Services.AddScoped<ServicioPrecios>();
 builder.Services.AddScoped<ServicioCatalogo>();
+builder.Services.AddScoped<ServicioInicio>();
 
 var app = builder.Build();
 

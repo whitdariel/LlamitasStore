@@ -1,77 +1,144 @@
-@model LlamitasStore.ViewModels.InicioViewModel
+@model InicioViewModel
 @{
-    ViewData["Title"] = "Inicio";
+    ViewData["Title"] = "Componentes de PC y gaming";
+    ViewData["Descripcion"] = "Procesadores, tarjetas gráficas, placas madre, memorias, almacenamiento y periféricos gaming en LlamitasStore.";
+    ViewData["Canonical"] = "/";
+    var envioGratis = Tienda.ObtenerDecimal(ClavesAjuste.EnvioGratisDesde);
+    var costoEnvio = Tienda.ObtenerDecimal(ClavesAjuste.CostoEnvio);
 }
 
-<div class="home-page">
-    <section class="home-hero">
-        <div class="home-hero-copy">
-            <span class="home-kicker"><span class="kicker-spark">✦</span> BIENVENIDO A LLAMITAS STORE</span>
-            <h1>Enciende tu<br /><span>próximo setup.</span></h1>
-            <p>Componentes, accesorios y todo lo que necesitas para llevar tus ideas más lejos.</p>
-            <div class="home-hero-actions">
-                <a class="home-button home-button-primary" href="/catalogo">Explorar el catálogo <span>↗</span></a>
-                <a class="home-button home-button-secondary" href="/catalogo?oferta=true">Ver ofertas</a>
+<div class="ls-contenedor pt-3 pt-lg-4">
+
+    @* ---------- Hero (siempre en tono oscuro: es el "escenario" de la tienda) ---------- *@
+    <section class="ls-hero" data-bs-theme="dark" aria-labelledby="hero-titulo">
+        <div>
+            <p class="ls-eyebrow">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#rayo"></use></svg>Hardware para jugar y crear
+            </p>
+            <h1 class="ls-titulo-display ls-hero-titulo mt-3 mb-3" id="hero-titulo">Enciende tu<br /><span>próximo setup</span></h1>
+            <p class="lead mb-0">Procesadores, gráficas, memorias y periféricos con fichas técnicas claras: socket, memoria, consumo y medidas, para que compres sin dudas.</p>
+            <div class="ls-hero-acciones">
+                <a class="btn btn-primary btn-lg" href="/catalogo">Explorar catálogo</a>
+                <a class="btn btn-outline-secondary btn-lg" href="/catalogo?oferta=true">Ver ofertas</a>
             </div>
-            <div class="home-hero-note"><span></span> Tecnología para cada forma de jugar y crear</div>
+            <dl class="ls-hero-datos">
+                <div><dt>Productos</dt><dd class="ls-numero">@Model.TotalProductos</dd></div>
+                <div><dt>Marcas</dt><dd class="ls-numero">@Model.TotalMarcas</dd></div>
+                <div><dt>Categorías</dt><dd class="ls-numero">@Model.Categorias.Count</dd></div>
+            </dl>
         </div>
-        <div class="home-hero-visual" aria-label="Llamita gamer junto a componentes de computadora">
-            <div class="hero-glow"></div>
-            <div class="hero-ring hero-ring-one"></div>
-            <div class="hero-ring hero-ring-two"></div>
-            <img src="~/images/llamita-hero.svg" asp-append-version="true" alt="Llamita con audífonos junto a una computadora gamer" class="hero-llama" />
-            <span class="hero-spark hero-spark-one">✦</span>
-            <span class="hero-spark hero-spark-two">✧</span>
-            <span class="hero-bubble">Tu aventura<br /><strong>comienza aquí</strong></span>
+        <div class="ls-hero-visual" aria-hidden="true">
+            <span class="ls-anillo ls-anillo-1"></span>
+            <span class="ls-anillo ls-anillo-2"></span>
+            <img src="~/images/llamita-hero.svg" asp-append-version="true" alt="" width="420" height="360" />
         </div>
-        <div class="hero-pagination" aria-hidden="true"><span class="is-current"></span><span></span><span></span></div>
     </section>
 
-    <section class="home-section" id="categorias">
-        <div class="home-section-heading">
+    @* ---------- Categorías ---------- *@
+    <section class="ls-seccion ls-revelar" aria-labelledby="titulo-categorias">
+        <div class="ls-seccion-cabecera">
             <div>
-                <span class="home-eyebrow">HECHO PARA TU MUNDO</span>
-                <h2>¿Qué estás buscando?</h2>
+                <p class="ls-eyebrow mb-0">Explora</p>
+                <h2 class="ls-titulo-seccion" id="titulo-categorias">Categorías</h2>
             </div>
+            <a class="ls-ver-todo" href="/catalogo">Todo el catálogo <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#flecha-der"></use></svg></a>
         </div>
+        <ul class="ls-cats">
+            @foreach (var c in Model.Categorias)
+            {
+                <li>
+                    <a class="ls-cat" href="/catalogo/@c.Slug">
+                        <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#@c.IconoSprite"></use></svg>
+                        <strong>@c.Nombre</strong>
+                        <small>@c.TotalProductos productos</small>
+                    </a>
+                </li>
+            }
+        </ul>
+    </section>
 
-        @if (Model.Categorias.Count == 0)
-        {
-            <p class="text-muted">Todavía no hay categorías cargadas.</p>
-        }
-        else
-        {
-            <ul class="list-unstyled row g-3">
-                @foreach (var c in Model.Categorias)
+    <partial name="_CarrilProductos" model="@(("ofertas", "Precios especiales", "etiqueta", "Ofertas", "/catalogo?oferta=true&orden=precio-asc", Model.Ofertas))" />
+    <partial name="_CarrilProductos" model="@(("destacados", "Selección LlamitasStore", "estrella", "Destacados", "/catalogo", Model.Destacados))" />
+    <partial name="_CarrilProductos" model="@(("vendidos", "Lo que más se lleva", "tendencia", "Más vendidos", "/catalogo?orden=vendidos", Model.MasVendidos))" />
+    <partial name="_CarrilProductos" model="@(("novedades", "Recién llegados", "nuevo", "Novedades", "/catalogo?orden=nuevos", Model.Novedades))" />
+
+    @* ---------- Marcas ---------- *@
+    @if (Model.Marcas.Count > 0)
+    {
+        <section class="ls-seccion ls-revelar" aria-labelledby="titulo-marcas">
+            <div class="ls-seccion-cabecera">
+                <div>
+                    <p class="ls-eyebrow mb-0">Fabricantes</p>
+                    <h2 class="ls-titulo-seccion" id="titulo-marcas">Marcas destacadas</h2>
+                </div>
+            </div>
+            <ul class="ls-marcas">
+                @foreach (var m in Model.Marcas)
                 {
-                    <li class="col-6 col-md-4 col-lg-3">
-                        <a class="ls-tarjeta d-flex flex-row align-items-center gap-3 p-2 text-decoration-none h-100" href="/catalogo/@c.Slug">
-                            <img src="/images/productos/@(c.Icono).svg" alt="" width="64" height="48" class="rounded-2" />
-                            <span>
-                                <strong class="d-block text-body">@c.Nombre</strong>
-                                <span class="text-body-secondary small">@c.TotalProductos productos</span>
-                            </span>
+                    <li>
+                        <a class="ls-marca" href="/catalogo?marca=@m.Slug">
+                            <span><strong>@m.Nombre</strong><br /><small>@m.TotalProductos productos</small></span>
                         </a>
                     </li>
                 }
             </ul>
-        }
+        </section>
+    }
+
+    @* ---------- Ventajas (todas reflejan configuración o datos reales) ---------- *@
+    <section class="ls-seccion ls-revelar" aria-labelledby="titulo-ventajas">
+        <h2 class="visually-hidden" id="titulo-ventajas">Por qué comprar en @Tienda.NombreTienda</h2>
+        <ul class="ls-ventajas">
+            <li class="ls-ventaja">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#envio"></use></svg>
+                <div>
+                    @if (envioGratis > 0)
+                    {
+                        <h3>Envío gratis desde @Tienda.Dinero(envioGratis)</h3>
+                        <p>En compras menores el envío cuesta @Tienda.Dinero(costoEnvio).</p>
+                    }
+                    else
+                    {
+                        <h3>Envío a domicilio</h3>
+                        <p>Costo de envío: @Tienda.Dinero(costoEnvio).</p>
+                    }
+                </div>
+            </li>
+            <li class="ls-ventaja">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#escudo"></use></svg>
+                <div>
+                    <h3>Garantía en cada producto</h3>
+                    <p>Cada ficha indica los meses de garantía.</p>
+                </div>
+            </li>
+            <li class="ls-ventaja">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#compatible"></use></svg>
+                <div>
+                    <h3>Fichas técnicas claras</h3>
+                    <p>Socket, memoria, consumo y medidas para verificar compatibilidad.</p>
+                </div>
+            </li>
+            <li class="ls-ventaja">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#pago"></use></svg>
+                <div>
+                    <h3>Sin datos de tarjeta</h3>
+                    <p>No pedimos ni guardamos números de tarjeta.</p>
+                </div>
+            </li>
+        </ul>
     </section>
 
-    <section class="home-bottom-banner">
-        <div class="bottom-banner-copy">
-            <span class="home-eyebrow">PEQUEÑAS LLAMAS, GRANDES IDEAS</span>
-            <h2>Encuentra lo que<br />enciende tu pasión.</h2>
-            <p>Explora la tienda y prepara tu próximo proyecto.</p>
-            <a href="/catalogo" class="bottom-banner-link">Empezar a explorar <span>→</span></a>
+    @* ---------- Banner final ---------- *@
+    <section class="ls-seccion ls-banner ls-revelar" aria-labelledby="titulo-banner">
+        <div>
+            <p class="ls-eyebrow mb-0">Pequeñas llamas, grandes ideas</p>
+            <h2 class="h2" id="titulo-banner">Encuentra lo que enciende tu pasión</h2>
+            <p>Explora el catálogo completo y arma tu próximo proyecto.</p>
+            <a class="btn btn-acento mt-3" href="/catalogo">Empezar a explorar</a>
         </div>
-        <div class="bottom-banner-art">
-            <span class="bottom-star bottom-star-one">✦</span>
-            <span class="bottom-star bottom-star-two">✧</span>
-            <img src="~/images/llamita-shop.svg" asp-append-version="true" alt="Llamita lista para ayudarte a elegir" />
-            <img src="~/images/llamita-tech.svg" asp-append-version="true" alt="Llamita con un teclado gamer" />
+        <div class="ls-banner-arte" aria-hidden="true">
+            <img src="~/images/llamita-shop.svg" asp-append-version="true" alt="" width="136" height="126" />
+            <img src="~/images/llamita-tech.svg" asp-append-version="true" alt="" width="136" height="126" />
         </div>
-        <div class="bottom-orb bottom-orb-one"></div>
-        <div class="bottom-orb bottom-orb-two"></div>
     </section>
 </div>
