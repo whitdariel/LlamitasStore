@@ -1,0 +1,55 @@
+@model ResumenCuentaVm
+@{
+    Layout = "_LayoutCuenta";
+    ViewData["Title"] = $"Hola, {Model.Usuario.Nombre}";
+    ViewData["SeccionCuenta"] = "resumen";
+    var u = Model.Usuario;
+}
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <a class="ls-tarjeta-cuenta" href="/cuenta/perfil">
+            <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#usuario"></use></svg>
+            <span>
+                <strong>Mis datos</strong>
+                <small>@u.NombreCompleto · @u.Email</small>
+            </span>
+        </a>
+    </div>
+    <div class="col-md-6">
+        <a class="ls-tarjeta-cuenta" href="/cuenta/favoritos">
+            <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#corazon"></use></svg>
+            <span>
+                <strong>Favoritos</strong>
+                <small>@(Model.Favoritos == 0 ? "Aún no guardaste productos" : $"{Model.Favoritos} producto(s) guardado(s)")</small>
+            </span>
+        </a>
+    </div>
+    <div class="col-md-6">
+        <a class="ls-tarjeta-cuenta" href="/cuenta/direcciones">
+            <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#ubicacion"></use></svg>
+            <span>
+                <strong>Direcciones</strong>
+                <small>
+                    @if (Model.Predeterminada is { } d) { <text>@d.Alias: @d.DireccionLinea, @d.Ciudad</text> }
+                    else { <text>Agrega una dirección de envío</text> }
+                </small>
+            </span>
+        </a>
+    </div>
+    <div class="col-md-6">
+        <a class="ls-tarjeta-cuenta" href="/cuenta/seguridad">
+            <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#candado"></use></svg>
+            <span>
+                <strong>Seguridad</strong>
+                <small>Cambia tu contraseña</small>
+            </span>
+        </a>
+    </div>
+</div>
+
+<p class="small text-body-secondary mt-4 mb-0">
+    Cliente desde @u.FechaCreacion.ToString("MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-BO")).
+    @if (Model.Roles.Count > 0) { <text>Tipo de cuenta: @string.Join(", ", Model.Roles).</text> }
+    El historial de pedidos aparecerá aquí cuando realices tu primera compra.
+</p>

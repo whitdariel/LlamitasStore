@@ -1,0 +1,43 @@
+@model CambiarContrasenaVm
+@{
+    Layout = "_LayoutCuenta";
+    ViewData["Title"] = "Seguridad";
+    ViewData["SeccionCuenta"] = "seguridad";
+}
+
+@if (Model.CuentasExternas.Count > 0)
+{
+    <p class="text-body-secondary">Cuentas vinculadas: <strong>@string.Join(", ", Model.CuentasExternas)</strong>.</p>
+}
+
+<form asp-action="Seguridad" method="post" novalidate class="ls-panel">
+    <h2 class="h5 mb-1">@(Model.TienePassword ? "Cambiar contraseña" : "Crear una contraseña")</h2>
+    <p class="text-body-secondary small mb-3">
+        @if (Model.TienePassword) { <text>Al cambiarla, las sesiones abiertas en otros dispositivos se cerrarán en unos minutos.</text> }
+        else { <text>Entras con una cuenta externa. Crea una contraseña si también quieres ingresar con tu correo.</text> }
+    </p>
+    <div asp-validation-summary="ModelOnly" class="ls-errores" role="alert"></div>
+    <div class="row g-3">
+        @if (Model.TienePassword)
+        {
+            <div class="col-12 col-md-6">
+                <label asp-for="Actual" class="form-label"></label>
+                <input asp-for="Actual" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="Actual" class="ls-error-campo"></span>
+            </div>
+            <div class="w-100 m-0"></div>
+        }
+        <div class="col-md-6">
+            <label asp-for="Nueva" class="form-label"></label>
+            <input asp-for="Nueva" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="Nueva" class="ls-error-campo"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Confirmar" class="form-label"></label>
+            <input asp-for="Confirmar" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="Confirmar" class="ls-error-campo"></span>
+        </div>
+    </div>
+    <p class="form-text text-body-secondary">Mínimo 8 caracteres, con mayúscula, minúscula y número.</p>
+    <button type="submit" class="btn btn-primary mt-2">@(Model.TienePassword ? "Cambiar contraseña" : "Crear contraseña")</button>
+</form>

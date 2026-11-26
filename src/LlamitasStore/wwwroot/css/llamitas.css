@@ -696,6 +696,75 @@ a.ls-chip:hover { border-color: var(--c-primario); color: var(--c-texto); }
   .ls-ficha-datos { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1rem; }
 }
 
+/* ---------- 10c. Cuenta: header, favoritos, autenticación ---------- */
+.ls-header-acciones { display: flex; align-items: center; gap: .5rem; margin-left: auto; }
+@media (min-width: 992px) { .ls-header-acciones { margin-left: 0; } }
+.ls-boton-cuenta {
+  display: inline-flex; align-items: center; gap: .45rem; height: 2.5rem; padding: 0 .9rem; max-width: 14rem;
+  border: 1px solid var(--c-borde); border-radius: var(--r-pill); background: var(--c-superficie);
+  color: var(--c-texto); text-decoration: none; font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+}
+.ls-boton-cuenta:hover, .ls-boton-cuenta[aria-expanded="true"] { border-color: var(--c-primario); background: var(--c-primario-suave); color: var(--c-texto); }
+.ls-contador {
+  position: absolute; top: -.3rem; right: -.3rem; min-width: 1.25rem; height: 1.25rem; padding: 0 .3rem;
+  display: grid; place-items: center; border-radius: var(--r-pill);
+  background: var(--lana-300); color: var(--noche-950); font-size: .7rem; font-weight: 700;
+}
+
+.ls-favorito {
+  display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  border: 1px solid var(--c-borde); background: color-mix(in srgb, var(--c-superficie) 85%, transparent);
+  color: var(--c-texto); transition: transform var(--t-rapido) var(--curva), color var(--t-rapido), border-color var(--t-rapido);
+}
+.ls-favorito:hover { color: var(--lana-400); border-color: var(--lana-400); transform: scale(1.08); }
+.ls-favorito.activo { color: var(--lana-400); border-color: var(--lana-400); }
+.ls-favorito.activo .ls-icono { fill: currentColor; }
+.ls-favorito:disabled { opacity: .6; }
+.ls-favorito-form { margin: 0; }
+/* En la tarjeta va sobre la imagen y por encima del enlace que cubre toda la tarjeta */
+.ls-favorito-tarjeta { position: absolute; top: .55rem; right: .55rem; z-index: 2; }
+.ls-favorito-tarjeta .ls-favorito, a.ls-favorito-tarjeta { width: 2.25rem; height: 2.25rem; background: rgb(13 11 19 / .55); color: var(--noche-50); border-color: var(--noche-600); }
+.ls-favorito-ficha .ls-favorito, a.ls-favorito-ficha { width: 3rem; height: 3rem; background: var(--noche-800); }
+.ls-favorito-tarjeta .ls-favorito.activo, .ls-favorito-ficha .ls-favorito.activo,
+.ls-favorito-tarjeta .ls-favorito:hover, a.ls-favorito-tarjeta:hover { color: var(--lana-300); border-color: var(--lana-300); }
+
+.ls-auth { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--c-borde); background: var(--c-superficie); max-width: 64rem; margin-inline: auto; }
+.ls-auth-marca {
+  position: relative; overflow: hidden; padding: clamp(1.75rem, 4vw, 3rem); color: var(--c-texto);
+  background: radial-gradient(70% 60% at 70% 80%, rgb(123 92 229 / .45), transparent 70%), linear-gradient(160deg, var(--noche-850), var(--noche-950));
+}
+.ls-auth-lema { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 700; text-transform: uppercase; line-height: 1.1; margin: .75rem 0 1.5rem; }
+.ls-auth-ventajas { list-style: none; padding: 0; margin: 0; display: grid; gap: .75rem; color: var(--c-texto-2); }
+.ls-auth-ventajas .ls-icono { color: var(--lana-300); margin-right: .4rem; }
+.ls-auth-llama { display: block; width: min(100%, 17rem); height: auto; margin: 2rem auto 0; filter: drop-shadow(0 20px 24px rgb(13 11 19 / .6)); }
+.ls-auth-formulario { padding: clamp(1.75rem, 4vw, 3rem); }
+@media (max-width: 767.98px) { .ls-auth { grid-template-columns: 1fr; } .ls-auth-marca { display: none; } }
+
+.ls-separador { display: flex; align-items: center; gap: .75rem; margin: 1.25rem 0; color: var(--c-texto-2); font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; }
+.ls-separador::before, .ls-separador::after { content: ""; flex: 1; height: 1px; background: var(--c-borde); }
+
+/* Validación */
+.ls-errores ul { margin: 0 0 1rem; padding: .75rem 1rem .75rem 2rem; border-radius: var(--r-md); border: 1px solid var(--c-peligro); background: var(--c-superficie-2); color: var(--c-texto); }
+.ls-errores.validation-summary-valid { display: none; }
+.ls-error-campo { display: block; margin-top: .3rem; font-size: .85rem; font-weight: 500; color: var(--c-peligro); }
+.input-validation-error { border-color: var(--c-peligro) !important; }
+
+/* Mi cuenta */
+.ls-menu-cuenta { padding: .75rem; }
+@media (min-width: 992px) { .ls-menu-cuenta { position: sticky; top: 6rem; } }
+.ls-tarjeta-cuenta {
+  display: flex; align-items: center; gap: 1rem; height: 100%; padding: 1.25rem; border-radius: var(--r-lg);
+  background: var(--c-superficie); border: 1px solid var(--c-borde); color: var(--c-texto); text-decoration: none;
+  transition: border-color var(--t-rapido), transform var(--t-medio) var(--curva);
+}
+.ls-tarjeta-cuenta:hover { color: var(--c-texto); border-color: var(--c-primario); transform: translateY(-2px); }
+.ls-tarjeta-cuenta > .ls-icono { width: 2.75rem; height: 2.75rem; padding: .6rem; border-radius: var(--r-md); background: var(--c-primario-suave); color: var(--c-enlace); }
+.ls-tarjeta-cuenta strong { display: block; }
+.ls-tarjeta-cuenta small { color: var(--c-texto-2); }
+.ls-panel-destacado { border-color: var(--c-primario); box-shadow: inset 3px 0 0 var(--c-primario); }
+.ls-icono-grande { width: 3rem; height: 3rem; color: var(--c-enlace); }
+address { font-style: normal; line-height: 1.6; }
+
 /* ---------- 11. Footer ---------- */
 .ls-footer { margin-top: clamp(3rem, 8vw, 6rem); background: var(--c-fondo-alt); border-top: 1px solid var(--c-borde); color: var(--c-texto-2); font-size: .9rem; }
 .ls-footer h2 { font-size: .75rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--c-texto); margin-bottom: 1rem; }

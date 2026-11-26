@@ -44,6 +44,46 @@
         });
     });
 
+    // ---------- Confirmación antes de acciones destructivas ----------
+    document.querySelectorAll('form[data-confirmar]').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            if (!window.confirm(form.getAttribute('data-confirmar'))) e.preventDefault();
+        });
+    });
+
+    // ---------- Favoritos sin recargar la página (si falla, el formulario se envía normal) ----------
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-favorito')) return;
+        e.preventDefault();
+        var boton = form.querySelector('button');
+        if (boton) boton.disabled = true;
+
+        fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' } })
+            .then(function (r) {
+                var tipo = r.headers.get('content-type') || '';
+                if (!r.ok || r.redirected || tipo.indexOf('application/json') === -1) throw new Error('sin-json');
+                return r.json();
+            })
+            .then(function (datos) {
+                var id = form.getAttribute('data-favorito');
+                // El mismo producto puede aparecer varias veces (carriles, relacionados): se actualizan todos.
+                document.querySelectorAll('form[data-favorito="' + id + '"] button').forEach(function (b) {
+                    b.classList.toggle('activo', datos.favorito);
+                    b.setAttribute('aria-pressed', String(datos.favorito));
+                    b.setAttribute('aria-label', b.getAttribute(datos.favorito ? 'data-texto-quitar' : 'data-texto-agregar'));
+                });
+                document.querySelectorAll('[data-contador-favoritos]').forEach(function (c) {
+                    c.textContent = datos.total;
+                    c.classList.toggle('d-none', datos.total === 0);
+                });
+                var estado = document.getElementById('busqueda-estado');
+                if (estado) estado.textContent = datos.favorito ? 'Agregado a favoritos' : 'Quitado de favoritos';
+            })
+            .catch(function () { HTMLFormElement.prototype.submit.call(form); })
+            .finally(function () { if (boton) boton.disabled = false; });
+    });
+
     // ---------- Buscador con sugerencias (combobox accesible) ----------
     var entrada = document.getElementById('busqueda-global');
     var lista = document.getElementById('busqueda-sugerencias');

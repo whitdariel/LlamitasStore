@@ -1,0 +1,33 @@
+@model PerfilVm
+@{
+    Layout = "_LayoutCuenta";
+    ViewData["Title"] = "Mis datos";
+    ViewData["SeccionCuenta"] = "perfil";
+}
+
+<form asp-action="Perfil" method="post" novalidate class="ls-panel">
+    <div asp-validation-summary="ModelOnly" class="ls-errores" role="alert"></div>
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" autocomplete="given-name" />
+            <span asp-validation-for="Nombre" class="ls-error-campo"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="Apellido" class="form-label"></label>
+            <input asp-for="Apellido" class="form-control" autocomplete="family-name" />
+            <span asp-validation-for="Apellido" class="ls-error-campo"></span>
+        </div>
+        <div class="col-sm-6">
+            <label for="email-lectura" class="form-label">Correo</label>
+            <input id="email-lectura" class="form-control" value="@Model.Email" readonly aria-describedby="ayuda-correo" />
+            <p id="ayuda-correo" class="form-text text-body-secondary mb-0">Es tu usuario para ingresar; no se puede cambiar desde aquí.</p>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="Telefono" class="form-label"></label>
+            <input asp-for="Telefono" class="form-control" type="tel" autocomplete="tel" placeholder="+591 7XXXXXXX" />
+            <span asp-validation-for="Telefono" class="ls-error-campo"></span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-4">Guardar cambios</button>
+</form>

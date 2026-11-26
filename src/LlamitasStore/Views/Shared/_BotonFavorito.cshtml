@@ -1,0 +1,24 @@
+@using LlamitasStore.Services.Cuentas
+@model (int ProductoId, string Nombre, string Clase)
+@inject FavoritosDelUsuario Favoritos
+@{
+    var volver = Context.Request.Path + Context.Request.QueryString;
+}
+@if (Favoritos.Autenticado)
+{
+    var es = (await Favoritos.IdsAsync()).Contains(Model.ProductoId);
+    <form method="post" action="/cuenta/favoritos/@Model.ProductoId/alternar" asp-antiforgery="true" class="ls-favorito-form @Model.Clase" data-favorito="@Model.ProductoId">
+        <input type="hidden" name="returnUrl" value="@volver" />
+        <button type="submit" class="ls-favorito @(es ? "activo" : "")" aria-pressed="@(es ? "true" : "false")"
+                aria-label="@(es ? "Quitar de favoritos" : "Agregar a favoritos"): @Model.Nombre"
+                data-texto-agregar="Agregar a favoritos: @Model.Nombre" data-texto-quitar="Quitar de favoritos: @Model.Nombre">
+            <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#corazon"></use></svg>
+        </button>
+    </form>
+}
+else
+{
+    <a class="ls-favorito @Model.Clase" href="/cuenta/login?returnUrl=@Uri.EscapeDataString(volver)" aria-label="Ingresa para guardar en favoritos: @Model.Nombre">
+        <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#corazon"></use></svg>
+    </a>
+}

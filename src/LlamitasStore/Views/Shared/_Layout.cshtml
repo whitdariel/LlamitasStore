@@ -83,10 +83,13 @@
                 <span id="busqueda-estado" class="visually-hidden" role="status" aria-live="polite"></span>
             </form>
 
-            <button class="ls-boton-icono ms-auto ms-lg-0" type="button" data-cambiar-tema aria-label="Cambiar tema">
-                <svg class="ls-icono ls-solo-oscuro" aria-hidden="true"><use href="/images/iconos.svg#sol"></use></svg>
-                <svg class="ls-icono ls-solo-claro" aria-hidden="true"><use href="/images/iconos.svg#luna"></use></svg>
-            </button>
+            <div class="ls-header-acciones">
+                <partial name="_MenuUsuario" />
+                <button class="ls-boton-icono" type="button" data-cambiar-tema aria-label="Cambiar tema">
+                    <svg class="ls-icono ls-solo-oscuro" aria-hidden="true"><use href="/images/iconos.svg#sol"></use></svg>
+                    <svg class="ls-icono ls-solo-claro" aria-hidden="true"><use href="/images/iconos.svg#luna"></use></svg>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -98,6 +101,16 @@
         <div class="offcanvas-body">
             <nav aria-label="Menú móvil">
                 <ul class="list-unstyled d-grid gap-1 mb-4">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li><a class="ls-filtro-enlace" href="/cuenta">Mi cuenta</a></li>
+                        <li><a class="ls-filtro-enlace" href="/cuenta/favoritos">Favoritos</a></li>
+                    }
+                    else
+                    {
+                        <li><a class="ls-filtro-enlace" href="/cuenta/login">Ingresar</a></li>
+                        <li><a class="ls-filtro-enlace" href="/cuenta/registro">Crear cuenta</a></li>
+                    }
                     <li><a class="ls-filtro-enlace" href="/catalogo">Todo el catálogo</a></li>
                     <li><a class="ls-filtro-enlace" href="/catalogo?oferta=true">Ofertas</a></li>
                     <li><a class="ls-filtro-enlace" href="/catalogo?orden=nuevos">Novedades</a></li>
@@ -109,6 +122,7 @@
     </div>
 
     <main id="contenido" tabindex="-1">
+        <partial name="_Mensajes" />
         @RenderBody()
     </main>
 

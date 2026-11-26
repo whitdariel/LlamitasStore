@@ -480,3 +480,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Correos guardados en desarrollo (contienen enlaces de recuperación válidos)
+**/App_Data/correos/

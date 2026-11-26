@@ -35,6 +35,7 @@
                 <p class="ls-tarjeta-marca mb-1"><a href="/catalogo?marca=@p.Marca.Slug">@p.Marca.Nombre</a> · @p.Categoria.Nombre</p>
                 <h1 class="ls-ficha-titulo" id="ficha-titulo">@p.Nombre</h1>
             </div>
+            <partial name="_BotonFavorito" model="@((p.Id, p.Nombre, "ls-favorito-ficha"))" />
             <div class="ls-ficha-barra-precio">
                 <p class="ls-ficha-estado mb-0 @(agotado ? "ls-stock-agotado" : p.StockBajo ? "ls-stock-bajo" : "ls-stock-ok")" role="status">
                     @if (p.Estado == EstadoProducto.Descontinuado) { <text>Descontinuado</text> }

@@ -5,6 +5,8 @@ using LlamitasStore.Infraestructura;
 using LlamitasStore.Models.Entities;
 using LlamitasStore.Services;
 using LlamitasStore.Services.Catalogo;
+using LlamitasStore.Services.Correo;
+using LlamitasStore.Services.Cuentas;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -34,8 +36,14 @@ builder.Services
     .AddDefaultTokenProviders()
     .AddErrorDescriber<ErroresIdentidadEs>();
 
+// Enlaces de recuperación de contraseña: válidos 3 horas (y de un solo uso: al cambiar la clave cambia el SecurityStamp).
+builder.Services.Configure<DataProtectionTokenProviderOptions>(o => o.TokenLifespan = TimeSpan.FromHours(3));
+
 // Si un admin desactiva a un usuario, se cambia su SecurityStamp y la sesión cae en <= 5 minutos.
 builder.Services.Configure<SecurityStampValidatorOptions>(o => o.ValidationInterval = TimeSpan.FromMinutes(5));
+
+// Producción: cookies solo por HTTPS. Desarrollo: también por http://localhost (el certificado local puede no ser de confianza).
+var politicaCookies = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
 
 builder.Services.ConfigureApplicationCookie(o =>
 {
@@ -44,7 +52,7 @@ builder.Services.ConfigureApplicationCookie(o =>
     o.AccessDeniedPath = "/cuenta/acceso-denegado";
     o.Cookie.Name = ".LlamitasStore.Sesion";
     o.Cookie.HttpOnly = true;
-    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    o.Cookie.SecurePolicy = politicaCookies;
     o.Cookie.SameSite = SameSiteMode.Lax;
     o.ExpireTimeSpan = TimeSpan.FromDays(14);
     o.SlidingExpiration = true;
@@ -63,7 +71,7 @@ if (!string.IsNullOrWhiteSpace(googleId) && !string.IsNullOrWhiteSpace(googleSec
         o.ClaimActions.MapJsonKey("picture", "picture");
         o.Events.OnRemoteFailure = ctx =>
         {
-            ctx.Response.Redirect("/cuenta/login?error=google");
+            ctx.Response.Redirect("/cuenta/login?error=externo");
             ctx.HandleResponse();
             return Task.CompletedTask;
         };
@@ -81,22 +89,28 @@ builder.Services.AddControllersWithViews(o =>
 builder.Services.AddAntiforgery(o =>
 {
     o.Cookie.Name = ".LlamitasStore.Csrf";
-    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    o.Cookie.SecurePolicy = politicaCookies;
     o.HeaderName = "X-CSRF-TOKEN";
 });
 builder.Services.AddRouting(o => o.LowercaseUrls = true);
 
+// Español sin entidades: "contraseña" se escribe tal cual en vez de "contrase&#xF1;a".
+// Los caracteres peligrosos para XSS (< > & " ') se siguen codificando siempre.
+builder.Services.AddWebEncoders(o => o.TextEncoderSettings = new System.Text.Encodings.Web.TextEncoderSettings(System.Text.Unicode.UnicodeRanges.All));
+
+var limiteFormularios = config.GetValue("Limites:FormulariosPorMinuto", 10);
+var limiteBusqueda = config.GetValue("Limites:BusquedasPorMinuto", 90);
 builder.Services.AddRateLimiter(o =>
 {
     o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    // Login, registro, recuperación y contacto: 10 envíos por minuto por IP.
+    // Login, registro, recuperación y contacto: N envíos por minuto por IP.
     o.AddPolicy(PoliticasLimite.Formularios, ctx => RateLimitPartition.GetFixedWindowLimiter(
         ctx.Connection.RemoteIpAddress?.ToString() ?? "desconocida",
-        _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
-    // Sugerencias del buscador (se piden mientras se escribe): 90 por minuto por IP.
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = limiteFormularios, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+    // Sugerencias del buscador (se piden mientras se escribe).
     o.AddPolicy(PoliticasLimite.Busqueda, ctx => RateLimitPartition.GetFixedWindowLimiter(
         ctx.Connection.RemoteIpAddress?.ToString() ?? "desconocida",
-        _ => new FixedWindowRateLimiterOptions { PermitLimit = 90, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = limiteBusqueda, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
 });
 
 builder.Services.AddScoped<DatosIniciales>();
@@ -108,6 +122,21 @@ builder.Services.AddScoped<AjustesTienda>();
 builder.Services.AddScoped<ServicioPrecios>();
 builder.Services.AddScoped<ServicioCatalogo>();
 builder.Services.AddScoped<ServicioInicio>();
+
+// ---------- Cuentas de usuario ----------
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ServicioDirecciones>();
+builder.Services.AddScoped<ServicioFavoritos>();
+builder.Services.AddScoped<FavoritosDelUsuario>();
+builder.Services.AddScoped<ServicioLoginExterno>();
+builder.Services.Configure<OpcionesCorreo>(config.GetSection("Correo"));
+builder.Services.AddSingleton<PlantillasCorreo>();
+if (!string.IsNullOrWhiteSpace(config["Correo:Smtp:Host"]))
+    builder.Services.AddSingleton<IEnviadorCorreo, EnviadorSmtp>();
+else if (builder.Environment.IsDevelopment())
+    builder.Services.AddSingleton<IEnviadorCorreo, EnviadorArchivo>();
+else
+    builder.Services.AddSingleton<IEnviadorCorreo, EnviadorNoConfigurado>();
 
 var app = builder.Build();
 
