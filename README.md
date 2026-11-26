@@ -170,6 +170,24 @@ Con un usuario **Administrador**, en `/admin`:
 
 El rol **Vendedor** puede ver productos y manejar inventario y pedidos, pero no crear productos ni cambiar categorías; los permisos de cada rol se ajustan en **Usuarios → Roles**.
 
+### Compartir la tienda por internet (túnel temporal)
+Para que otras personas la vean desde tu PC, sin contratar un servidor, usa [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/) (gratis, sin cuenta). En dos terminales de PowerShell:
+
+```powershell
+# 1) La tienda en modo Producción (sin páginas de error con código), solo accesible desde tu PC
+$env:ASPNETCORE_ENVIRONMENT = 'Production'
+$env:ASPNETCORE_URLS = 'http://localhost:5181'
+$env:ConnectionStrings__DefaultConnection = 'Server=127.0.0.1;Port=3306;Database=llamitasstore;User=root;Password=;'
+dotnet run --no-launch-profile
+```
+```powershell
+# 2) El túnel: muestra un enlace https://….trycloudflare.com para compartir
+winget install --id Cloudflare.cloudflared -e   # solo la primera vez
+cloudflared tunnel --url http://localhost:5181
+```
+
+El enlace funciona mientras las dos ventanas estén abiertas y la PC encendida; cambia cada vez que reinicias el túnel. La app reconoce el `https` y la IP real de cada visitante (cabeceras `X-Forwarded-*`) solo cuando el túnel se conecta desde la misma máquina. Para algo permanente, publica en un servidor (ver [Paso a producción](#paso-a-producción)).
+
 ### Aplicar migraciones a mano (opcional)
 ```bash
 dotnet ef database update

@@ -173,6 +173,16 @@ if (config.GetValue("Database:MigrarAlIniciar", false))
 }
 
 // ---------- Pipeline ----------
+// Detrás de un proxy o túnel (Cloudflare Tunnel, Nginx, IIS): toma el esquema https, la IP real del visitante y el
+// dominio público de las cabeceras X-Forwarded-*. Por defecto solo se confía en proxies que se conectan desde esta
+// misma máquina (loopback), así nadie de afuera puede falsificar su IP o el esquema.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+                       | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+                       | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedHost
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
