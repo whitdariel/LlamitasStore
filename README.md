@@ -155,6 +155,21 @@ Abre **http://localhost:5181**. El panel administrativo está en **http://localh
 
 > El perfil `https` (`https://localhost:7226`) necesita el certificado de desarrollo de confianza: `dotnet dev-certs https --trust`.
 
+### Editar el catálogo
+Con un usuario **Administrador**, en `/admin`:
+
+| Quiero… | Dónde |
+| :--- | :--- |
+| Crear un producto | **Productos → Nuevo producto**: datos, precio, stock inicial, especificaciones (`Grupo \| Nombre \| Valor`, una por línea) y compatibilidad para el PC Builder |
+| Cambiar precio, oferta, descripción o datos técnicos | **Productos → Editar** (cada cambio de precio queda en el historial) |
+| Subir fotos | **Productos → Editar → Imágenes** (JPG, PNG o WebP, máx. 2 MB y 8 por producto; elige cuál es la principal) |
+| Cambiar el stock | **Inventario → Ajustar** (entrada, salida o conteo; queda registrado cada movimiento) |
+| Ocultar un producto | **Dar de baja** (desaparece de la tienda; los pedidos antiguos lo conservan) |
+| Categorías y marcas | **Categorías** y **Marcas** (orden en el menú, ícono, tipo de componente para el PC Builder, visible/oculta) |
+| Ofertas por marca o categoría y cupones | **Promociones** |
+
+El rol **Vendedor** puede ver productos y manejar inventario y pedidos, pero no crear productos ni cambiar categorías; los permisos de cada rol se ajustan en **Usuarios → Roles**.
+
 ### Aplicar migraciones a mano (opcional)
 ```bash
 dotnet ef database update --project src/LlamitasStore

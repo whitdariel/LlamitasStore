@@ -14,12 +14,17 @@ public class ProductosController : AdminController
 {
     private readonly AppDbContext _db;
     private readonly ServicioAdminProductos _productos;
+    private readonly Microsoft.Extensions.Caching.Memory.IMemoryCache _cache;
 
-    public ProductosController(AppDbContext db, ServicioAdminProductos productos)
+    public ProductosController(AppDbContext db, ServicioAdminProductos productos, Microsoft.Extensions.Caching.Memory.IMemoryCache cache)
     {
         _db = db;
         _productos = productos;
+        _cache = cache;
     }
+
+    /// <summary>El menú de categorías muestra cuántos productos activos hay: se recalcula al cambiar productos.</summary>
+    private void RefrescarMenu() => _cache.Remove(ViewComponents.CategoriasViewComponent.ClaveCache);
 
     public record FilaProducto(int Id, string Sku, string Nombre, string Slug, string Categoria, string Marca, decimal Precio, decimal? Oferta, int Stock, int Minimo, EstadoProducto Estado, string? Imagen);
 
@@ -84,6 +89,7 @@ public class ProductosController : AdminController
             foreach (var (campo, msg) in errores) ModelState.AddModelError(campo, msg);
             if (id is not null)
             {
+                RefrescarMenu();
                 TempData["Exito"] = vm.Id is null ? "Producto creado. Ahora puedes subir sus imágenes." : "Producto actualizado.";
                 return RedirectToAction(nameof(Editar), new { id });
             }
@@ -114,6 +120,7 @@ public class ProductosController : AdminController
     public async Task<IActionResult> DarDeBaja(int id, CancellationToken ct)
     {
         var filas = await _db.Productos.Where(p => p.Id == id).ExecuteUpdateAsync(s => s.SetProperty(p => p.Estado, EstadoProducto.Inactivo), ct);
+        RefrescarMenu();
         return Resultado(filas == 0 ? "El producto no existe." : null, "Producto dado de baja: ya no aparece en la tienda.", nameof(Index));
     }
 
