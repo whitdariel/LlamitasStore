@@ -1,0 +1,18 @@
+@model (decimal Valor, int Total)
+@{
+    var llenas = (int)Math.Round(Model.Valor, MidpointRounding.AwayFromZero);
+}
+@if (Model.Total > 0)
+{
+    <span class="ls-estrellas" role="img" aria-label="@Model.Valor.ToString("0.0") de 5 estrellas, @Model.Total reseñas">
+        @for (var i = 1; i <= 5; i++)
+        {
+            <span class="@(i <= llenas ? "llena" : "vacia")" aria-hidden="true">★</span>
+        }
+        <span class="ls-estrellas-total" aria-hidden="true">(@Model.Total)</span>
+    </span>
+}
+else
+{
+    <span class="ls-estrellas ls-estrellas-sin">Sin reseñas aún</span>
+}

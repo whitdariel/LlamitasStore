@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Tarjeta gráfica">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#352a52"/><stop offset="1" stop-color="#1a1628"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#86d6ef" stop-opacity=".35"/><stop offset="1" stop-color="#86d6ef" stop-opacity="0"/></radialGradient>
+    <linearGradient id="shroud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4166"/><stop offset="1" stop-color="#2a2540"/></linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <ellipse cx="200" cy="150" rx="190" ry="120" fill="url(#glow)"/>
+  <rect x="40" y="88" width="320" height="120" rx="16" fill="url(#shroud)" stroke="#86d6ef" stroke-width="2.5"/>
+  <rect x="40" y="88" width="320" height="10" rx="5" fill="#e96f5e"/>
+  <g fill="none" stroke="#c9c3dd" stroke-width="3">
+    <circle cx="135" cy="150" r="44"/><circle cx="265" cy="150" r="44"/>
+  </g>
+  <g fill="#7557ce" opacity=".9">
+    <path d="M135 150l-30-16a34 34 0 0 1 26-18z"/><path d="M135 150l30 16a34 34 0 0 1-26 18z"/>
+    <path d="M135 150l16-30a34 34 0 0 1 18 26z"/><path d="M135 150l-16 30a34 34 0 0 1-18-26z"/>
+    <path d="M265 150l-30-16a34 34 0 0 1 26-18z"/><path d="M265 150l30 16a34 34 0 0 1-26 18z"/>
+    <path d="M265 150l16-30a34 34 0 0 1 18 26z"/><path d="M265 150l-16 30a34 34 0 0 1-18-26z"/>
+  </g>
+  <circle cx="135" cy="150" r="9" fill="#e99a55"/><circle cx="265" cy="150" r="9" fill="#e99a55"/>
+  <rect x="90" y="208" width="180" height="14" rx="3" fill="#e99a55"/>
+  <g stroke="#1a1628" stroke-width="3"><path d="M105 208v14M120 208v14M135 208v14M150 208v14M165 208v14M180 208v14M195 208v14M210 208v14M225 208v14M240 208v14M255 208v14"/></g>
+</svg>

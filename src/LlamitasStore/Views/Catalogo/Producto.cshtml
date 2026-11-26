@@ -1,0 +1,198 @@
+@model FichaProducto
+@{
+    var p = Model.Producto;
+    var c = p.Compatibilidad;
+    ViewData["Title"] = p.Nombre;
+    ViewData["Descripcion"] = p.DescripcionCorta;
+    ViewData["Canonical"] = $"/producto/{p.Slug}";
+    var principal = Model.Imagenes.FirstOrDefault();
+    var totalResenas = Model.DistribucionEstrellas.Values.Sum();
+}
+
+<nav aria-label="Ruta de navegación">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="/catalogo">Catálogo</a></li>
+        <li class="breadcrumb-item"><a href="/catalogo/@p.Categoria.Slug">@p.Categoria.Nombre</a></li>
+        <li class="breadcrumb-item active text-truncate" aria-current="page">@p.Nombre</li>
+    </ol>
+</nav>
+
+<div class="row g-4 g-lg-5">
+    <section class="col-md-6" aria-label="Imágenes del producto">
+        <div class="ls-galeria">
+            <div class="ls-galeria-principal">
+                @if (principal is not null)
+                {
+                    <img id="galeria-principal" src="@principal.Url" alt="@principal.TextoAlternativo" width="800" height="600" />
+                }
+            </div>
+            @if (Model.Imagenes.Count > 1)
+            {
+                <ul class="ls-galeria-miniaturas list-unstyled" aria-label="Más imágenes">
+                    @foreach (var img in Model.Imagenes)
+                    {
+                        <li>
+                            <button type="button" class="ls-miniatura @(img == principal ? "activa" : "")" data-galeria-src="@img.Url" data-galeria-alt="@img.TextoAlternativo"
+                                    aria-label="Ver imagen: @img.TextoAlternativo">
+                                <img src="@img.Url" alt="" width="96" height="72" loading="lazy" />
+                            </button>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </section>
+
+    <section class="col-md-6">
+        <p class="ls-tarjeta-marca mb-1"><a href="/catalogo?marca=@p.Marca.Slug">@p.Marca.Nombre</a></p>
+        <h1 class="h3">@p.Nombre</h1>
+        <div class="d-flex flex-wrap gap-3 align-items-center small text-body-secondary mb-3">
+            <partial name="_Estrellas" model="(p.ValoracionPromedio, p.TotalResenas)" />
+            <span>SKU: <strong>@p.Sku</strong></span>
+            @if (!string.IsNullOrEmpty(p.Modelo)) { <span>Modelo: @p.Modelo</span> }
+        </div>
+
+        <div class="ls-caja-precio mb-3">
+            <partial name="_Precio" model="Model.Precio" />
+            @if (Model.Precio.TieneDescuento)
+            {
+                <p class="small mb-0 mt-1 text-success">Ahorras @Tienda.Dinero(Model.Precio.Ahorro) · @Model.Precio.Motivo</p>
+            }
+        </div>
+
+        @if (p.Estado == EstadoProducto.Descontinuado)
+        {
+            <div class="alert alert-secondary" role="status">Este producto fue descontinuado y ya no está a la venta. Mira las alternativas más abajo.</div>
+        }
+        else if (p.Stock == 0)
+        {
+            <div class="alert alert-warning" role="status">Agotado por ahora. Revisa los productos relacionados o vuelve pronto.</div>
+        }
+        else if (p.StockBajo)
+        {
+            <p class="ls-stock ls-stock-bajo" role="status">¡Últimas @p.Stock unidades disponibles!</p>
+        }
+        else
+        {
+            <p class="ls-stock ls-stock-ok" role="status">En stock · @p.Stock unidades disponibles</p>
+        }
+
+        <p>@p.DescripcionCorta</p>
+
+        @if (c is not null)
+        {
+            <ul class="list-inline mb-3" aria-label="Datos clave de compatibilidad">
+                @if (c.Socket is not null) { <li class="list-inline-item ls-chip ls-chip-info">Socket @c.Socket</li> }
+                @if (c.TiposMemoria is not null) { <li class="list-inline-item ls-chip ls-chip-info">@c.TiposMemoria.Replace(",", " / ")</li> }
+                @if (c.FactorForma is not null) { <li class="list-inline-item ls-chip ls-chip-info">@c.FactorForma</li> }
+                @if (c.LargoMm is not null) { <li class="list-inline-item ls-chip ls-chip-info">@c.LargoMm mm de largo</li> }
+                @if (c.PotenciaW is not null) { <li class="list-inline-item ls-chip ls-chip-info">@c.PotenciaW W</li> }
+                @if (c.AlturaMm is not null) { <li class="list-inline-item ls-chip ls-chip-info">@c.AlturaMm mm de alto</li> }
+            </ul>
+        }
+
+        <ul class="list-unstyled small text-body-secondary mb-0">
+            <li>Garantía: @p.GarantiaMeses meses</li>
+            <li>Categoría: <a href="/catalogo/@p.Categoria.Slug">@p.Categoria.Nombre</a></li>
+        </ul>
+    </section>
+</div>
+
+<section class="mt-5" aria-label="Información del producto">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-desc" data-bs-toggle="tab" data-bs-target="#panel-desc" type="button" role="tab" aria-controls="panel-desc" aria-selected="true">Descripción</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-specs" data-bs-toggle="tab" data-bs-target="#panel-specs" type="button" role="tab" aria-controls="panel-specs" aria-selected="false">Especificaciones</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-resenas" data-bs-toggle="tab" data-bs-target="#panel-resenas" type="button" role="tab" aria-controls="panel-resenas" aria-selected="false">Reseñas (@totalResenas)</button>
+        </li>
+    </ul>
+    <div class="tab-content ls-tab-panel">
+        <div class="tab-pane fade show active" id="panel-desc" role="tabpanel" aria-labelledby="tab-desc" tabindex="0">
+            <p class="mb-0 ls-texto-largo">@p.Descripcion</p>
+        </div>
+
+        <div class="tab-pane fade" id="panel-specs" role="tabpanel" aria-labelledby="tab-specs" tabindex="0">
+            @if (Model.Especificaciones.Count == 0)
+            {
+                <p class="text-body-secondary mb-0">Este producto no tiene especificaciones cargadas.</p>
+            }
+            @foreach (var grupo in Model.Especificaciones)
+            {
+                <h2 class="h6 mt-3">@grupo.Grupo</h2>
+                <table class="table table-sm ls-tabla-specs">
+                    <tbody>
+                        @foreach (var (nombre, valor) in grupo.Filas)
+                        {
+                            <tr><th scope="row">@nombre</th><td>@valor</td></tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            <p class="small text-body-secondary mb-0">Especificaciones según el fabricante. Verifica la compatibilidad antes de comprar o usa el PC Builder.</p>
+        </div>
+
+        <div class="tab-pane fade" id="panel-resenas" role="tabpanel" aria-labelledby="tab-resenas" tabindex="0">
+            @if (totalResenas == 0)
+            {
+                <p class="text-body-secondary mb-0">Este producto aún no tiene reseñas. Las reseñas las escriben clientes registrados.</p>
+            }
+            else
+            {
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <p class="display-6 mb-0">@p.ValoracionPromedio.ToString("0.0")</p>
+                        <partial name="_Estrellas" model="(p.ValoracionPromedio, p.TotalResenas)" />
+                        <ul class="list-unstyled small mt-3">
+                            @for (var e = 5; e >= 1; e--)
+                            {
+                                var n = Model.DistribucionEstrellas.GetValueOrDefault(e);
+                                var pct = totalResenas == 0 ? 0 : (int)Math.Round(n * 100.0 / totalResenas);
+                                <li class="d-flex align-items-center gap-2">
+                                    <span class="text-nowrap">@e ★</span>
+                                    <progress class="ls-barra" max="100" value="@pct" aria-label="@pct % de reseñas con @e estrellas"></progress>
+                                    <span class="text-body-secondary">@n</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="col-md-8">
+                        @foreach (var r in Model.Resenas)
+                        {
+                            <article class="ls-resena">
+                                <partial name="_Estrellas" model="((decimal)r.Calificacion, 1)" />
+                                <h3 class="h6 mt-1 mb-1">@r.Titulo</h3>
+                                <p class="small text-body-secondary mb-2">
+                                    @r.Autor · <time datetime="@r.Fecha.ToString("yyyy-MM-dd")">@r.Fecha.ToString("dd/MM/yyyy")</time>
+                                    @if (r.CompraVerificada) { <span class="badge text-bg-success ms-1">Compra verificada</span> }
+                                </p>
+                                <p class="mb-0">@r.Comentario</p>
+                            </article>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@if (Model.Relacionados.Count > 0)
+{
+    <section class="mt-5" aria-labelledby="relacionados-titulo">
+        <h2 class="h4 mb-3" id="relacionados-titulo">Productos relacionados</h2>
+        <ul class="list-unstyled row row-cols-2 row-cols-lg-4 g-2 g-sm-3">
+            @foreach (var r in Model.Relacionados)
+            {
+                <li class="col"><partial name="_TarjetaProducto" model="r" /></li>
+            }
+        </ul>
+    </section>
+}
+
+@section Scripts {
+    <script src="~/js/catalogo.js" asp-append-version="true"></script>
+}

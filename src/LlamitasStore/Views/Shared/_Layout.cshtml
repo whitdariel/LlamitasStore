@@ -3,42 +3,55 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - LlamitasStore</title>
+    <title>@ViewData["Title"] - @Tienda.NombreTienda</title>
+    <meta name="description" content="@(ViewData["Descripcion"] as string ?? "LlamitasStore: componentes de PC, hardware y periféricos gaming.")" />
+    @if (ViewData["Canonical"] is string canonical)
+    {
+        <link rel="canonical" href="@($"{Context.Request.Scheme}://{Context.Request.Host}{canonical}")" />
+    }
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/catalogo.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/LlamitasStore.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <a class="visually-hidden-focusable" href="#contenido">Saltar al contenido</a>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-md navbar-light bg-white border-bottom box-shadow mb-3" aria-label="Principal">
+            <div class="container">
                 <a class="navbar-brand brand-lockup" asp-area="" asp-controller="Home" asp-action="Index" aria-label="LlamitasStore, inicio">
                     <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="" class="brand-llama" />
                     <span>LlamitasStore</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu-principal" aria-controls="menu-principal"
+                        aria-expanded="false" aria-label="Abrir menú">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
+                <div class="collapse navbar-collapse" id="menu-principal">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/catalogo">Catálogo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/catalogo?oferta=true">Ofertas</a></li>
                     </ul>
+                    <form class="d-flex my-2 my-md-0" role="search" method="get" action="/catalogo">
+                        <label for="busqueda-global" class="visually-hidden">Buscar productos</label>
+                        <input id="busqueda-global" class="form-control me-2" type="search" name="q" maxlength="100"
+                               placeholder="Buscar: RTX 4060, Ryzen, SSD…" value="@Context.Request.Query["q"]" />
+                        <button class="btn btn-primary" type="submit">Buscar</button>
+                    </form>
                 </div>
             </div>
         </nav>
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-3" id="contenido">
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - LlamitasStore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @DateTime.UtcNow.Year - @Tienda.NombreTienda - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

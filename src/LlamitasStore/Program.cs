@@ -3,6 +3,8 @@ using LlamitasStore.Data;
 using LlamitasStore.Data.Semilla;
 using LlamitasStore.Infraestructura;
 using LlamitasStore.Models.Entities;
+using LlamitasStore.Services;
+using LlamitasStore.Services.Catalogo;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -94,6 +96,13 @@ builder.Services.AddRateLimiter(o =>
 });
 
 builder.Services.AddScoped<DatosIniciales>();
+
+// ---------- Servicios de la tienda ----------
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<AjustesTienda>();
+builder.Services.AddScoped<ServicioPrecios>();
+builder.Services.AddScoped<ServicioCatalogo>();
 
 var app = builder.Build();
 

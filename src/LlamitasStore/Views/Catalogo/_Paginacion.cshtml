@@ -1,0 +1,38 @@
+@model ResultadoCatalogo
+@{
+    var actual = Model.Filtro.Pagina;
+    var total = Model.TotalPaginas;
+    var desde = Math.Max(1, actual - 2);
+    var hasta = Math.Min(total, actual + 2);
+}
+@if (total > 1)
+{
+    <nav aria-label="Paginación del catálogo" class="mt-4">
+        <ul class="pagination justify-content-center flex-wrap">
+            <li class="page-item @(actual == 1 ? "disabled" : "")">
+                <a class="page-link" href="@Model.Filtro.Url(f => f.Pagina = actual - 1, reiniciarPagina: false)" aria-label="Página anterior">‹</a>
+            </li>
+            @if (desde > 1)
+            {
+                <li class="page-item"><a class="page-link" href="@Model.Filtro.Url(f => f.Pagina = 1, reiniciarPagina: false)">1</a></li>
+                @if (desde > 2) { <li class="page-item disabled"><span class="page-link">…</span></li> }
+            }
+            @for (var i = desde; i <= hasta; i++)
+            {
+                var pagina = i;
+                <li class="page-item @(pagina == actual ? "active" : "")">
+                    <a class="page-link" href="@Model.Filtro.Url(f => f.Pagina = pagina, reiniciarPagina: false)"
+                       aria-current="@(pagina == actual ? "page" : null)">@pagina</a>
+                </li>
+            }
+            @if (hasta < total)
+            {
+                @if (hasta < total - 1) { <li class="page-item disabled"><span class="page-link">…</span></li> }
+                <li class="page-item"><a class="page-link" href="@Model.Filtro.Url(f => f.Pagina = total, reiniciarPagina: false)">@total</a></li>
+            }
+            <li class="page-item @(actual == total ? "disabled" : "")">
+                <a class="page-link" href="@Model.Filtro.Url(f => f.Pagina = actual + 1, reiniciarPagina: false)" aria-label="Página siguiente">›</a>
+            </li>
+        </ul>
+    </nav>
+}

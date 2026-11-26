@@ -10,7 +10,8 @@
             <h1>Enciende tu<br /><span>próximo setup.</span></h1>
             <p>Componentes, accesorios y todo lo que necesitas para llevar tus ideas más lejos.</p>
             <div class="home-hero-actions">
-                <a class="home-button home-button-primary" href="#categorias">Explorar categorías <span>↓</span></a>
+                <a class="home-button home-button-primary" href="/catalogo">Explorar el catálogo <span>↗</span></a>
+                <a class="home-button home-button-secondary" href="/catalogo?oferta=true">Ver ofertas</a>
             </div>
             <div class="home-hero-note"><span></span> Tecnología para cada forma de jugar y crear</div>
         </div>
@@ -44,10 +45,13 @@
                 @foreach (var c in Model.Categorias)
                 {
                     <li class="col-6 col-md-4 col-lg-3">
-                        <div class="border rounded-3 p-3 h-100">
-                            <strong class="d-block">@c.Nombre</strong>
-                            <span class="text-muted small">@c.TotalProductos productos</span>
-                        </div>
+                        <a class="ls-tarjeta d-flex flex-row align-items-center gap-3 p-2 text-decoration-none h-100" href="/catalogo/@c.Slug">
+                            <img src="/images/productos/@(c.Icono).svg" alt="" width="64" height="48" class="rounded-2" />
+                            <span>
+                                <strong class="d-block text-body">@c.Nombre</strong>
+                                <span class="text-body-secondary small">@c.TotalProductos productos</span>
+                            </span>
+                        </a>
                     </li>
                 }
             </ul>
@@ -59,7 +63,7 @@
             <span class="home-eyebrow">PEQUEÑAS LLAMAS, GRANDES IDEAS</span>
             <h2>Encuentra lo que<br />enciende tu pasión.</h2>
             <p>Explora la tienda y prepara tu próximo proyecto.</p>
-            <a href="#categorias" class="bottom-banner-link">Empezar a explorar <span>↑</span></a>
+            <a href="/catalogo" class="bottom-banner-link">Empezar a explorar <span>→</span></a>
         </div>
         <div class="bottom-banner-art">
             <span class="bottom-star bottom-star-one">✦</span>

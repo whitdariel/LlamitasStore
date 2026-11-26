@@ -1,0 +1,41 @@
+@model TarjetaProducto
+<article class="ls-tarjeta h-100">
+    <a class="ls-tarjeta-imagen" asp-controller="Catalogo" asp-action="Producto" asp-route-slug="@Model.Slug" tabindex="-1" aria-hidden="true">
+        @if (Model.ImagenUrl is not null)
+        {
+            <img src="@Model.ImagenUrl" alt="" loading="lazy" width="400" height="300" />
+        }
+        <span class="ls-tarjeta-etiquetas">
+            @if (Model.Precio.TieneDescuento)
+            {
+                <span class="badge ls-badge-oferta">@(Model.Precio.Motivo == "Oferta" ? "Oferta" : "Promo")</span>
+            }
+            @if (Model.EsNuevo)
+            {
+                <span class="badge ls-badge-nuevo">Nuevo</span>
+            }
+        </span>
+    </a>
+    <div class="ls-tarjeta-cuerpo">
+        <p class="ls-tarjeta-marca">@Model.Marca</p>
+        <h3 class="ls-tarjeta-titulo">
+            <a asp-controller="Catalogo" asp-action="Producto" asp-route-slug="@Model.Slug">@Model.Nombre</a>
+        </h3>
+        <partial name="_Estrellas" model="(Model.Valoracion, Model.TotalResenas)" />
+        <partial name="_Precio" model="Model.Precio" />
+        <p class="ls-stock @(Model.Disponible ? (Model.UltimasUnidades ? "ls-stock-bajo" : "ls-stock-ok") : "ls-stock-agotado")">
+            @if (!Model.Disponible)
+            {
+                <text>Agotado</text>
+            }
+            else if (Model.UltimasUnidades)
+            {
+                <text>¡Últimas @Model.Stock unidades!</text>
+            }
+            else
+            {
+                <text>En stock</text>
+            }
+        </p>
+    </div>
+</article>

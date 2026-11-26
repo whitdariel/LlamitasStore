@@ -1,0 +1,231 @@
+@model ResultadoCatalogo
+@{
+    var f = Model.Filtro;
+    ViewData["Title"] = Model.Titulo;
+    ViewData["Descripcion"] = Model.Categoria?.Descripcion ?? "Componentes de PC, hardware y periféricos gaming en LlamitasStore.";
+    ViewData["Canonical"] = f.Url(x => { x.Q = null; x.Marca.Clear(); x.Min = null; x.Max = null; x.Disponible = false; x.Oferta = false; x.Socket = null; x.Memoria = null; x.Valoracion = null; x.Orden = null; });
+    var accion = f.Categoria is null ? "/catalogo" : $"/catalogo/{f.Categoria}";
+}
+
+<nav aria-label="Ruta de navegación">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+        @if (Model.Categoria is null)
+        {
+            <li class="breadcrumb-item active" aria-current="page">Catálogo</li>
+        }
+        else
+        {
+            <li class="breadcrumb-item"><a href="/catalogo">Catálogo</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Categoria.Nombre</li>
+        }
+    </ol>
+</nav>
+
+<div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-3">
+    <div>
+        <h1 class="h3 mb-1">@Model.Titulo</h1>
+        <p class="text-body-secondary mb-0" role="status">
+            @if (Model.Total == 0) { <text>Sin resultados</text> }
+            else { <text>Mostrando @Model.Desde–@Model.Hasta de @Model.Total productos</text> }
+        </p>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        <button class="btn btn-outline-secondary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#filtros" aria-controls="filtros">
+            Filtros
+        </button>
+        <form method="get" action="@accion" class="d-flex gap-2 align-items-center" data-autoenvio>
+            @foreach (var (nombre, valor) in CamposOcultosSinOrden(f))
+            {
+                <input type="hidden" name="@nombre" value="@valor" />
+            }
+            <label for="orden" class="small text-body-secondary text-nowrap">Ordenar por</label>
+            <select id="orden" name="orden" class="form-select form-select-sm">
+                @foreach (var (valor, texto) in OrdenCatalogo.Opciones)
+                {
+                    <option value="@valor" selected="@(f.Orden == valor)">@texto</option>
+                }
+            </select>
+            <noscript><button class="btn btn-sm btn-primary" type="submit">Aplicar</button></noscript>
+        </form>
+    </div>
+</div>
+
+@if (f.TieneFiltros)
+{
+    <div class="d-flex flex-wrap gap-2 mb-3" aria-label="Filtros activos">
+        @if (f.Q is not null) { <a class="ls-chip" href="@f.Url(x => x.Q = null)">Búsqueda: @f.Q <span aria-label="quitar">×</span></a> }
+        @foreach (var m in Model.Marcas.Where(m => m.Seleccionada))
+        {
+            var slug = m.Valor;
+            <a class="ls-chip" href="@f.Url(x => x.Marca.Remove(slug))">@m.Texto <span aria-label="quitar">×</span></a>
+        }
+        @if (f.Min is not null) { <a class="ls-chip" href="@f.Url(x => x.Min = null)">Desde @Tienda.Dinero(f.Min.Value) <span aria-label="quitar">×</span></a> }
+        @if (f.Max is not null) { <a class="ls-chip" href="@f.Url(x => x.Max = null)">Hasta @Tienda.Dinero(f.Max.Value) <span aria-label="quitar">×</span></a> }
+        @if (f.Disponible) { <a class="ls-chip" href="@f.Url(x => x.Disponible = false)">Solo disponibles <span aria-label="quitar">×</span></a> }
+        @if (f.Oferta) { <a class="ls-chip" href="@f.Url(x => x.Oferta = false)">En oferta <span aria-label="quitar">×</span></a> }
+        @if (f.Socket is not null) { <a class="ls-chip" href="@f.Url(x => x.Socket = null)">Socket @f.Socket <span aria-label="quitar">×</span></a> }
+        @if (f.Memoria is not null) { <a class="ls-chip" href="@f.Url(x => x.Memoria = null)">@f.Memoria <span aria-label="quitar">×</span></a> }
+        @if (f.Valoracion is not null) { <a class="ls-chip" href="@f.Url(x => x.Valoracion = null)">@f.Valoracion★ o más <span aria-label="quitar">×</span></a> }
+        <a class="ls-chip ls-chip-limpiar" href="@(f.Categoria is null ? "/catalogo" : $"/catalogo/{f.Categoria}")">Limpiar todo</a>
+    </div>
+}
+
+<div class="row g-4">
+    <aside class="col-lg-3">
+        <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="filtros" aria-labelledby="filtros-titulo">
+            <div class="offcanvas-header">
+                <h2 class="offcanvas-title h5" id="filtros-titulo">Filtros</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#filtros" aria-label="Cerrar"></button>
+            </div>
+            <div class="offcanvas-body d-block">
+                <section class="ls-filtro">
+                    <h3 class="ls-filtro-titulo">Categorías</h3>
+                    <ul class="list-unstyled mb-0">
+                        <li><a class="ls-filtro-enlace @(f.Categoria is null ? "activo" : "")" href="@f.Url(x => { x.Categoria = null; x.Socket = null; x.Memoria = null; x.Marca.Clear(); })">Todas</a></li>
+                        @foreach (var c in Model.Categorias)
+                        {
+                            var slug = c.Valor;
+                            <li>
+                                <a class="ls-filtro-enlace @(c.Seleccionada ? "activo" : "")" aria-current="@(c.Seleccionada ? "true" : null)"
+                                   href="@f.Url(x => { x.Categoria = slug; x.Socket = null; x.Memoria = null; x.Marca.Clear(); })">
+                                    @c.Texto <span class="text-body-secondary">(@c.Cantidad)</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </section>
+
+                <form method="get" action="@accion">
+                    @if (f.Q is not null) { <input type="hidden" name="q" value="@f.Q" /> }
+                    @if (f.Orden != OrdenCatalogo.Relevancia) { <input type="hidden" name="orden" value="@f.Orden" /> }
+
+                    @if (Model.Marcas.Count > 0)
+                    {
+                        <fieldset class="ls-filtro">
+                            <legend class="ls-filtro-titulo">Marca</legend>
+                            @foreach (var m in Model.Marcas)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="marca" value="@m.Valor" id="marca-@m.Valor" checked="@m.Seleccionada" />
+                                    <label class="form-check-label" for="marca-@m.Valor">@m.Texto <span class="text-body-secondary">(@m.Cantidad)</span></label>
+                                </div>
+                            }
+                        </fieldset>
+                    }
+
+                    <fieldset class="ls-filtro">
+                        <legend class="ls-filtro-titulo">Precio (@Tienda.Moneda)</legend>
+                        <div class="d-flex gap-2">
+                            <div>
+                                <label for="min" class="visually-hidden">Precio mínimo</label>
+                                <input type="number" class="form-control form-control-sm" id="min" name="min" min="0" step="1" inputmode="numeric"
+                                       value="@f.Min?.ToString("0")" placeholder="@(Model.PrecioMinimo?.ToString("0") ?? "Mín.")" />
+                            </div>
+                            <div>
+                                <label for="max" class="visually-hidden">Precio máximo</label>
+                                <input type="number" class="form-control form-control-sm" id="max" name="max" min="0" step="1" inputmode="numeric"
+                                       value="@f.Max?.ToString("0")" placeholder="@(Model.PrecioMaximo?.ToString("0") ?? "Máx.")" />
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    @if (Model.Sockets.Count > 0)
+                    {
+                        <div class="ls-filtro">
+                            <label class="ls-filtro-titulo" for="socket">Socket</label>
+                            <select class="form-select form-select-sm" id="socket" name="socket">
+                                <option value="">Todos</option>
+                                @foreach (var s in Model.Sockets)
+                                {
+                                    <option value="@s.Valor" selected="@s.Seleccionada">@s.Texto (@s.Cantidad)</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    @if (Model.Memorias.Count > 0)
+                    {
+                        <div class="ls-filtro">
+                            <label class="ls-filtro-titulo" for="memoria">Tipo de memoria</label>
+                            <select class="form-select form-select-sm" id="memoria" name="memoria">
+                                <option value="">Todos</option>
+                                @foreach (var m in Model.Memorias)
+                                {
+                                    <option value="@m.Valor" selected="@m.Seleccionada">@m.Texto (@m.Cantidad)</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+                    <fieldset class="ls-filtro">
+                        <legend class="ls-filtro-titulo">Disponibilidad</legend>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="disponible" value="true" id="disponible" checked="@f.Disponible" />
+                            <label class="form-check-label" for="disponible">Solo con stock</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="oferta" value="true" id="oferta" checked="@f.Oferta" />
+                            <label class="form-check-label" for="oferta">En oferta o promoción</label>
+                        </div>
+                    </fieldset>
+
+                    <div class="ls-filtro">
+                        <label class="ls-filtro-titulo" for="valoracion">Valoración</label>
+                        <select class="form-select form-select-sm" id="valoracion" name="valoracion">
+                            <option value="">Cualquiera</option>
+                            @for (var i = 4; i >= 1; i--)
+                            {
+                                <option value="@i" selected="@(f.Valoracion == i)">@i★ o más</option>
+                            }
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Aplicar filtros</button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <section class="col-lg-9" aria-label="Productos">
+        @if (Model.Productos.Count == 0)
+        {
+            <div class="ls-vacio text-center py-5">
+                <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="" width="80" height="80" class="mb-3" />
+                <h2 class="h5">No encontramos productos con esos filtros</h2>
+                <p class="text-body-secondary">Prueba con menos filtros o con otras palabras.</p>
+                <a class="btn btn-outline-primary" href="/catalogo">Ver todo el catálogo</a>
+            </div>
+        }
+        else
+        {
+            <ul class="list-unstyled row row-cols-2 row-cols-xl-3 g-2 g-sm-3">
+                @foreach (var p in Model.Productos)
+                {
+                    <li class="col"><partial name="_TarjetaProducto" model="p" /></li>
+                }
+            </ul>
+            <partial name="_Paginacion" model="Model" />
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/catalogo.js" asp-append-version="true"></script>
+}
+
+@functions {
+    /// <summary>Conserva los filtros actuales al cambiar solo el orden.</summary>
+    private static IEnumerable<(string, string)> CamposOcultosSinOrden(FiltroCatalogo f)
+    {
+        if (f.Q is not null) yield return ("q", f.Q);
+        foreach (var m in f.Marca) yield return ("marca", m);
+        if (f.Min is not null) yield return ("min", f.Min.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if (f.Max is not null) yield return ("max", f.Max.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        if (f.Disponible) yield return ("disponible", "true");
+        if (f.Oferta) yield return ("oferta", "true");
+        if (f.Socket is not null) yield return ("socket", f.Socket);
+        if (f.Memoria is not null) yield return ("memoria", f.Memoria);
+        if (f.Valoracion is not null) yield return ("valoracion", f.Valoracion.Value.ToString());
+    }
+}
