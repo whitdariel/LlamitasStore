@@ -1,0 +1,61 @@
+@model DireccionVm
+@{
+    Layout = "_LayoutCuenta";
+    var nueva = Model.Id is null;
+    ViewData["Title"] = nueva ? "Nueva dirección" : "Editar dirección";
+    ViewData["SeccionCuenta"] = "direcciones";
+    var accion = nueva ? "/cuenta/direcciones/nueva" : $"/cuenta/direcciones/{Model.Id}";
+    var volver = ViewData["ReturnUrl"] as string;
+}
+
+<form method="post" action="@accion" asp-antiforgery="true" novalidate class="ls-panel">
+    <div asp-validation-summary="ModelOnly" class="ls-errores" role="alert"></div>
+    @if (volver is not null) { <input type="hidden" name="returnUrl" value="@volver" /> }
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <label asp-for="Alias" class="form-label"></label>
+            <input asp-for="Alias" class="form-control" />
+            <span asp-validation-for="Alias" class="ls-error-campo"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="Destinatario" class="form-label"></label>
+            <input asp-for="Destinatario" class="form-control" autocomplete="name" />
+            <span asp-validation-for="Destinatario" class="ls-error-campo"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="Telefono" class="form-label"></label>
+            <input asp-for="Telefono" class="form-control" type="tel" autocomplete="tel" placeholder="+591 7XXXXXXX" />
+            <span asp-validation-for="Telefono" class="ls-error-campo"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="Departamento" class="form-label"></label>
+            <select asp-for="Departamento" class="form-select" asp-items="@(new SelectList(LlamitasStore.Services.Cuentas.Bolivia.Departamentos))"></select>
+            <span asp-validation-for="Departamento" class="ls-error-campo"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="Ciudad" class="form-label"></label>
+            <input asp-for="Ciudad" class="form-control" autocomplete="address-level2" />
+            <span asp-validation-for="Ciudad" class="ls-error-campo"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="DireccionLinea" class="form-label"></label>
+            <input asp-for="DireccionLinea" class="form-control" autocomplete="street-address" />
+            <span asp-validation-for="DireccionLinea" class="ls-error-campo"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Referencia" class="form-label"></label>
+            <input asp-for="Referencia" class="form-control" placeholder="Ej.: portón negro, frente a la plaza" />
+            <span asp-validation-for="Referencia" class="ls-error-campo"></span>
+        </div>
+        <div class="col-12">
+            <div class="form-check">
+                <input asp-for="EsPredeterminada" class="form-check-input" />
+                <label asp-for="EsPredeterminada" class="form-check-label"></label>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">Guardar dirección</button>
+        <a class="btn btn-outline-secondary" href="@(volver ?? "/cuenta/direcciones")">Cancelar</a>
+    </div>
+</form>

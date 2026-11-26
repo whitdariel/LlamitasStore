@@ -1,0 +1,97 @@
+@model Pedido
+@{
+    Layout = "_LayoutCuenta";
+    ViewData["Title"] = $"Pedido {Model.Numero}";
+    ViewData["SeccionCuenta"] = "pedidos";
+    var cancelado = Model.Estado == EstadoPedido.Cancelado;
+    var pasoActual = Array.IndexOf(TextosPedido.Flujo, Model.Estado);
+    var pago = Model.Pagos.OrderByDescending(p => p.Fecha).FirstOrDefault();
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <p class="mb-0 text-body-secondary">Realizado el @Model.Fecha.ToLocalTime().ToString("dd/MM/yyyy 'a las' HH:mm")</p>
+    <span class="ls-estado ls-estado-@Model.Estado.ToString().ToLowerInvariant()">@TextosPedido.Estado(Model.Estado)</span>
+</div>
+
+@if (!cancelado)
+{
+    <ol class="ls-linea-tiempo" aria-label="Estado del pedido">
+        @for (var i = 0; i < TextosPedido.Flujo.Length; i++)
+        {
+            var estado = TextosPedido.Flujo[i];
+            <li class="@(i < pasoActual ? "hecho" : i == pasoActual ? "actual" : "")" aria-current="@(i == pasoActual ? "step" : null)">
+                <span class="ls-linea-punto" aria-hidden="true"></span>
+                <span>@TextosPedido.Estado(estado)</span>
+            </li>
+        }
+    </ol>
+}
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-7">
+        <section class="ls-panel" aria-labelledby="titulo-productos">
+            <h2 class="ls-filtro-titulo" id="titulo-productos">Productos</h2>
+            <ul class="list-unstyled d-grid gap-3 mb-0">
+                @foreach (var d in Model.Detalles)
+                {
+                    var img = d.Producto.Imagenes.OrderByDescending(x => x.EsPrincipal).FirstOrDefault();
+                    <li class="d-flex align-items-center gap-3">
+                        @if (img is not null) { <img src="@img.Url" alt="" width="72" height="54" class="rounded-3 ls-miniatura-fondo" /> }
+                        <span class="flex-grow-1">
+                            <a href="/producto/@d.Producto.Slug">@d.NombreProducto</a>
+                            <small class="d-block text-body-secondary">@d.Cantidad × @Tienda.Dinero(d.PrecioUnitario) · SKU @d.Sku</small>
+                        </span>
+                        <strong class="ls-numero text-nowrap">@Tienda.Dinero(d.Subtotal)</strong>
+                    </li>
+                }
+            </ul>
+        </section>
+    </div>
+    <div class="col-lg-5 d-grid gap-4 align-content-start">
+        <section class="ls-panel" aria-labelledby="titulo-totales">
+            <h2 class="ls-filtro-titulo" id="titulo-totales">Totales</h2>
+            <dl class="ls-totales ls-numero mb-0">
+                <div><dt>Subtotal</dt><dd>@Tienda.Dinero(Model.Subtotal)</dd></div>
+                @if (Model.Descuento > 0) { <div class="ls-ahorro"><dt>Descuento (@Model.CodigoCupon)</dt><dd>−@Tienda.Dinero(Model.Descuento)</dd></div> }
+                <div><dt>Envío</dt><dd>@(Model.CostoEnvio == 0 ? "Gratis" : Tienda.Dinero(Model.CostoEnvio))</dd></div>
+                <div class="ls-totales-total"><dt>Total</dt><dd>@Tienda.Dinero(Model.Total)</dd></div>
+            </dl>
+        </section>
+        <section class="ls-panel" aria-labelledby="titulo-envio">
+            <h2 class="ls-filtro-titulo" id="titulo-envio">Envío y pago</h2>
+            <address class="mb-2">
+                <strong>@Model.EnvioDestinatario</strong> · @Model.EnvioTelefono<br />
+                @Model.EnvioDireccion, @Model.EnvioCiudad, @Model.EnvioDepartamento
+                @if (!string.IsNullOrEmpty(Model.EnvioReferencia)) { <br /><small class="text-body-secondary">Ref.: @Model.EnvioReferencia</small> }
+            </address>
+            <p class="mb-0 small">@TextosPedido.Metodo(Model.MetodoPago)
+                @if (pago is not null) { <text> · Pago: <strong>@TextosPedido.Pago(pago.Estado)</strong></text> }
+                @if (pago?.Referencia is not null) { <text> · Comprobante @pago.Referencia</text> }
+            </p>
+            @if (!string.IsNullOrEmpty(Model.Notas)) { <p class="small text-body-secondary mt-2 mb-0">Notas: @Model.Notas</p> }
+            @if (Model.MetodoPago == MetodoPago.Transferencia && pago?.Estado == EstadoPago.Pendiente && !cancelado)
+            {
+                <div class="ls-instrucciones mt-3">
+                    <p class="ls-filtro-titulo mb-1">Datos para transferir</p>
+                    <p class="small mb-0 ls-texto-largo">@ViewData["Instrucciones"]</p>
+                </div>
+            }
+        </section>
+        <section class="ls-panel" aria-labelledby="titulo-historial">
+            <h2 class="ls-filtro-titulo" id="titulo-historial">Historial</h2>
+            <ul class="list-unstyled small d-grid gap-2 mb-0">
+                @foreach (var h in Model.Historial.OrderByDescending(h => h.Fecha))
+                {
+                    <li><strong>@TextosPedido.Estado(h.Estado)</strong> · @h.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                        @if (!string.IsNullOrEmpty(h.Comentario)) { <span class="d-block text-body-secondary">@h.Comentario</span> }</li>
+                }
+            </ul>
+        </section>
+        @if (Model.Estado == EstadoPedido.Pendiente)
+        {
+            <form method="post" action="/cuenta/pedidos/@Model.Numero/cancelar" asp-antiforgery="true" data-confirmar="¿Cancelar el pedido @Model.Numero? El stock se libera y no podrás deshacerlo.">
+                <button type="submit" class="btn btn-outline-secondary w-100">Cancelar pedido</button>
+            </form>
+        }
+    </div>
+</div>

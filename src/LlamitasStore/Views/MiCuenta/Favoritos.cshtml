@@ -1,0 +1,25 @@
+@model IReadOnlyList<TarjetaProducto>
+@{
+    Layout = "_LayoutCuenta";
+    ViewData["Title"] = "Favoritos";
+    ViewData["SeccionCuenta"] = "favoritos";
+}
+
+@if (Model.Count == 0)
+{
+    <div class="ls-panel text-center py-5">
+        <svg class="ls-icono ls-icono-grande mb-2" aria-hidden="true"><use href="/images/iconos.svg#corazon"></use></svg>
+        <p class="mb-3">Todavía no guardaste productos. Toca el corazón de cualquier producto para guardarlo aquí.</p>
+        <a class="btn btn-primary" href="/catalogo">Explorar el catálogo</a>
+    </div>
+}
+else
+{
+    <p class="text-body-secondary">@Model.Count producto(s) guardado(s). Los precios y el stock son los de hoy.</p>
+    <ul class="list-unstyled row row-cols-2 row-cols-xl-3 g-2 g-sm-3">
+        @foreach (var p in Model)
+        {
+            <li class="col"><partial name="_TarjetaProducto" model="p" /></li>
+        }
+    </ul>
+}

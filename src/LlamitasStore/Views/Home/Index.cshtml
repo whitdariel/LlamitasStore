@@ -1,0 +1,144 @@
+@model InicioViewModel
+@{
+    ViewData["Title"] = "Componentes de PC y gaming";
+    ViewData["Descripcion"] = "Procesadores, tarjetas gráficas, placas madre, memorias, almacenamiento y periféricos gaming en LlamitasStore.";
+    ViewData["Canonical"] = "/";
+    var envioGratis = Tienda.ObtenerDecimal(ClavesAjuste.EnvioGratisDesde);
+    var costoEnvio = Tienda.ObtenerDecimal(ClavesAjuste.CostoEnvio);
+}
+
+<div class="ls-contenedor pt-3 pt-lg-4">
+
+    @* ---------- Hero (siempre en tono oscuro: es el "escenario" de la tienda) ---------- *@
+    <section class="ls-hero" data-bs-theme="dark" aria-labelledby="hero-titulo">
+        <div>
+            <p class="ls-eyebrow">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#rayo"></use></svg>Hardware para jugar y crear
+            </p>
+            <h1 class="ls-titulo-display ls-hero-titulo mt-3 mb-3" id="hero-titulo">Enciende tu<br /><span>próximo setup</span></h1>
+            <p class="lead mb-0">Procesadores, gráficas, memorias y periféricos con fichas técnicas claras: socket, memoria, consumo y medidas, para que compres sin dudas.</p>
+            <div class="ls-hero-acciones">
+                <a class="btn btn-primary btn-lg" href="/catalogo">Explorar catálogo</a>
+                <a class="btn btn-outline-secondary btn-lg" href="/catalogo?oferta=true">Ver ofertas</a>
+            </div>
+            <dl class="ls-hero-datos">
+                <div><dt>Productos</dt><dd class="ls-numero">@Model.TotalProductos</dd></div>
+                <div><dt>Marcas</dt><dd class="ls-numero">@Model.TotalMarcas</dd></div>
+                <div><dt>Categorías</dt><dd class="ls-numero">@Model.Categorias.Count</dd></div>
+            </dl>
+        </div>
+        <div class="ls-hero-visual" aria-hidden="true">
+            <span class="ls-anillo ls-anillo-1"></span>
+            <span class="ls-anillo ls-anillo-2"></span>
+            <img src="~/images/llamita-hero.svg" asp-append-version="true" alt="" width="420" height="360" />
+        </div>
+    </section>
+
+    @* ---------- Categorías ---------- *@
+    <section class="ls-seccion ls-revelar" aria-labelledby="titulo-categorias">
+        <div class="ls-seccion-cabecera">
+            <div>
+                <p class="ls-eyebrow mb-0">Explora</p>
+                <h2 class="ls-titulo-seccion" id="titulo-categorias">Categorías</h2>
+            </div>
+            <a class="ls-ver-todo" href="/catalogo">Todo el catálogo <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#flecha-der"></use></svg></a>
+        </div>
+        <ul class="ls-cats">
+            @foreach (var c in Model.Categorias)
+            {
+                <li>
+                    <a class="ls-cat" href="/catalogo/@c.Slug">
+                        <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#@c.IconoSprite"></use></svg>
+                        <strong>@c.Nombre</strong>
+                        <small>@c.TotalProductos productos</small>
+                    </a>
+                </li>
+            }
+        </ul>
+    </section>
+
+    <partial name="_CarrilProductos" model="@(("ofertas", "Precios especiales", "etiqueta", "Ofertas", "/catalogo?oferta=true&orden=precio-asc", Model.Ofertas))" />
+    <partial name="_CarrilProductos" model="@(("destacados", "Selección LlamitasStore", "estrella", "Destacados", "/catalogo", Model.Destacados))" />
+    <partial name="_CarrilProductos" model="@(("vendidos", "Lo que más se lleva", "tendencia", "Más vendidos", "/catalogo?orden=vendidos", Model.MasVendidos))" />
+    <partial name="_CarrilProductos" model="@(("novedades", "Recién llegados", "nuevo", "Novedades", "/catalogo?orden=nuevos", Model.Novedades))" />
+
+    @* ---------- Marcas ---------- *@
+    @if (Model.Marcas.Count > 0)
+    {
+        <section class="ls-seccion ls-revelar" aria-labelledby="titulo-marcas">
+            <div class="ls-seccion-cabecera">
+                <div>
+                    <p class="ls-eyebrow mb-0">Fabricantes</p>
+                    <h2 class="ls-titulo-seccion" id="titulo-marcas">Marcas destacadas</h2>
+                </div>
+            </div>
+            <ul class="ls-marcas">
+                @foreach (var m in Model.Marcas)
+                {
+                    <li>
+                        <a class="ls-marca" href="/catalogo?marca=@m.Slug">
+                            <span><strong>@m.Nombre</strong><br /><small>@m.TotalProductos productos</small></span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </section>
+    }
+
+    @* ---------- Ventajas (todas reflejan configuración o datos reales) ---------- *@
+    <section class="ls-seccion ls-revelar" aria-labelledby="titulo-ventajas">
+        <h2 class="visually-hidden" id="titulo-ventajas">Por qué comprar en @Tienda.NombreTienda</h2>
+        <ul class="ls-ventajas">
+            <li class="ls-ventaja">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#envio"></use></svg>
+                <div>
+                    @if (envioGratis > 0)
+                    {
+                        <h3>Envío gratis desde @Tienda.Dinero(envioGratis)</h3>
+                        <p>En compras menores el envío cuesta @Tienda.Dinero(costoEnvio).</p>
+                    }
+                    else
+                    {
+                        <h3>Envío a domicilio</h3>
+                        <p>Costo de envío: @Tienda.Dinero(costoEnvio).</p>
+                    }
+                </div>
+            </li>
+            <li class="ls-ventaja">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#escudo"></use></svg>
+                <div>
+                    <h3>Garantía en cada producto</h3>
+                    <p>Cada ficha indica los meses de garantía.</p>
+                </div>
+            </li>
+            <li class="ls-ventaja">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#compatible"></use></svg>
+                <div>
+                    <h3>Fichas técnicas claras</h3>
+                    <p>Socket, memoria, consumo y medidas para verificar compatibilidad.</p>
+                </div>
+            </li>
+            <li class="ls-ventaja">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#pago"></use></svg>
+                <div>
+                    <h3>Sin datos de tarjeta</h3>
+                    <p>No pedimos ni guardamos números de tarjeta.</p>
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    @* ---------- Banner final ---------- *@
+    <section class="ls-seccion ls-banner ls-revelar" aria-labelledby="titulo-banner">
+        <div>
+            <p class="ls-eyebrow mb-0">Pequeñas llamas, grandes ideas</p>
+            <h2 class="h2" id="titulo-banner">Encuentra lo que enciende tu pasión</h2>
+            <p>Explora el catálogo completo y arma tu próximo proyecto.</p>
+            <a class="btn btn-acento mt-3" href="/catalogo">Empezar a explorar</a>
+        </div>
+        <div class="ls-banner-arte" aria-hidden="true">
+            <img src="~/images/llamita-shop.svg" asp-append-version="true" alt="" width="136" height="126" />
+            <img src="~/images/llamita-tech.svg" asp-append-version="true" alt="" width="136" height="126" />
+        </div>
+    </section>
+</div>

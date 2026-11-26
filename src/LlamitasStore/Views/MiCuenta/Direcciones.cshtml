@@ -1,0 +1,60 @@
+@model List<Direccion>
+@{
+    Layout = "_LayoutCuenta";
+    ViewData["Title"] = "Direcciones";
+    ViewData["SeccionCuenta"] = "direcciones";
+    var puedeAgregar = Model.Count < LlamitasStore.Services.Cuentas.ServicioDirecciones.Maximo;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <p class="text-body-secondary mb-0">@Model.Count de @LlamitasStore.Services.Cuentas.ServicioDirecciones.Maximo direcciones guardadas.</p>
+    @if (puedeAgregar)
+    {
+        <a class="btn btn-primary btn-sm" href="/cuenta/direcciones/nueva">
+            <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#mas"></use></svg> Nueva dirección
+        </a>
+    }
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="ls-panel text-center py-5">
+        <svg class="ls-icono ls-icono-grande mb-2" aria-hidden="true"><use href="/images/iconos.svg#ubicacion"></use></svg>
+        <p class="mb-3">Todavía no guardaste direcciones de envío.</p>
+        <a class="btn btn-primary" href="/cuenta/direcciones/nueva">Agregar mi primera dirección</a>
+    </div>
+}
+else
+{
+    <ul class="list-unstyled row g-3">
+        @foreach (var d in Model)
+        {
+            <li class="col-md-6">
+                <article class="ls-panel h-100 d-flex flex-column @(d.EsPredeterminada ? "ls-panel-destacado" : "")">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <h2 class="h6 mb-1">@d.Alias</h2>
+                        @if (d.EsPredeterminada) { <span class="ls-badge-nuevo">Predeterminada</span> }
+                    </div>
+                    <address class="mb-3 text-body-secondary">
+                        <strong class="text-body">@d.Destinatario</strong> · @d.Telefono<br />
+                        @d.DireccionLinea<br />
+                        @d.Ciudad, @d.Departamento
+                        @if (!string.IsNullOrEmpty(d.Referencia)) { <br /><small>Ref.: @d.Referencia</small> }
+                    </address>
+                    <div class="d-flex flex-wrap gap-2 mt-auto">
+                        <a class="btn btn-outline-secondary btn-sm" href="/cuenta/direcciones/@d.Id">Editar</a>
+                        @if (!d.EsPredeterminada)
+                        {
+                            <form method="post" action="/cuenta/direcciones/@d.Id/predeterminada" asp-antiforgery="true">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">Usar por defecto</button>
+                            </form>
+                        }
+                        <form method="post" action="/cuenta/direcciones/@d.Id/eliminar" asp-antiforgery="true" data-confirmar="¿Eliminar la dirección «@d.Alias»?">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">Eliminar</button>
+                        </form>
+                    </div>
+                </article>
+            </li>
+        }
+    </ul>
+}

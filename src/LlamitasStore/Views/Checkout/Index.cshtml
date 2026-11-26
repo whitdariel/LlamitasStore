@@ -1,0 +1,99 @@
+@model CheckoutPaginaVm
+@{
+    ViewData["Title"] = "Finalizar compra";
+    var f = Model.Formulario;
+}
+
+<div class="ls-contenedor ls-cabecera-pagina">
+    <nav aria-label="Ruta de navegación">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/carrito">Carrito</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Finalizar compra</li>
+        </ol>
+    </nav>
+    <h1 class="ls-titulo-seccion mb-4">Finalizar compra</h1>
+
+    <form method="post" action="/checkout/confirmar" asp-antiforgery="true" novalidate>
+        <div class="row g-4">
+            <div class="col-lg-8 d-grid gap-4">
+                <div asp-validation-summary="All" class="ls-errores" role="alert"></div>
+
+                <fieldset class="ls-panel">
+                    <legend class="ls-paso"><span class="ls-paso-numero">1</span> Dirección de envío</legend>
+                    @if (Model.Direcciones.Count == 0)
+                    {
+                        <p class="mb-3">Aún no tienes direcciones guardadas.</p>
+                        <a class="btn btn-primary" href="/cuenta/direcciones/nueva?returnUrl=%2Fcheckout">Agregar una dirección</a>
+                    }
+                    else
+                    {
+                        <div class="d-grid gap-2">
+                            @foreach (var d in Model.Direcciones)
+                            {
+                                <label class="ls-opcion-radio">
+                                    <input type="radio" class="form-check-input" name="DireccionId" value="@d.Id" checked="@(f.DireccionId == d.Id)" required />
+                                    <span>
+                                        <strong>@d.Alias</strong> @if (d.EsPredeterminada) { <span class="ls-badge-nuevo ms-1">Predeterminada</span> }
+                                        <span class="d-block text-body-secondary small">@d.Destinatario · @d.Telefono — @d.DireccionLinea, @d.Ciudad, @d.Departamento</span>
+                                    </span>
+                                </label>
+                            }
+                        </div>
+                        <a class="btn btn-link btn-sm px-0 mt-2" href="/cuenta/direcciones/nueva?returnUrl=%2Fcheckout">+ Usar otra dirección</a>
+                    }
+                </fieldset>
+
+                <fieldset class="ls-panel">
+                    <legend class="ls-paso"><span class="ls-paso-numero">2</span> Método de pago</legend>
+                    <div class="d-grid gap-2">
+                        <label class="ls-opcion-radio">
+                            <input type="radio" class="form-check-input" name="MetodoPago" value="@MetodoPago.ContraEntrega" checked="@(f.MetodoPago == MetodoPago.ContraEntrega)" />
+                            <span><strong>Pago contra entrega</strong>
+                                <span class="d-block text-body-secondary small">Pagas al recibir tu pedido.</span></span>
+                        </label>
+                        <label class="ls-opcion-radio">
+                            <input type="radio" class="form-check-input" name="MetodoPago" value="@MetodoPago.Transferencia" checked="@(f.MetodoPago == MetodoPago.Transferencia)" />
+                            <span><strong>Transferencia bancaria</strong>
+                                <span class="d-block text-body-secondary small">Confirmamos tu pedido cuando verificamos el pago.</span></span>
+                        </label>
+                    </div>
+                    <div class="ls-instrucciones mt-3">
+                        <p class="ls-filtro-titulo mb-1">Datos para transferir</p>
+                        <p class="small mb-3 ls-texto-largo">@Model.InstruccionesTransferencia</p>
+                        <label for="ReferenciaPago" class="form-label small">N.º de comprobante (si ya transferiste)</label>
+                        <input name="ReferenciaPago" id="ReferenciaPago" value="@f.ReferenciaPago" class="form-control form-control-sm" maxlength="100" autocomplete="off" />
+                        <span class="form-text text-body-secondary">Opcional. También puedes enviarlo después.</span>
+                    </div>
+                    <p class="small text-body-secondary mt-3 mb-0">No pedimos ni guardamos números de tarjeta ni claves bancarias.</p>
+                </fieldset>
+
+                <fieldset class="ls-panel">
+                    <legend class="ls-paso"><span class="ls-paso-numero">3</span> Notas (opcional)</legend>
+                    <label for="Notas" class="visually-hidden">Notas para la entrega</label>
+                    <textarea id="Notas" name="Notas" class="form-control" rows="2" maxlength="500" placeholder="Ej.: llamar antes de llegar">@f.Notas</textarea>
+                </fieldset>
+            </div>
+
+            <aside class="col-lg-4" aria-label="Resumen del pedido">
+                <div class="ls-panel ls-resumen">
+                    <h2 class="ls-escenario-panel-titulo text-start">Tu pedido</h2>
+                    <ul class="list-unstyled small d-grid gap-2 mb-3">
+                        @foreach (var i in Model.Carrito.Items)
+                        {
+                            <li class="d-flex justify-content-between gap-2">
+                                <span>@i.Cantidad × @i.Nombre</span>
+                                <span class="ls-numero text-nowrap">@Tienda.Dinero(i.Subtotal)</span>
+                            </li>
+                        }
+                    </ul>
+                    <partial name="_ResumenTotales" model="Model.Carrito" />
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mt-4" disabled="@(!Model.Carrito.PuedeComprar || Model.Direcciones.Count == 0)">
+                        Confirmar pedido
+                    </button>
+                    <p class="small text-body-secondary mt-2 mb-0">Al confirmar reservamos el stock de tus productos. Puedes cancelar mientras el pedido esté pendiente.</p>
+                    <a class="btn btn-link btn-sm px-0 mt-2" href="/carrito">Volver al carrito</a>
+                </div>
+            </aside>
+        </div>
+    </form>
+</div>

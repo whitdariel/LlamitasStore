@@ -1,0 +1,36 @@
+@model List<Pedido>
+@{
+    Layout = "_LayoutCuenta";
+    ViewData["Title"] = "Mis pedidos";
+    ViewData["SeccionCuenta"] = "pedidos";
+}
+
+@if (Model.Count == 0)
+{
+    <div class="ls-panel text-center py-5">
+        <svg class="ls-icono ls-icono-grande mb-2" aria-hidden="true"><use href="/images/iconos.svg#caja"></use></svg>
+        <p class="mb-3">Aún no realizaste pedidos.</p>
+        <a class="btn btn-primary" href="/catalogo">Explorar el catálogo</a>
+    </div>
+}
+else
+{
+    <ul class="list-unstyled d-grid gap-3">
+        @foreach (var p in Model)
+        {
+            <li>
+                <a class="ls-tarjeta-cuenta" href="/cuenta/pedidos/@p.Numero">
+                    <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#caja"></use></svg>
+                    <span class="flex-grow-1">
+                        <strong class="ls-numero">@p.Numero</strong>
+                        <small>@p.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm") · @p.Detalles.Sum(d => d.Cantidad) producto(s) · @TextosPedido.Metodo(p.MetodoPago)</small>
+                    </span>
+                    <span class="text-end">
+                        <span class="ls-estado ls-estado-@p.Estado.ToString().ToLowerInvariant()">@TextosPedido.Estado(p.Estado)</span>
+                        <strong class="d-block ls-numero mt-1">@Tienda.Dinero(p.Total)</strong>
+                    </span>
+                </a>
+            </li>
+        }
+    </ul>
+}

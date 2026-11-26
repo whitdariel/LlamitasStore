@@ -1,0 +1,7 @@
+@model IReadOnlyList<CategoriaResumen>
+<ul>
+    @foreach (var c in Model.Take(8))
+    {
+        <li><a href="/catalogo/@c.Slug">@c.Nombre</a></li>
+    }
+</ul>

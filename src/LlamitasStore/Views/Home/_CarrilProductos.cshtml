@@ -1,0 +1,34 @@
+@model (string Id, string Eyebrow, string Icono, string Titulo, string UrlVerTodo, IReadOnlyList<TarjetaProducto> Productos)
+@if (Model.Productos.Count > 0)
+{
+    <section class="ls-seccion ls-revelar" aria-labelledby="titulo-@Model.Id" data-carril>
+        <div class="ls-seccion-cabecera">
+            <div>
+                <p class="ls-eyebrow mb-0">
+                    <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#@Model.Icono"></use></svg>@Model.Eyebrow
+                </p>
+                <h2 class="ls-titulo-seccion" id="titulo-@Model.Id">@Model.Titulo</h2>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a class="ls-ver-todo" href="@Model.UrlVerTodo">Ver todo <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#flecha-der"></use></svg></a>
+                @if (Model.Productos.Count > 4)
+                {
+                    <div class="ls-carril-controles">
+                        <button type="button" class="ls-boton-icono" data-carril-mover="-1" aria-label="Ver anteriores: @Model.Titulo">
+                            <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#chevron-izq"></use></svg>
+                        </button>
+                        <button type="button" class="ls-boton-icono" data-carril-mover="1" aria-label="Ver siguientes: @Model.Titulo">
+                            <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#chevron-der"></use></svg>
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+        <ul class="ls-carril" aria-label="@Model.Titulo">
+            @foreach (var p in Model.Productos)
+            {
+                <li><partial name="_TarjetaProducto" model="p" /></li>
+            }
+        </ul>
+    </section>
+}

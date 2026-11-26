@@ -1,0 +1,57 @@
+@{
+    Layout = "_Layout";
+    var actual = ViewData["SeccionCuenta"] as string ?? "";
+    (string Clave, string Url, string Icono, string Texto)[] menu =
+    [
+        ("resumen", "/cuenta", "inicio", "Resumen"),
+        ("pedidos", "/cuenta/pedidos", "caja", "Mis pedidos"),
+        ("perfil", "/cuenta/perfil", "usuario", "Mis datos"),
+        ("favoritos", "/cuenta/favoritos", "corazon", "Favoritos"),
+        ("direcciones", "/cuenta/direcciones", "ubicacion", "Direcciones"),
+        ("seguridad", "/cuenta/seguridad", "candado", "Seguridad")
+    ];
+}
+<div class="ls-contenedor ls-cabecera-pagina">
+    <nav aria-label="Ruta de navegación">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="/cuenta">Mi cuenta</a></li>
+            @if (actual != "resumen")
+            {
+                <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+            }
+        </ol>
+    </nav>
+    <div class="row g-4">
+        <aside class="col-lg-3">
+            <nav class="ls-panel ls-menu-cuenta" aria-label="Mi cuenta">
+                <ul class="list-unstyled mb-0">
+                    @foreach (var (clave, url, icono, texto) in menu)
+                    {
+                        <li>
+                            <a class="ls-filtro-enlace @(clave == actual ? "activo" : "")" href="@url" aria-current="@(clave == actual ? "page" : null)">
+                                <span><svg class="ls-icono me-2" aria-hidden="true"><use href="/images/iconos.svg#@icono"></use></svg>@texto</span>
+                            </a>
+                        </li>
+                    }
+                    <li class="mt-2 pt-2 border-top">
+                        <form method="post" action="/cuenta/logout" asp-antiforgery="true">
+                            <button type="submit" class="ls-filtro-enlace w-100 border-0 bg-transparent text-start">
+                                <span><svg class="ls-icono me-2" aria-hidden="true"><use href="/images/iconos.svg#salir"></use></svg>Cerrar sesión</span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="col-lg-9">
+            <h1 class="ls-titulo-seccion mb-4">@ViewData["Title"]</h1>
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    @RenderSection("Scripts", required: false)
+}

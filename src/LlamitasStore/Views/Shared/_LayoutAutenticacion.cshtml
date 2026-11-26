@@ -1,0 +1,25 @@
+@{
+    Layout = "_Layout";
+}
+<div class="ls-contenedor py-4 py-lg-5">
+    <div class="ls-auth">
+        <aside class="ls-auth-marca" data-bs-theme="dark" aria-hidden="true">
+            <p class="ls-eyebrow">Tu cuenta LlamitasStore</p>
+            <p class="ls-auth-lema">Guarda favoritos, direcciones y sigue tus pedidos.</p>
+            <ul class="ls-auth-ventajas">
+                <li><svg class="ls-icono"><use href="/images/iconos.svg#corazon"></use></svg> Lista de favoritos</li>
+                <li><svg class="ls-icono"><use href="/images/iconos.svg#ubicacion"></use></svg> Direcciones de envío guardadas</li>
+                <li><svg class="ls-icono"><use href="/images/iconos.svg#candado"></use></svg> Contraseña cifrada, nunca en texto plano</li>
+            </ul>
+            <img src="~/images/llamita-hero.svg" asp-append-version="true" alt="" width="300" height="260" class="ls-auth-llama" />
+        </aside>
+        <section class="ls-auth-formulario">
+            @RenderBody()
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    @RenderSection("Scripts", required: false)
+}

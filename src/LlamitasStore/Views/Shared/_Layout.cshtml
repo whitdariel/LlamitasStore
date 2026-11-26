@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · @Tienda.NombreTienda</title>
+    <meta name="description" content="@(ViewData["Descripcion"] as string ?? "LlamitasStore: componentes de PC, hardware y periféricos gaming.")" />
+    <meta name="color-scheme" content="dark light" />
+    @if (ViewData["Canonical"] is string canonical)
+    {
+        <link rel="canonical" href="@($"{Context.Request.Scheme}://{Context.Request.Host}{canonical}")" />
+    }
+    <meta property="og:site_name" content="@Tienda.NombreTienda" />
+    <meta property="og:title" content="@ViewData["Title"]" />
+    <link rel="icon" href="~/images/llamita-mark.svg" type="image/svg+xml" />
+    <link rel="preload" href="~/fonts/outfit/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <script src="~/js/tema.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/llamitas.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="visually-hidden-focusable btn btn-primary position-absolute m-2" href="#contenido">Saltar al contenido</a>
+
+    @{
+        var envioGratis = Tienda.ObtenerDecimal(ClavesAjuste.EnvioGratisDesde);
+        var email = Tienda.Obtener(ClavesAjuste.EmailContacto);
+        var ruta = Context.Request.Path.Value ?? "/";
+        var consulta = Context.Request.QueryString.Value ?? "";
+    }
+
+    <div class="ls-barra-superior">
+        <div class="ls-contenedor">
+            <span>
+                @if (envioGratis > 0)
+                {
+                    <text>Envío gratis desde <strong>@Tienda.Dinero(envioGratis)</strong></text>
+                }
+                else
+                {
+                    <text>Componentes, hardware y periféricos gaming</text>
+                }
+            </span>
+            @if (!string.IsNullOrEmpty(email))
+            {
+                <a class="d-none d-sm-inline text-body-secondary text-decoration-none" href="mailto:@email">@email</a>
+            }
+        </div>
+    </div>
+
+    <header class="ls-header">
+        <div class="ls-contenedor ls-header-fila">
+            <button class="ls-boton-icono ls-solo-movil" type="button" data-bs-toggle="offcanvas" data-bs-target="#menu-movil" aria-controls="menu-movil" aria-label="Abrir menú">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#menu"></use></svg>
+            </button>
+
+            <a class="ls-logo" asp-controller="Home" asp-action="Index" aria-label="@Tienda.NombreTienda, inicio">
+                <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="" width="40" height="40" />
+                <span>@Tienda.NombreTienda</span>
+            </a>
+
+            <nav class="ls-nav-escritorio" aria-label="Principal">
+                <ul class="ls-nav">
+                    <li class="dropdown">
+                        <button class="ls-nav-enlace" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            Categorías <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#chevron-abajo"></use></svg>
+                        </button>
+                        <div class="dropdown-menu ls-megamenu">
+                            @await Component.InvokeAsync("Categorias", new { vista = "Megamenu" })
+                        </div>
+                    </li>
+                    <li><a class="ls-nav-enlace" href="/catalogo?oferta=true" aria-current="@(ruta == "/catalogo" && consulta.Contains("oferta=true") ? "page" : null)">Ofertas</a></li>
+                    <li><a class="ls-nav-enlace" href="/catalogo?orden=nuevos" aria-current="@(ruta == "/catalogo" && consulta.Contains("orden=nuevos") ? "page" : null)">Novedades</a></li>
+                </ul>
+            </nav>
+
+            <form class="ls-buscador" role="search" method="get" action="/catalogo">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#buscar"></use></svg>
+                <label for="busqueda-global" class="visually-hidden">Buscar productos</label>
+                <input id="busqueda-global" class="form-control" type="search" name="q" maxlength="100" autocomplete="off"
+                       placeholder="Busca RTX 4060, Ryzen, SSD…" value="@Context.Request.Query["q"]"
+                       role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="busqueda-sugerencias" />
+                <ul id="busqueda-sugerencias" class="ls-sugerencias" role="listbox" aria-label="Sugerencias de búsqueda" hidden></ul>
+                <span id="busqueda-estado" class="visually-hidden" role="status" aria-live="polite"></span>
+            </form>
+
+            <div class="ls-header-acciones">
+                <partial name="_MenuUsuario" />
+                <button class="ls-boton-icono" type="button" data-cambiar-tema aria-label="Cambiar tema">
+                    <svg class="ls-icono ls-solo-oscuro" aria-hidden="true"><use href="/images/iconos.svg#sol"></use></svg>
+                    <svg class="ls-icono ls-solo-claro" aria-hidden="true"><use href="/images/iconos.svg#luna"></use></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="menu-movil" aria-labelledby="menu-movil-titulo">
+        <div class="offcanvas-header">
+            <h2 class="offcanvas-title h5 text-uppercase" id="menu-movil-titulo">Menú</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar menú"></button>
+        </div>
+        <div class="offcanvas-body">
+            <nav aria-label="Menú móvil">
+                <ul class="list-unstyled d-grid gap-1 mb-4">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li><a class="ls-filtro-enlace" href="/cuenta">Mi cuenta</a></li>
+                        <li><a class="ls-filtro-enlace" href="/cuenta/favoritos">Favoritos</a></li>
+                    }
+                    else
+                    {
+                        <li><a class="ls-filtro-enlace" href="/cuenta/login">Ingresar</a></li>
+                        <li><a class="ls-filtro-enlace" href="/cuenta/registro">Crear cuenta</a></li>
+                    }
+                    <li><a class="ls-filtro-enlace" href="/catalogo">Todo el catálogo</a></li>
+                    <li><a class="ls-filtro-enlace" href="/catalogo?oferta=true">Ofertas</a></li>
+                    <li><a class="ls-filtro-enlace" href="/catalogo?orden=nuevos">Novedades</a></li>
+                </ul>
+                <p class="ls-filtro-titulo">Categorías</p>
+                @await Component.InvokeAsync("Categorias", new { vista = "Movil" })
+            </nav>
+        </div>
+    </div>
+
+    <main id="contenido" tabindex="-1">
+        <partial name="_Mensajes" />
+        @RenderBody()
+    </main>
+
+    <footer class="ls-footer">
+        <div class="ls-contenedor py-5">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <a class="ls-logo mb-3" asp-controller="Home" asp-action="Index">
+                        <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="" width="40" height="40" />
+                        <span>@Tienda.NombreTienda</span>
+                    </a>
+                    <p class="mb-3">Componentes de computadora, hardware y periféricos gaming con especificaciones técnicas detalladas.</p>
+                    <ul>
+                        @if (!string.IsNullOrEmpty(email)) { <li><a href="mailto:@email">@email</a></li> }
+                        @{ var telefono = Tienda.Obtener(ClavesAjuste.TelefonoContacto); }
+                        @if (!string.IsNullOrEmpty(telefono)) { <li><a href="tel:@telefono.Replace(" ", "")">@telefono</a></li> }
+                        @{ var direccion = Tienda.Obtener(ClavesAjuste.DireccionTienda); }
+                        @if (!string.IsNullOrEmpty(direccion)) { <li>@direccion</li> }
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <h2>Categorías</h2>
+                    @await Component.InvokeAsync("Categorias", new { vista = "Footer" })
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h2>Tienda</h2>
+                    <ul>
+                        <li><a href="/catalogo">Catálogo</a></li>
+                        <li><a href="/catalogo?oferta=true">Ofertas</a></li>
+                        <li><a href="/catalogo?orden=nuevos">Novedades</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <h2>Información</h2>
+                    <ul>
+                        <li><a asp-controller="Home" asp-action="Privacy">Privacidad</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="ls-footer-base">
+            <div class="ls-contenedor d-flex flex-wrap justify-content-between gap-2">
+                <span>&copy; @DateTime.UtcNow.Year @Tienda.NombreTienda. Precios en bolivianos (Bs.).</span>
+                <span>Componentes y periféricos gaming</span>
+            </div>
+        </div>
+    </footer>
+
+    <div id="aviso-global" class="ls-aviso" role="status" aria-live="polite" hidden></div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

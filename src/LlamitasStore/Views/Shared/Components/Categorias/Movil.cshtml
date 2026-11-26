@@ -1,0 +1,12 @@
+@model IReadOnlyList<CategoriaResumen>
+<ul class="list-unstyled d-grid gap-1 mb-0">
+    @foreach (var c in Model)
+    {
+        <li>
+            <a class="ls-filtro-enlace" href="/catalogo/@c.Slug">
+                <span><svg class="ls-icono me-2" aria-hidden="true"><use href="/images/iconos.svg#@c.IconoSprite"></use></svg>@c.Nombre</span>
+                <span class="text-body-secondary">@c.TotalProductos</span>
+            </a>
+        </li>
+    }
+</ul>

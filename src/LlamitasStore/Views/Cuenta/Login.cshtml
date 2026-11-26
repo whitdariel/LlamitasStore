@@ -1,0 +1,51 @@
+@model LoginVm
+@using Microsoft.AspNetCore.Authentication
+@{
+    Layout = "_LayoutAutenticacion";
+    ViewData["Title"] = "Ingresar";
+    var proveedores = ViewData["Proveedores"] as List<AuthenticationScheme> ?? [];
+}
+
+<p class="ls-eyebrow mb-1">Bienvenido de vuelta</p>
+<h1 class="ls-titulo-seccion mb-4">Ingresar</h1>
+
+@if (proveedores.Count > 0)
+{
+    @foreach (var p in proveedores)
+    {
+        <form method="post" action="/cuenta/externo" class="mb-2" asp-antiforgery="true">
+            <input type="hidden" name="proveedor" value="@p.Name" />
+            <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+            <button type="submit" class="btn btn-outline-secondary w-100">Continuar con @p.DisplayName</button>
+        </form>
+    }
+    <p class="ls-separador"><span>o con tu correo</span></p>
+}
+
+<form asp-action="Login" method="post" novalidate>
+    <div asp-validation-summary="ModelOnly" class="ls-errores" role="alert"></div>
+    <input type="hidden" asp-for="ReturnUrl" />
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" autocomplete="email" autofocus />
+        <span asp-validation-for="Email" class="ls-error-campo"></span>
+    </div>
+    <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-baseline">
+            <label asp-for="Password" class="form-label"></label>
+            <a class="small" asp-action="OlvideContrasena">¿Olvidaste tu contraseña?</a>
+        </div>
+        <input asp-for="Password" class="form-control" autocomplete="current-password" />
+        <span asp-validation-for="Password" class="ls-error-campo"></span>
+    </div>
+    <div class="form-check mb-4">
+        <input asp-for="Recordarme" class="form-check-input" />
+        <label asp-for="Recordarme" class="form-check-label"></label>
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg w-100">Ingresar</button>
+</form>
+
+<p class="text-center text-body-secondary mt-4 mb-0">
+    ¿No tienes cuenta? <a asp-action="Registro" asp-route-returnUrl="@Model.ReturnUrl">Créala gratis</a>
+</p>
