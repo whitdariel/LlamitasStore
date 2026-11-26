@@ -30,7 +30,7 @@ public partial class SistemaDisenoTests
         while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "LlamitasStore.sln"))) dir = dir.Parent;
         return dir is null
             ? throw new InvalidOperationException("No se encontró LlamitasStore.sln")
-            : dir.FullName; // el proyecto MVC está en la raíz del repositorio
+            : Path.Combine(dir.FullName, "src", "LlamitasStore");
     }
 
     private static IEnumerable<string> Archivos(string carpeta, string patron) =>

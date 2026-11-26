@@ -6,11 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>LlamitasStore</RootNamespace>
     <UserSecretsId>llamitasstore-pro-4c1f0d2e</UserSecretsId>
-    <!--
-      El proyecto MVC está en la raíz del repositorio (Controllers, Models, Views, wwwroot).
-      Las pruebas y la documentación viven en carpetas hermanas y no forman parte de la aplicación.
-    -->
-    <DefaultItemExcludes>$(DefaultItemExcludes);tests/**;docs/**;src/**;App_Data/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <!--

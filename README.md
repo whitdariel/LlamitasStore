@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="wwwroot/images/marca/llamitas-logo.png" alt="LlamitasStore" width="520" />
+  <img src="src/LlamitasStore/wwwroot/images/marca/llamitas-logo.png" alt="LlamitasStore" width="520" />
 </p>
 
 <p align="center">
@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  ASP.NET Core MVC (.NET 10) · EF Core 9 · MariaDB / MySQL · Bootstrap 5 · 238 pruebas automatizadas
+  ASP.NET Core MVC (.NET 10) · EF Core 9 · MariaDB / MySQL · Bootstrap 5 · 236 pruebas automatizadas
 </p>
 
 ---
@@ -119,7 +119,7 @@ Server=127.0.0.1;Port=3306;Database=llamitasstore;User=root;Password=;
 Si tu MySQL tiene contraseña, no edites el archivo versionado: usa *user-secrets*.
 
 ```bash
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=127.0.0.1;Port=3306;Database=llamitasstore;User=root;Password=TU_CLAVE;"
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=127.0.0.1;Port=3306;Database=llamitasstore;User=root;Password=TU_CLAVE;" --project src/LlamitasStore
 ```
 
 En Desarrollo la base **se crea y migra sola** al arrancar (`Database:MigrarAlIniciar`), y se cargan datos de demostración (`Seed:DatosDemo`): 48 productos, 24 marcas, 13 categorías, cupones `BIENVENIDA10` y `SETUP50`, y tres usuarios.
@@ -135,21 +135,21 @@ En Desarrollo la base **se crea y migra sola** al arrancar (`Database:MigrarAlIn
 Las contraseñas **no están en el código**. Puedes fijarlas antes del primer arranque:
 
 ```bash
-dotnet user-secrets set "Seed:PasswordAdmin" "UnaClaveSegura1"
-dotnet user-secrets set "Seed:PasswordVendedor" "UnaClaveSegura2"
-dotnet user-secrets set "Seed:PasswordCliente" "UnaClaveSegura3"
+dotnet user-secrets set "Seed:PasswordAdmin" "UnaClaveSegura1" --project src/LlamitasStore
+dotnet user-secrets set "Seed:PasswordVendedor" "UnaClaveSegura2" --project src/LlamitasStore
+dotnet user-secrets set "Seed:PasswordCliente" "UnaClaveSegura3" --project src/LlamitasStore
 ```
 
 Si no las fijas, se genera una contraseña aleatoria y se muestra **una sola vez** en la consola del primer arranque.
 
-**¿Perdiste la contraseña?** En Desarrollo, sin SMTP configurado, los correos se guardan como `.html` en `App_Data/correos/`:
+**¿Perdiste la contraseña?** En Desarrollo, sin SMTP configurado, los correos se guardan como `.html` en `src/LlamitasStore/App_Data/correos/`:
 1. Entra a `/cuenta/olvide-contrasena` con el correo del usuario.
 2. Abre el `.html` más reciente de esa carpeta.
 3. Sigue el enlace para elegir una contraseña nueva.
 
 ### 4. Ejecutar
 ```bash
-dotnet run --launch-profile http
+dotnet run --project src/LlamitasStore --launch-profile http
 ```
 Abre **http://localhost:5181**. El panel administrativo está en **http://localhost:5181/admin**.
 
@@ -178,7 +178,7 @@ Para que otras personas la vean desde tu PC, sin contratar un servidor, usa [Clo
 $env:ASPNETCORE_ENVIRONMENT = 'Production'
 $env:ASPNETCORE_URLS = 'http://localhost:5181'
 $env:ConnectionStrings__DefaultConnection = 'Server=127.0.0.1;Port=3306;Database=llamitasstore;User=root;Password=;'
-dotnet run --no-launch-profile
+dotnet run --project src/LlamitasStore --no-launch-profile
 ```
 ```powershell
 # 2) El túnel: muestra un enlace https://….trycloudflare.com para compartir
@@ -190,9 +190,9 @@ El enlace funciona mientras las dos ventanas estén abiertas y la PC encendida; 
 
 ### Aplicar migraciones a mano (opcional)
 ```bash
-dotnet ef database update
+dotnet ef database update --project src/LlamitasStore
 ```
-Las migraciones están en `Data/Migraciones`.
+Las migraciones están en `src/LlamitasStore/Data/Migraciones`.
 
 ## Configuración
 
@@ -217,7 +217,7 @@ Los datos de la tienda (nombre, correo, teléfono, dirección, costo de envío, 
 ## Pruebas
 
 ```bash
-dotnet test LlamitasStore.sln
+dotnet test
 ```
 
 | Área | Pruebas | Qué cubre |
@@ -226,7 +226,7 @@ dotnet test LlamitasStore.sln
 | Catálogo | 44 | Filtros, orden, precios y promociones, ficha, sugerencias |
 | Cuentas | 31 | Registro, login, recuperación, perfil, direcciones, favoritos, cabeceras de seguridad |
 | Ventas | 29 | Totales, cupones, carrito, pedidos, stock transaccional, compra completa por HTTP |
-| Admin | 22 | Permisos por módulo, edición del catálogo (productos, imágenes, baja, categorías, marcas), inventario, pedidos |
+| Admin | 20 | Permisos por módulo, servicios del panel, accesos denegados |
 | PC Builder | 38 | Cada regla (correcto / error / sin dato), selección por URL, armados guardados |
 | Comunidad | 43 | Reseñas, notificaciones, comparador, contacto, SEO y **accesibilidad básica** |
 | Diseño | 6 | Paleta única, tipografía única, sin estilos ni scripts en línea (CSP) |
@@ -235,31 +235,21 @@ Las pruebas HTTP levantan la aplicación real (`Program.cs` completo) sobre SQLi
 
 ## Arquitectura
 
-El proyecto sigue el patrón **MVC (Modelo – Vista – Controlador)** de ASP.NET Core, con las carpetas en la raíz del repositorio:
-
 ```
-LlamitasStore/
-├── Models/                 M · Entidades de dominio (Producto, Pedido, Usuario…) mapeadas a MySQL
-├── Views/                  V · Vistas Razor de la tienda (catálogo, ficha, carrito, cuenta, PC Builder…)
-├── Controllers/            C · Controladores de la tienda: reciben la petición, validan y eligen la vista
-├── Areas/Admin/            Panel administrativo con su propio MVC (Controllers, Views, Models)
-├── ViewModels/             Modelos de vista y formularios con validación (lo que recibe cada vista)
-├── Services/               Lógica de negocio que usan los controladores (Catalogo, Ventas, Cuentas, PcBuilder…)
-├── Data/                   AppDbContext (EF Core), migraciones y datos iniciales
-├── ViewComponents/         Piezas de vista reutilizables (menú de categorías)
-├── Infraestructura/        Permisos, cabeceras de seguridad, Identity en español, límites
-├── Utilidades/             Funciones auxiliares (slugs)
-├── wwwroot/                Archivos públicos: CSS, JS, íconos, imágenes y marca
-├── Properties/             Perfiles de arranque (puertos)
-├── Program.cs              Configuración y arranque de la aplicación
-├── appsettings*.json       Configuración (sin contraseñas)
-├── LlamitasStore.csproj    Proyecto web
-├── LlamitasStore.sln       Solución (proyecto web + pruebas)
-├── tests/                  Pruebas automatizadas (xUnit)
+LlamitasStore.sln
+├── src/LlamitasStore
+│   ├── Controllers/        Tienda: catálogo, carrito, checkout, cuenta, PC Builder, comparador, contacto, SEO
+│   ├── Areas/Admin/        Panel administrativo (controladores, vistas y formularios)
+│   ├── Services/           Lógica de negocio (Catalogo, Ventas, Cuentas, PcBuilder, Comunidad, Admin, Correo)
+│   ├── Data/               AppDbContext, transacciones con reintentos, migraciones y datos iniciales
+│   ├── Models/Entities/    Entidades de dominio
+│   ├── ViewModels/         Modelos de vista y formularios con validación
+│   ├── Infraestructura/    Permisos, cabeceras de seguridad, Identity en español, límites
+│   ├── Views/              Vistas Razor
+│   └── wwwroot/            CSS (sistema de diseño), JS, íconos SVG, imágenes y marca
+├── tests/LlamitasStore.Tests
 └── docs/                   Capturas y script SQL del proyecto original (referencia)
 ```
-
-Flujo de una petición: **Controlador** → usa un **Servicio** → que consulta los **Modelos** con EF Core → el controlador arma un **ViewModel** → la **Vista** Razor lo muestra.
 
 Decisiones principales:
 - **Los controladores son delgados**: la lógica vive en servicios que se prueban sin HTTP.
