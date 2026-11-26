@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Nueva orden de compra";
+    var productos = ViewData["Productos"] as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [];
+}
+<a class="btn btn-link btn-sm px-0 mb-2" href="/admin/proveedores">← Volver</a>
+<form method="post" action="/admin/proveedores/ordenes/nueva" asp-antiforgery="true" class="ls-panel">
+    <div asp-validation-summary="All" class="ls-errores" role="alert"></div>
+    <div class="row g-3 mb-3">
+        <div class="col-md-6"><label for="proveedorId" class="form-label">Proveedor</label>
+            <select id="proveedorId" name="proveedorId" class="form-select" asp-items="@(ViewData["Proveedores"] as Microsoft.AspNetCore.Mvc.Rendering.SelectList)" required></select></div>
+        <div class="col-md-6"><label for="notas" class="form-label">Notas</label><input id="notas" name="notas" class="form-control" maxlength="500" /></div>
+    </div>
+    <table class="table table-sm align-middle">
+        <thead><tr><th scope="col">Producto</th><th scope="col" class="ls-col-num">Cantidad</th><th scope="col" class="ls-col-num">Costo unit. (Bs.)</th></tr></thead>
+        <tbody>
+            @for (var i = 0; i < 8; i++)
+            {
+                <tr>
+                    <td><label class="visually-hidden" for="prod-@i">Producto línea @(i + 1)</label>
+                        <select id="prod-@i" name="productoId" class="form-select form-select-sm"><option value="0">—</option>
+                            @foreach (var p in productos) { <option value="@p.Value">@p.Text</option> }</select></td>
+                    <td><label class="visually-hidden" for="cant-@i">Cantidad línea @(i + 1)</label><input id="cant-@i" name="cantidad" type="number" min="0" value="0" class="form-control form-control-sm" /></td>
+                    <td><label class="visually-hidden" for="costo-@i">Costo línea @(i + 1)</label><input id="costo-@i" name="costo" type="number" min="0" step="0.01" value="0" class="form-control form-control-sm" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <p class="small text-body-secondary">Las líneas vacías se ignoran. La orden se crea en <strong>borrador</strong>: el stock se suma recién al marcarla como recibida.</p>
+    <button type="submit" class="btn btn-primary">Crear orden</button>
+</form>

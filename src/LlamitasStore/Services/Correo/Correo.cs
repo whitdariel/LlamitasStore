@@ -138,6 +138,12 @@ public class PlantillasCorreo
             <p style="color:{Texto2};font-size:13px;line-height:1.6">Te avisaremos cuando cambie de estado.</p>
             """));
 
+    public string Aviso(string nombre, string mensaje, string enlace, string textoBoton) => Envolver($"""
+        <h1 style="margin:0 0 16px;font-size:22px;color:{Texto}">Hola, {_html.Encode(nombre)}</h1>
+        <p style="color:{Texto2};line-height:1.6">{_html.Encode(mensaje)}</p>
+        <p style="margin:28px 0"><a href="{_html.Encode(enlace)}" style="background:{Primario};color:#FFFFFF;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">{_html.Encode(textoBoton)}</a></p>
+        """);
+
     private static string Envolver(string cuerpo) => $"""
         <!DOCTYPE html>
         <html lang="es"><body style="margin:0;background:{Fondo};font-family:Outfit,Segoe UI,Arial,sans-serif">

@@ -1,0 +1,31 @@
+@model Pagina<InventarioController.FilaMovimiento>
+@{
+    ViewData["Title"] = ViewData["Producto"] is string p ? $"Movimientos · {p}" : "Movimientos de inventario";
+}
+<div class="ls-admin-cabecera">
+    <a class="btn btn-link btn-sm px-0" href="/admin/inventario">← Inventario</a>
+    @if (ViewData["ProductoId"] is int id) { <a class="btn btn-outline-secondary btn-sm" href="/admin/inventario/movimientos">Ver todos</a> }
+</div>
+<div class="ls-panel p-0">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0 ls-tabla-admin">
+            <thead><tr><th scope="col">Fecha</th><th scope="col">Producto</th><th scope="col">Tipo</th><th scope="col" class="text-end">Cantidad</th><th scope="col" class="text-end">Stock resultante</th><th scope="col">Motivo</th><th scope="col">Usuario</th></tr></thead>
+            <tbody>
+                @if (Model.Items.Count == 0) { <tr><td colspan="7" class="text-center text-body-secondary py-4">Sin movimientos.</td></tr> }
+                @foreach (var m in Model.Items)
+                {
+                    <tr>
+                        <td class="text-nowrap">@m.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@m.Producto <small class="text-body-secondary">@m.Sku</small></td>
+                        <td>@m.Tipo</td>
+                        <td class="text-end ls-numero @(m.Cantidad < 0 ? "ls-stock-bajo" : "ls-stock-ok")">@(m.Cantidad > 0 ? "+" : "")@m.Cantidad</td>
+                        <td class="text-end ls-numero">@m.Resultante</td>
+                        <td>@m.Motivo</td>
+                        <td>@(m.Usuario ?? "Sistema")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<partial name="_Paginacion" model="(Model.Actual, Model.TotalPaginas)" />

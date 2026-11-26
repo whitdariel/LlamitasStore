@@ -1,0 +1,22 @@
+@model CategoriaFormVm
+@{
+    ViewData["Title"] = Model.Id is null ? "Nueva categoría" : "Editar categoría";
+    var accion = Model.Id is null ? "/admin/categorias/nueva" : $"/admin/categorias/{Model.Id}";
+}
+<a class="btn btn-link btn-sm px-0 mb-2" href="/admin/categorias">← Volver</a>
+<form method="post" action="@accion" asp-antiforgery="true" novalidate class="ls-panel ls-form-admin">
+    <div asp-validation-summary="ModelOnly" class="ls-errores" role="alert"></div>
+    <div class="row g-3">
+        <div class="col-md-8"><label asp-for="Nombre" class="form-label"></label><input asp-for="Nombre" class="form-control" /><span asp-validation-for="Nombre" class="ls-error-campo"></span></div>
+        <div class="col-md-4"><label asp-for="Orden" class="form-label"></label><input asp-for="Orden" type="number" min="0" class="form-control" /></div>
+        <div class="col-12"><label asp-for="Descripcion" class="form-label"></label><input asp-for="Descripcion" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="Icono" class="form-label"></label>
+            <select asp-for="Icono" class="form-select">@foreach (var i in CategoriaFormVm.Iconos) { <option value="@i">@i</option> }</select>
+            <span asp-validation-for="Icono" class="ls-error-campo"></span></div>
+        <div class="col-md-6"><label asp-for="TipoComponente" class="form-label"></label>
+            <select asp-for="TipoComponente" class="form-select" asp-items="Html.GetEnumSelectList<TipoComponente>()"></select>
+            <p class="form-text text-body-secondary mb-0">Define qué reglas de compatibilidad usan sus productos.</p></div>
+        <div class="col-12"><div class="form-check"><input asp-for="Activa" class="form-check-input" /><label asp-for="Activa" class="form-check-label"></label></div></div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Guardar</button>
+</form>

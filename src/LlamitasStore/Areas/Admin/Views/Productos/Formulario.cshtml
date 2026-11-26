@@ -1,0 +1,130 @@
+@model ProductoFormVm
+@{
+    var nuevo = Model.Id is null;
+    ViewData["Title"] = nuevo ? "Nuevo producto" : "Editar producto";
+    var producto = ViewData["Producto"] as Producto;
+    var accion = nuevo ? "/admin/productos/nuevo" : $"/admin/productos/{Model.Id}";
+}
+
+<div class="ls-admin-cabecera">
+    <a class="btn btn-link btn-sm px-0" href="/admin/productos"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#flecha-izq"></use></svg> Volver a productos</a>
+    @if (producto is not null)
+    {
+        <span class="small text-body-secondary">Stock actual: <strong class="ls-numero">@producto.Stock</strong> · <a href="/admin/inventario/movimientos?producto=@producto.Id">movimientos</a> · <a href="/producto/@producto.Slug" target="_blank" rel="noopener">ver en la tienda</a></span>
+    }
+</div>
+
+<form method="post" action="@accion" asp-antiforgery="true" novalidate>
+    <div asp-validation-summary="All" class="ls-errores" role="alert"></div>
+    <div class="row g-3">
+        <div class="col-xl-8 d-grid gap-3 align-content-start">
+            <fieldset class="ls-panel">
+                <legend class="ls-filtro-titulo">Datos generales</legend>
+                <div class="row g-3">
+                    <div class="col-md-8"><label asp-for="Nombre" class="form-label"></label><input asp-for="Nombre" class="form-control" /><span asp-validation-for="Nombre" class="ls-error-campo"></span></div>
+                    <div class="col-md-4"><label asp-for="Sku" class="form-label"></label><input asp-for="Sku" class="form-control text-uppercase" /><span asp-validation-for="Sku" class="ls-error-campo"></span></div>
+                    <div class="col-md-4"><label asp-for="CategoriaId" class="form-label"></label><select asp-for="CategoriaId" class="form-select" asp-items="@(ViewData["Categorias"] as Microsoft.AspNetCore.Mvc.Rendering.SelectList)"><option value="0">Elige…</option></select><span asp-validation-for="CategoriaId" class="ls-error-campo"></span></div>
+                    <div class="col-md-4"><label asp-for="MarcaId" class="form-label"></label><select asp-for="MarcaId" class="form-select" asp-items="@(ViewData["Marcas"] as Microsoft.AspNetCore.Mvc.Rendering.SelectList)"><option value="0">Elige…</option></select><span asp-validation-for="MarcaId" class="ls-error-campo"></span></div>
+                    <div class="col-md-4"><label asp-for="Modelo" class="form-label"></label><input asp-for="Modelo" class="form-control" /></div>
+                    <div class="col-12"><label asp-for="DescripcionCorta" class="form-label"></label><input asp-for="DescripcionCorta" class="form-control" /><span asp-validation-for="DescripcionCorta" class="ls-error-campo"></span></div>
+                    <div class="col-12"><label asp-for="Descripcion" class="form-label"></label><textarea asp-for="Descripcion" class="form-control" rows="4"></textarea><span asp-validation-for="Descripcion" class="ls-error-campo"></span></div>
+                </div>
+            </fieldset>
+
+            <fieldset class="ls-panel">
+                <legend class="ls-filtro-titulo">Especificaciones</legend>
+                <label asp-for="Especificaciones" class="visually-hidden"></label>
+                <textarea asp-for="Especificaciones" class="form-control ls-monoespacio" rows="8" placeholder="Procesador | Núcleos / hilos | 6 / 12&#10;Plataforma | Socket | AM5"></textarea>
+                <p class="form-text text-body-secondary mb-0">Una por línea con el formato <strong>Grupo | Nombre | Valor</strong>. Se muestran en la ficha del producto.</p>
+                <span asp-validation-for="Especificaciones" class="ls-error-campo"></span>
+            </fieldset>
+
+            <fieldset class="ls-panel">
+                <legend class="ls-filtro-titulo">Compatibilidad (PC Builder)</legend>
+                <p class="small text-body-secondary">Completa solo lo que aplica al tipo de componente. Listas separadas por comas (ej. <code>DDR4,DDR5</code>). Usa los datos del fabricante: el PC Builder confía en ellos.</p>
+                <div class="row g-2 ls-compat-grid">
+                    @{
+                        (string Campo, string Texto)[] textos = [("Socket", "Socket (CPU, placa)"), ("TiposMemoria", "Tipos de memoria"), ("FactorForma", "Formato de placa"),
+                            ("FactoresFormaSoportados", "Placas admitidas (gabinete)"), ("SocketsSoportados", "Sockets (disipador)"), ("Interfaz", "Interfaz (M.2 / SATA)")];
+                        (string Campo, string Texto)[] numeros = [("SlotsMemoria", "Ranuras RAM"), ("MemoriaMaximaGb", "RAM máx. (GB)"), ("CapacidadGb", "Capacidad kit (GB)"),
+                            ("Modulos", "Módulos del kit"), ("VelocidadMhz", "Velocidad (MT/s)"), ("ConsumoW", "Consumo máx. (W)"), ("PotenciaW", "Potencia fuente (W)"),
+                            ("FuenteRecomendadaW", "Fuente recomendada (W)"), ("LargoMm", "Largo GPU (mm)"), ("LargoGpuMaximoMm", "GPU máx. gabinete (mm)"),
+                            ("AlturaMm", "Altura disipador (mm)"), ("AlturaCoolerMaximaMm", "Disipador máx. gabinete (mm)"), ("SlotsM2", "Ranuras M.2"), ("PuertosSata", "Puertos SATA")];
+                        var props = typeof(ProductoFormVm);
+                    }
+                    @foreach (var (campo, texto) in textos)
+                    {
+                        <div class="col-6 col-md-4"><label for="@campo" class="form-label small">@texto</label><input id="@campo" name="@campo" class="form-control form-control-sm" value="@props.GetProperty(campo)!.GetValue(Model)" /></div>
+                    }
+                    @foreach (var (campo, texto) in numeros)
+                    {
+                        <div class="col-6 col-md-3"><label for="@campo" class="form-label small">@texto</label><input id="@campo" name="@campo" type="number" min="0" class="form-control form-control-sm" value="@props.GetProperty(campo)!.GetValue(Model)" /></div>
+                    }
+                    <div class="col-6 col-md-3"><label for="GraficosIntegrados" class="form-label small">Gráficos integrados</label>
+                        <select id="GraficosIntegrados" name="GraficosIntegrados" class="form-select form-select-sm"><option value="">—</option><option value="true" selected="@(Model.GraficosIntegrados == true)">Sí</option><option value="false" selected="@(Model.GraficosIntegrados == false)">No</option></select></div>
+                    <div class="col-6 col-md-3"><label for="IncluyeCooler" class="form-label small">Incluye disipador</label>
+                        <select id="IncluyeCooler" name="IncluyeCooler" class="form-select form-select-sm"><option value="">—</option><option value="true" selected="@(Model.IncluyeCooler == true)">Sí</option><option value="false" selected="@(Model.IncluyeCooler == false)">No</option></select></div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="col-xl-4 d-grid gap-3 align-content-start">
+            <fieldset class="ls-panel">
+                <legend class="ls-filtro-titulo">Precio y stock</legend>
+                <div class="row g-3">
+                    <div class="col-6"><label asp-for="Precio" class="form-label"></label><input asp-for="Precio" class="form-control" type="number" step="0.01" min="0" /><span asp-validation-for="Precio" class="ls-error-campo"></span></div>
+                    <div class="col-6"><label asp-for="PrecioCosto" class="form-label"></label><input asp-for="PrecioCosto" class="form-control" type="number" step="0.01" min="0" /></div>
+                    <div class="col-12"><label asp-for="PrecioOferta" class="form-label"></label><input asp-for="PrecioOferta" class="form-control" type="number" step="0.01" min="0" /><span asp-validation-for="PrecioOferta" class="ls-error-campo"></span></div>
+                    @if (nuevo)
+                    {
+                        <div class="col-6"><label asp-for="StockInicial" class="form-label"></label><input asp-for="StockInicial" class="form-control" type="number" min="0" /></div>
+                    }
+                    <div class="col-6"><label asp-for="StockMinimo" class="form-label"></label><input asp-for="StockMinimo" class="form-control" type="number" min="0" /></div>
+                    <div class="col-6"><label asp-for="GarantiaMeses" class="form-label"></label><input asp-for="GarantiaMeses" class="form-control" type="number" min="0" /></div>
+                </div>
+                @if (!nuevo) { <p class="form-text text-body-secondary mb-0 mt-2">El stock se cambia desde Inventario para que quede registrado cada movimiento.</p> }
+            </fieldset>
+            <fieldset class="ls-panel">
+                <legend class="ls-filtro-titulo">Publicación</legend>
+                <label asp-for="Estado" class="form-label"></label>
+                <select asp-for="Estado" class="form-select mb-3" asp-items="Html.GetEnumSelectList<EstadoProducto>()"></select>
+                <div class="form-check"><input asp-for="Destacado" class="form-check-input" /><label asp-for="Destacado" class="form-check-label"></label></div>
+                <div class="form-check"><input asp-for="EsNuevo" class="form-check-input" /><label asp-for="EsNuevo" class="form-check-label"></label></div>
+            </fieldset>
+            <button type="submit" class="btn btn-primary btn-lg w-100">@(nuevo ? "Crear producto" : "Guardar cambios")</button>
+        </div>
+    </div>
+</form>
+
+@if (producto is not null)
+{
+    <section class="ls-panel mt-3" aria-labelledby="titulo-imagenes">
+        <h2 class="ls-filtro-titulo" id="titulo-imagenes">Imágenes (@producto.Imagenes.Count / @ServicioAdminProductos.MaximoImagenes)</h2>
+        <ul class="list-unstyled ls-galeria-admin">
+            @foreach (var img in producto.Imagenes.OrderByDescending(i => i.EsPrincipal).ThenBy(i => i.Orden))
+            {
+                <li>
+                    <img src="@img.Url" alt="@img.TextoAlternativo" width="200" height="150" class="ls-miniatura-fondo" />
+                    @if (img.EsPrincipal) { <span class="ls-badge-nuevo">Principal</span> }
+                    <div class="d-flex gap-1 mt-1">
+                        @if (!img.EsPrincipal)
+                        {
+                            <form method="post" action="/admin/productos/@producto.Id/imagenes/@img.Id/principal" asp-antiforgery="true"><button class="btn btn-link btn-sm p-0" type="submit">Principal</button></form>
+                        }
+                        <form method="post" action="/admin/productos/@producto.Id/imagenes/@img.Id/eliminar" asp-antiforgery="true" data-confirmar="¿Eliminar esta imagen?"><button class="btn btn-link btn-sm p-0 text-body-secondary" type="submit">Eliminar</button></form>
+                    </div>
+                </li>
+            }
+        </ul>
+        @if (producto.Imagenes.Count < ServicioAdminProductos.MaximoImagenes)
+        {
+            <form method="post" action="/admin/productos/@producto.Id/imagenes" asp-antiforgery="true" enctype="multipart/form-data" class="row g-2 align-items-end">
+                <div class="col-md-5"><label for="archivo" class="form-label small">Imagen (JPG, PNG o WebP, máx. 2 MB)</label><input id="archivo" name="archivo" type="file" class="form-control form-control-sm" accept="image/jpeg,image/png,image/webp" required /></div>
+                <div class="col-md-5"><label for="textoAlternativo" class="form-label small">Descripción para lectores de pantalla</label><input id="textoAlternativo" name="textoAlternativo" class="form-control form-control-sm" maxlength="200" placeholder="@producto.Nombre, vista frontal" /></div>
+                <div class="col-md-2"><button type="submit" class="btn btn-outline-secondary btn-sm w-100">Subir</button></div>
+            </form>
+        }
+    </section>
+}
+
+@section Scripts { <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" /> }

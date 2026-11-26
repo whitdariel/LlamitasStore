@@ -1,0 +1,40 @@
+@model Pagina<PedidosController.FilaPedido>
+@{
+    ViewData["Title"] = "Pedidos";
+    var estadoActual = ViewData["Estado"] as EstadoPedido?;
+    var conteo = ViewData["Conteo"] as Dictionary<EstadoPedido, int> ?? [];
+}
+<nav class="ls-pestanas-admin" aria-label="Filtrar por estado">
+    <a href="/admin/pedidos" class="@(estadoActual is null ? "activo" : "")" aria-current="@(estadoActual is null ? "page" : null)">Todos <span>@conteo.Values.Sum()</span></a>
+    @foreach (var e in Enum.GetValues<EstadoPedido>())
+    {
+        <a href="/admin/pedidos?estado=@e" class="@(estadoActual == e ? "activo" : "")" aria-current="@(estadoActual == e ? "page" : null)">@TextosPedido.Estado(e) <span>@conteo.GetValueOrDefault(e)</span></a>
+    }
+</nav>
+<form method="get" class="ls-panel ls-filtros-admin" role="search">
+    @if (estadoActual is not null) { <input type="hidden" name="estado" value="@estadoActual" /> }
+    <div class="flex-grow-1"><label for="q" class="form-label small">Buscar</label><input id="q" name="q" class="form-control form-control-sm" value="@ViewData["Q"]" placeholder="Número, nombre o correo del cliente" /></div>
+    <div class="align-self-end"><button class="btn btn-outline-secondary btn-sm" type="submit">Buscar</button></div>
+</form>
+<div class="ls-panel p-0 mt-3">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0 ls-tabla-admin">
+            <thead><tr><th scope="col">Pedido</th><th scope="col">Cliente</th><th scope="col">Fecha</th><th scope="col">Pago</th><th scope="col">Estado</th><th scope="col" class="text-end">Total</th></tr></thead>
+            <tbody>
+                @if (Model.Items.Count == 0) { <tr><td colspan="6" class="text-center text-body-secondary py-4">No hay pedidos con esos filtros.</td></tr> }
+                @foreach (var p in Model.Items)
+                {
+                    <tr>
+                        <td><a href="/admin/pedidos/@p.Numero" class="ls-numero fw-semibold">@p.Numero</a><small class="d-block text-body-secondary">@p.Items producto(s)</small></td>
+                        <td>@p.Cliente<small class="d-block text-body-secondary">@p.Email</small></td>
+                        <td class="text-nowrap">@p.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@TextosPedido.Metodo(p.Metodo)<small class="d-block text-body-secondary">@(p.Pago is { } ep ? TextosPedido.Pago(ep) : "—")</small></td>
+                        <td><span class="ls-estado ls-estado-@p.Estado.ToString().ToLowerInvariant()">@TextosPedido.Estado(p.Estado)</span></td>
+                        <td class="text-end ls-numero text-nowrap">@Tienda.Dinero(p.Total)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<partial name="_Paginacion" model="(Model.Actual, Model.TotalPaginas)" />

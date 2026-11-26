@@ -1,0 +1,90 @@
+@model Pedido
+@inject ServicioPermisos Permisos
+@{
+    ViewData["Title"] = $"Pedido {Model.Numero}";
+    var editar = await Permisos.TieneAsync(User, Modulos.Pedidos, AccionPermiso.Editar);
+    var siguientes = ServicioAdminPedidos.Transiciones[Model.Estado];
+    var pagoPendiente = Model.Pagos.Where(p => p.Estado == EstadoPago.Pendiente).OrderByDescending(p => p.Fecha).FirstOrDefault();
+}
+<div class="ls-admin-cabecera">
+    <a class="btn btn-link btn-sm px-0" href="/admin/pedidos">← Pedidos</a>
+    <span class="ls-estado ls-estado-@Model.Estado.ToString().ToLowerInvariant()">@TextosPedido.Estado(Model.Estado)</span>
+</div>
+<div class="row g-3">
+    <div class="col-xl-8 d-grid gap-3 align-content-start">
+        <section class="ls-panel p-0" aria-label="Productos">
+            <table class="table align-middle mb-0 ls-tabla-admin">
+                <thead><tr><th scope="col">Producto</th><th scope="col" class="text-end">Precio</th><th scope="col" class="text-end">Cant.</th><th scope="col" class="text-end">Subtotal</th></tr></thead>
+                <tbody>
+                    @foreach (var d in Model.Detalles)
+                    {
+                        <tr><td>@d.NombreProducto<small class="d-block text-body-secondary">@d.Sku</small></td><td class="text-end ls-numero">@Tienda.Dinero(d.PrecioUnitario)</td>
+                            <td class="text-end ls-numero">@d.Cantidad</td><td class="text-end ls-numero">@Tienda.Dinero(d.Subtotal)</td></tr>
+                    }
+                </tbody>
+            </table>
+            <dl class="ls-totales ls-numero p-3 mb-0">
+                <div><dt>Subtotal</dt><dd>@Tienda.Dinero(Model.Subtotal)</dd></div>
+                @if (Model.Descuento > 0) { <div class="ls-ahorro"><dt>Cupón @Model.CodigoCupon</dt><dd>−@Tienda.Dinero(Model.Descuento)</dd></div> }
+                <div><dt>Envío</dt><dd>@(Model.CostoEnvio == 0 ? "Gratis" : Tienda.Dinero(Model.CostoEnvio))</dd></div>
+                <div class="ls-totales-total"><dt>Total</dt><dd>@Tienda.Dinero(Model.Total)</dd></div>
+            </dl>
+        </section>
+
+        <section class="ls-panel" aria-labelledby="t-hist">
+            <h2 class="ls-filtro-titulo" id="t-hist">Historial</h2>
+            <ul class="list-unstyled small d-grid gap-2 mb-0">
+                @foreach (var h in Model.Historial.OrderByDescending(h => h.Fecha))
+                {
+                    <li><strong>@TextosPedido.Estado(h.Estado)</strong> · @h.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm") · @(h.Usuario?.NombreCompleto ?? "Sistema")
+                        @if (!string.IsNullOrEmpty(h.Comentario)) { <span class="d-block text-body-secondary">@h.Comentario</span> }</li>
+                }
+            </ul>
+        </section>
+    </div>
+
+    <div class="col-xl-4 d-grid gap-3 align-content-start">
+        @if (editar && siguientes.Length > 0)
+        {
+            <section class="ls-panel" aria-labelledby="t-estado">
+                <h2 class="ls-filtro-titulo" id="t-estado">Cambiar estado</h2>
+                <form method="post" action="/admin/pedidos/@Model.Numero/estado" asp-antiforgery="true">
+                    <label for="estado" class="visually-hidden">Nuevo estado</label>
+                    <select id="estado" name="estado" class="form-select mb-2">
+                        @foreach (var e in siguientes) { <option value="@e">@TextosPedido.Estado(e)</option> }
+                    </select>
+                    <label for="comentario" class="form-label small">Mensaje para el cliente (opcional)</label>
+                    <input id="comentario" name="comentario" class="form-control form-control-sm mb-2" maxlength="300" placeholder="Ej.: enviado por courier, guía 12345" />
+                    <button type="submit" class="btn btn-primary w-100">Actualizar estado</button>
+                    <p class="small text-body-secondary mt-2 mb-0">El cliente recibe una notificación y un correo. Cancelar devuelve el stock.</p>
+                </form>
+            </section>
+        }
+
+        <section class="ls-panel" aria-labelledby="t-pago">
+            <h2 class="ls-filtro-titulo" id="t-pago">Pago</h2>
+            @foreach (var pago in Model.Pagos)
+            {
+                <p class="mb-1">@TextosPedido.Metodo(pago.Metodo) · <strong>@TextosPedido.Pago(pago.Estado)</strong> · @Tienda.Dinero(pago.Monto)</p>
+                <p class="small text-body-secondary">@(pago.Referencia is null ? "Sin comprobante" : $"Comprobante: {pago.Referencia}")
+                    @if (pago.FechaConfirmacion is { } fc) { <text> · confirmado @fc.ToLocalTime().ToString("dd/MM HH:mm")</text> }</p>
+            }
+            @if (editar && pagoPendiente is not null && Model.Estado != EstadoPedido.Cancelado)
+            {
+                <form method="post" action="/admin/pedidos/@Model.Numero/pago" asp-antiforgery="true" data-confirmar="¿Verificaste que el dinero ingresó?">
+                    <label for="referencia" class="form-label small">N.º de comprobante</label>
+                    <input id="referencia" name="referencia" class="form-control form-control-sm mb-2" maxlength="100" value="@pagoPendiente.Referencia" />
+                    <button type="submit" class="btn btn-outline-secondary w-100">Confirmar pago recibido</button>
+                </form>
+            }
+        </section>
+
+        <section class="ls-panel" aria-labelledby="t-cliente">
+            <h2 class="ls-filtro-titulo" id="t-cliente">Cliente y envío</h2>
+            <p class="mb-2"><strong>@Model.Usuario.NombreCompleto</strong><br /><a href="mailto:@Model.Usuario.Email">@Model.Usuario.Email</a></p>
+            <address class="small mb-0">@Model.EnvioDestinatario · @Model.EnvioTelefono<br />@Model.EnvioDireccion, @Model.EnvioCiudad, @Model.EnvioDepartamento
+                @if (!string.IsNullOrEmpty(Model.EnvioReferencia)) { <br />@($"Ref.: {Model.EnvioReferencia}") }</address>
+            @if (!string.IsNullOrEmpty(Model.Notas)) { <p class="small mt-2 mb-0"><strong>Notas:</strong> @Model.Notas</p> }
+        </section>
+    </div>
+</div>

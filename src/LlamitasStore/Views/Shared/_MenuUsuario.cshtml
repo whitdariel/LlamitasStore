@@ -3,6 +3,7 @@
 @inject FavoritosDelUsuario Favoritos
 @inject ServicioCarrito Carrito
 @inject CarritoActual CarritoActual
+@inject LlamitasStore.Infraestructura.ServicioPermisos Permisos
 @{
     var rutaActual = Context.Request.Path + Context.Request.QueryString;
     var enCarrito = await Carrito.ContarAsync(CarritoActual.Dueno());
@@ -29,6 +30,11 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
             <li><h2 class="dropdown-header text-uppercase">Hola, @nombre</h2></li>
+            @if (await Permisos.PuedeEntrarAlPanelAsync(User))
+            {
+                <li><a class="dropdown-item fw-semibold" href="/admin">Panel de administración</a></li>
+                <li><hr class="dropdown-divider" /></li>
+            }
             <li><a class="dropdown-item" href="/cuenta">Mi cuenta</a></li>
             <li><a class="dropdown-item" href="/cuenta/pedidos">Mis pedidos</a></li>
             <li><a class="dropdown-item" href="/cuenta/favoritos">Favoritos</a></li>

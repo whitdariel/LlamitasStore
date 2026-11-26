@@ -80,6 +80,15 @@ if (!string.IsNullOrWhiteSpace(googleId) && !string.IsNullOrWhiteSpace(googleSec
 }
 
 builder.Services.AddAuthorization();
+// Panel administrativo: permisos por módulo y acción (matriz rol × módulo), verificados en el servidor.
+builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationPolicyProvider, ProveedorPoliticasPermiso>();
+builder.Services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, ManejadorPermiso>();
+builder.Services.AddScoped<ServicioPermisos>();
+builder.Services.AddScoped<LlamitasStore.Services.Admin.ServicioDashboard>();
+builder.Services.AddScoped<LlamitasStore.Services.Admin.ServicioInventario>();
+builder.Services.AddScoped<LlamitasStore.Services.Admin.ServicioAdminPedidos>();
+builder.Services.AddScoped<LlamitasStore.Services.Admin.ServicioAdminUsuarios>();
+builder.Services.AddScoped<LlamitasStore.Services.Admin.ServicioAdminProductos>();
 
 // ---------- MVC, antiforgery y límites ----------
 builder.Services.AddControllersWithViews(o =>
@@ -166,6 +175,15 @@ else
     app.UseExceptionHandler("/error/500");
     app.UseHsts();
 }
+
+// Cultura invariante para leer formularios: los <input type="number"> envían "1590.50" con punto en cualquier
+// navegador. El dinero se muestra siempre formateado explícitamente en es-BO (AjustesTienda.Dinero).
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(System.Globalization.CultureInfo.InvariantCulture),
+    SupportedCultures = [System.Globalization.CultureInfo.InvariantCulture],
+    SupportedUICultures = [System.Globalization.CultureInfo.InvariantCulture]
+});
 
 app.UseStatusCodePagesWithReExecute("/error/{0}");
 app.UseHttpsRedirection();

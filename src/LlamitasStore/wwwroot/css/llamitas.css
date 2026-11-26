@@ -845,6 +845,83 @@ address { font-style: normal; line-height: 1.6; }
 .ls-linea-tiempo li.actual .ls-linea-punto { border-color: var(--lana-400); box-shadow: 0 0 0 4px rgb(238 148 80 / .2); }
 .ls-linea-tiempo li.actual { font-weight: 700; }
 
+/* ---------- 10e. Panel administrativo ---------- */
+.ls-admin { display: block; min-height: 100vh; }
+.ls-admin-lateral { --bs-offcanvas-width: 16rem; background: var(--c-fondo-alt); border-right: 1px solid var(--c-borde); }
+@media (min-width: 992px) {
+  .ls-admin-lateral { position: fixed; inset: 0 auto 0 0; width: 16rem; display: flex; flex-direction: column; overflow-y: auto; }
+  .ls-admin-principal { margin-left: 16rem; }
+}
+.ls-admin-marca { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--c-borde); }
+.ls-admin-menu { padding: .75rem; margin: 0; display: grid; gap: .15rem; }
+.ls-admin-menu a {
+  display: flex; align-items: center; gap: .7rem; padding: .55rem .8rem; border-radius: var(--r-md);
+  color: var(--c-texto-2); text-decoration: none; font-weight: 500;
+}
+.ls-admin-menu a:hover { background: var(--c-superficie-2); color: var(--c-texto); }
+.ls-admin-menu a.activo { background: var(--c-primario-suave); color: var(--c-texto); box-shadow: inset 3px 0 0 var(--c-primario); }
+.ls-admin-pie { margin-top: auto; padding: 1rem 1.25rem; border-top: 1px solid var(--c-borde); }
+.ls-admin-pie a { display: flex; align-items: center; gap: .5rem; color: var(--c-texto-2); text-decoration: none; }
+.ls-admin-barra {
+  position: sticky; top: 0; z-index: 1020; display: flex; align-items: center; gap: 1rem;
+  padding: .75rem clamp(1rem, 3vw, 2rem); background: color-mix(in srgb, var(--c-fondo) 88%, transparent);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--c-borde);
+}
+.ls-admin-titulo { font-size: 1.1rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; flex: 1; }
+.ls-admin-contenido { padding: clamp(1rem, 3vw, 2rem); }
+.ls-admin-cabecera { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: 1rem; }
+.ls-filtros-admin { display: flex; flex-wrap: wrap; gap: .75rem; padding: 1rem; }
+.ls-filtros-admin > div { min-width: 10rem; }
+.ls-form-admin { max-width: 56rem; }
+.ls-tabla-admin { --bs-table-hover-bg: var(--c-superficie-2); }
+.ls-tabla-admin th { font-size: .7rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--c-texto-2); }
+.ls-tabla-admin td, .ls-tabla-admin th { padding: .75rem 1rem; }
+.ls-lista-admin > li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .9rem 1rem; border-bottom: 1px solid var(--c-borde); }
+.ls-lista-admin > li:last-child { border-bottom: 0; }
+.ls-form-ajuste { display: grid; grid-template-columns: 7.5rem 5rem minmax(8rem, 1fr) auto; gap: .4rem; }
+.ls-col-num { width: 9rem; }
+/* En filas flex, el texto truncado necesita poder encogerse; los importes nunca se parten en dos líneas. */
+.d-flex > .text-truncate, .d-grid > * { min-width: 0; }
+.ls-tabla-admin td.ls-numero, .ls-totales dd { white-space: nowrap; }
+.ls-panel { min-width: 0; }
+.ls-monoespacio { font-variant-numeric: tabular-nums; }
+.ls-matriz td { text-align: center; }
+.ls-pestanas-admin { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+.ls-pestanas-admin a { padding: .35rem .85rem; border-radius: var(--r-pill); border: 1px solid var(--c-borde); color: var(--c-texto-2); text-decoration: none; font-size: .85rem; font-weight: 500; }
+.ls-pestanas-admin a span { margin-left: .35rem; color: var(--c-texto-2); font-variant-numeric: tabular-nums; }
+.ls-pestanas-admin a.activo { border-color: var(--c-primario); background: var(--c-primario-suave); color: var(--c-texto); }
+.ls-galeria-admin { display: flex; flex-wrap: wrap; gap: 1rem; padding: 0; margin: 0 0 1rem; }
+.ls-galeria-admin li { position: relative; width: 10rem; }
+.ls-galeria-admin img { width: 100%; height: auto; border-radius: var(--r-md); }
+.ls-galeria-admin .ls-badge-nuevo { position: absolute; top: .4rem; left: .4rem; }
+
+/* KPIs */
+.ls-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem; }
+.ls-kpi { padding: 1.1rem 1.25rem; border-radius: var(--r-lg); background: var(--c-superficie); border: 1px solid var(--c-borde); }
+.ls-kpi-etiqueta { margin: 0; font-size: .7rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--c-texto-2); }
+.ls-kpi-valor { margin: .35rem 0 .15rem; font-size: clamp(1.5rem, 2.4vw, 2rem); font-weight: 700; line-height: 1.1; }
+.ls-kpi-nota { margin: 0; font-size: .8rem; color: var(--c-texto-2); }
+.ls-sube { color: var(--c-exito); font-weight: 600; }
+.ls-baja { color: var(--c-acento-texto); font-weight: 600; }
+
+/* Gráficos (una serie: violeta; ejes y grilla recesivos) */
+.ls-grafico { position: relative; }
+.ls-grafico-barra { fill: var(--c-primario); transition: fill var(--t-rapido); }
+.ls-grafico-marca:hover .ls-grafico-barra, .ls-grafico-marca:focus .ls-grafico-barra { fill: var(--c-primario-hover); }
+.ls-grafico-marca:focus { outline: none; }
+.ls-grafico-marca:focus-visible .ls-grafico-objetivo { stroke: var(--c-enlace); stroke-width: 2; }
+.ls-grafico-objetivo { fill: transparent; }
+.ls-grafico-grilla { stroke: var(--c-borde); stroke-width: 1; stroke-dasharray: 3 4; }
+.ls-grafico-base { stroke: var(--c-borde-fuerte); stroke-width: 1; }
+.ls-grafico-eje { fill: var(--c-texto-2); font-size: 11px; font-family: var(--ls-fuente); }
+.ls-tooltip {
+  position: absolute; transform: translate(-50%, calc(-100% - 8px)); pointer-events: none; white-space: nowrap;
+  padding: .4rem .7rem; border-radius: var(--r-sm); background: var(--c-superficie-2); border: 1px solid var(--c-borde-fuerte);
+  color: var(--c-texto); font-size: .8rem; font-weight: 500; box-shadow: var(--c-sombra);
+}
+.ls-barra-h { display: block; width: 100%; height: .5rem; margin-top: .35rem; }
+.ls-barra-h-fondo { fill: var(--c-superficie-2); }
+
 /* ---------- 11. Footer ---------- */
 .ls-footer { margin-top: clamp(3rem, 8vw, 6rem); background: var(--c-fondo-alt); border-top: 1px solid var(--c-borde); color: var(--c-texto-2); font-size: .9rem; }
 .ls-footer h2 { font-size: .75rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--c-texto); margin-bottom: 1rem; }

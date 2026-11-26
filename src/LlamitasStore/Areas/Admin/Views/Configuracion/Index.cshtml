@@ -1,0 +1,34 @@
+@model ConfiguracionVm
+@inject ServicioPermisos Permisos
+@{
+    ViewData["Title"] = "Configuración";
+    var editar = await Permisos.TieneAsync(User, Modulos.Configuracion, AccionPermiso.Editar);
+}
+<form method="post" action="/admin/configuracion" asp-antiforgery="true" novalidate class="ls-form-admin">
+    <div asp-validation-summary="ModelOnly" class="ls-errores" role="alert"></div>
+    <fieldset class="ls-panel mb-3" disabled="@(!editar)">
+        <legend class="ls-filtro-titulo">Tienda y contacto</legend>
+        <div class="row g-3">
+            <div class="col-md-8"><label asp-for="NombreTienda" class="form-label"></label><input asp-for="NombreTienda" class="form-control" /><span asp-validation-for="NombreTienda" class="ls-error-campo"></span></div>
+            <div class="col-md-4"><label asp-for="Moneda" class="form-label"></label><input asp-for="Moneda" class="form-control" /></div>
+            <div class="col-md-6"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" /><span asp-validation-for="Email" class="ls-error-campo"></span></div>
+            <div class="col-md-6"><label asp-for="Telefono" class="form-label"></label><input asp-for="Telefono" class="form-control" type="tel" /><span asp-validation-for="Telefono" class="ls-error-campo"></span></div>
+            <div class="col-12"><label asp-for="Direccion" class="form-label"></label><input asp-for="Direccion" class="form-control" /></div>
+        </div>
+    </fieldset>
+    <fieldset class="ls-panel mb-3" disabled="@(!editar)">
+        <legend class="ls-filtro-titulo">Envíos</legend>
+        <div class="row g-3">
+            <div class="col-md-6"><label asp-for="CostoEnvio" class="form-label"></label><input asp-for="CostoEnvio" type="number" step="0.01" min="0" class="form-control" /><span asp-validation-for="CostoEnvio" class="ls-error-campo"></span></div>
+            <div class="col-md-6"><label asp-for="EnvioGratisDesde" class="form-label"></label><input asp-for="EnvioGratisDesde" type="number" step="0.01" min="0" class="form-control" /><span asp-validation-for="EnvioGratisDesde" class="ls-error-campo"></span></div>
+        </div>
+    </fieldset>
+    <fieldset class="ls-panel mb-3" disabled="@(!editar)">
+        <legend class="ls-filtro-titulo">Pagos por transferencia</legend>
+        <label asp-for="InstruccionesTransferencia" class="form-label"></label>
+        <textarea asp-for="InstruccionesTransferencia" class="form-control" rows="5" placeholder="Banco, titular, número de cuenta, NIT/CI…"></textarea>
+        <p class="form-text text-body-secondary mb-0">Lo ven los clientes al elegir transferencia y en su pedido. Nunca pidas datos de tarjeta por este medio.</p>
+        <span asp-validation-for="InstruccionesTransferencia" class="ls-error-campo"></span>
+    </fieldset>
+    @if (editar) { <button type="submit" class="btn btn-primary">Guardar configuración</button> }
+</form>

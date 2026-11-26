@@ -1,0 +1,26 @@
+@model Pagina<InventarioController.FilaPrecio>
+@{
+    ViewData["Title"] = "Historial de precios";
+}
+<a class="btn btn-link btn-sm px-0 mb-2" href="/admin/inventario">← Inventario</a>
+<div class="ls-panel p-0">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0 ls-tabla-admin">
+            <thead><tr><th scope="col">Fecha</th><th scope="col">Producto</th><th scope="col" class="text-end">Precio</th><th scope="col" class="text-end">Oferta</th><th scope="col">Usuario</th></tr></thead>
+            <tbody>
+                @if (Model.Items.Count == 0) { <tr><td colspan="5" class="text-center text-body-secondary py-4">Todavía no hubo cambios de precio.</td></tr> }
+                @foreach (var h in Model.Items)
+                {
+                    <tr>
+                        <td class="text-nowrap">@h.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@h.Producto</td>
+                        <td class="text-end ls-numero text-nowrap">@Tienda.Dinero(h.Anterior) → <strong>@Tienda.Dinero(h.Nuevo)</strong></td>
+                        <td class="text-end ls-numero text-nowrap">@(h.OfertaAnterior is null ? "—" : Tienda.Dinero(h.OfertaAnterior.Value)) → <strong>@(h.OfertaNueva is null ? "—" : Tienda.Dinero(h.OfertaNueva.Value))</strong></td>
+                        <td>@(h.Usuario ?? "—")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<partial name="_Paginacion" model="(Model.Actual, Model.TotalPaginas)" />

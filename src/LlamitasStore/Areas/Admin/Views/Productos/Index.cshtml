@@ -1,0 +1,62 @@
+@model Pagina<ProductosController.FilaProducto>
+@inject ServicioPermisos Permisos
+@{
+    ViewData["Title"] = "Productos";
+    var puedeCrear = await Permisos.TieneAsync(User, Modulos.Productos, AccionPermiso.Crear);
+    var puedeEditar = await Permisos.TieneAsync(User, Modulos.Productos, AccionPermiso.Editar);
+    var puedeBaja = await Permisos.TieneAsync(User, Modulos.Productos, AccionPermiso.Eliminar);
+}
+
+<div class="ls-admin-cabecera">
+    <p class="text-body-secondary mb-0">@Model.Total producto(s)</p>
+    @if (puedeCrear) { <a class="btn btn-primary btn-sm" href="/admin/productos/nuevo"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#mas"></use></svg> Nuevo producto</a> }
+</div>
+
+<form method="get" class="ls-panel ls-filtros-admin" role="search">
+    <div><label for="q" class="form-label small">Buscar</label><input id="q" name="q" class="form-control form-control-sm" value="@ViewData["Q"]" placeholder="Nombre o SKU" /></div>
+    <div><label for="categoria" class="form-label small">Categoría</label>
+        <select id="categoria" name="categoria" class="form-select form-select-sm" asp-items="@(ViewData["Categorias"] as Microsoft.AspNetCore.Mvc.Rendering.SelectList)"><option value="">Todas</option></select></div>
+    <div><label for="estado" class="form-label small">Estado</label>
+        <select id="estado" name="estado" class="form-select form-select-sm">
+            <option value="">Todos</option>
+            @foreach (var e in Enum.GetValues<EstadoProducto>()) { <option value="@e" selected="@(ViewData["Estado"] is EstadoProducto es && es == e)">@e</option> }
+        </select></div>
+    <div class="form-check align-self-end mb-1"><input class="form-check-input" type="checkbox" id="stockBajo" name="stockBajo" value="true" checked="@((bool)ViewData["StockBajo"]!)" /><label class="form-check-label small" for="stockBajo">Solo stock bajo</label></div>
+    <div class="align-self-end"><button class="btn btn-outline-secondary btn-sm" type="submit">Filtrar</button></div>
+</form>
+
+<div class="ls-panel p-0 mt-3">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0 ls-tabla-admin">
+            <thead><tr><th scope="col">Producto</th><th scope="col">Categoría</th><th scope="col" class="text-end">Precio</th><th scope="col" class="text-end">Stock</th><th scope="col">Estado</th><th scope="col"><span class="visually-hidden">Acciones</span></th></tr></thead>
+            <tbody>
+                @if (Model.Items.Count == 0) { <tr><td colspan="6" class="text-center text-body-secondary py-4">No hay productos con esos filtros.</td></tr> }
+                @foreach (var p in Model.Items)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                @if (p.Imagen is not null) { <img src="@p.Imagen" alt="" width="48" height="36" class="ls-miniatura-fondo rounded-2" /> }
+                                <span><a href="/producto/@p.Slug" target="_blank" rel="noopener">@p.Nombre</a><small class="d-block text-body-secondary">@p.Sku · @p.Marca</small></span>
+                            </div>
+                        </td>
+                        <td>@p.Categoria</td>
+                        <td class="text-end ls-numero text-nowrap">@Tienda.Dinero(p.Oferta ?? p.Precio)@if (p.Oferta is not null) { <small class="d-block text-body-secondary text-decoration-line-through">@Tienda.Dinero(p.Precio)</small> }</td>
+                        <td class="text-end ls-numero"><span class="@(p.Stock == 0 ? "ls-stock-agotado" : p.Stock <= p.Minimo ? "ls-stock-bajo" : "")">@p.Stock</span></td>
+                        <td><span class="ls-estado @(p.Estado == EstadoProducto.Activo ? "ls-estado-entregado" : "ls-estado-cancelado")">@p.Estado</span></td>
+                        <td class="text-end text-nowrap">
+                            @if (puedeEditar) { <a class="btn btn-outline-secondary btn-sm" href="/admin/productos/@p.Id">Editar</a> }
+                            @if (puedeBaja && p.Estado != EstadoProducto.Inactivo)
+                            {
+                                <form method="post" action="/admin/productos/@p.Id/baja" asp-antiforgery="true" class="d-inline" data-confirmar="¿Dar de baja «@p.Nombre»? Dejará de verse en la tienda.">
+                                    <button type="submit" class="btn btn-link btn-sm text-body-secondary">Dar de baja</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<partial name="_Paginacion" model="(Model.Actual, Model.TotalPaginas)" />

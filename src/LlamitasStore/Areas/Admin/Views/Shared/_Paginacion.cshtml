@@ -1,0 +1,24 @@
+@model (int Actual, int TotalPaginas)
+@{
+    string Url(int pagina)
+    {
+        var q = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(Context.Request.QueryString.Value)
+            .Where(kv => kv.Key != "pagina")
+            .SelectMany(kv => kv.Value.Select(v => new KeyValuePair<string, string?>(kv.Key, v)))
+            .Append(new KeyValuePair<string, string?>("pagina", pagina.ToString()));
+        return Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(Context.Request.Path, q);
+    }
+}
+@if (Model.TotalPaginas > 1)
+{
+    <nav aria-label="Paginación" class="mt-3">
+        <ul class="pagination pagination-sm flex-wrap">
+            <li class="page-item @(Model.Actual <= 1 ? "disabled" : "")"><a class="page-link" href="@Url(Model.Actual - 1)" aria-label="Anterior">‹</a></li>
+            @for (var i = Math.Max(1, Model.Actual - 3); i <= Math.Min(Model.TotalPaginas, Model.Actual + 3); i++)
+            {
+                <li class="page-item @(i == Model.Actual ? "active" : "")"><a class="page-link" href="@Url(i)" aria-current="@(i == Model.Actual ? "page" : null)">@i</a></li>
+            }
+            <li class="page-item @(Model.Actual >= Model.TotalPaginas ? "disabled" : "")"><a class="page-link" href="@Url(Model.Actual + 1)" aria-label="Siguiente">›</a></li>
+        </ul>
+    </nav>
+}

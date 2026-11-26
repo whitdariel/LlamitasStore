@@ -1,0 +1,44 @@
+@model List<UsuariosController.FilaRol>
+@inject ServicioPermisos Permisos
+@{
+    ViewData["Title"] = "Roles y permisos";
+    var crear = await Permisos.TieneAsync(User, Modulos.Usuarios, AccionPermiso.Crear);
+    var eliminar = await Permisos.TieneAsync(User, Modulos.Usuarios, AccionPermiso.Eliminar);
+}
+<a class="btn btn-link btn-sm px-0 mb-2" href="/admin/usuarios">← Usuarios</a>
+<div class="row g-3">
+    <div class="col-xl-8">
+        <div class="ls-panel p-0">
+            <table class="table align-middle mb-0 ls-tabla-admin">
+                <thead><tr><th scope="col">Rol</th><th scope="col" class="text-end">Usuarios</th><th scope="col"><span class="visually-hidden">Acciones</span></th></tr></thead>
+                <tbody>
+                    @foreach (var r in Model)
+                    {
+                        <tr>
+                            <td><strong>@r.Nombre</strong> @if (r.EsSistema) { <span class="ls-estado ms-1">Sistema</span> }<small class="d-block text-body-secondary">@r.Descripcion</small></td>
+                            <td class="text-end ls-numero">@r.Usuarios</td>
+                            <td class="text-end text-nowrap">
+                                <a class="btn btn-outline-secondary btn-sm" href="/admin/usuarios/roles/@r.Id/permisos">Permisos</a>
+                                @if (eliminar && !r.EsSistema && r.Usuarios == 0)
+                                {
+                                    <form method="post" action="/admin/usuarios/roles/@r.Id/eliminar" asp-antiforgery="true" class="d-inline" data-confirmar="¿Eliminar el rol «@r.Nombre»?"><button class="btn btn-link btn-sm text-body-secondary" type="submit">Eliminar</button></form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (crear)
+    {
+        <div class="col-xl-4">
+            <form method="post" action="/admin/usuarios/roles" asp-antiforgery="true" class="ls-panel">
+                <h2 class="ls-filtro-titulo">Nuevo rol</h2>
+                <label for="nombre" class="form-label">Nombre</label><input id="nombre" name="nombre" class="form-control mb-2" minlength="3" maxlength="50" required />
+                <label for="descripcion" class="form-label">Descripción</label><input id="descripcion" name="descripcion" class="form-control mb-3" maxlength="150" />
+                <button type="submit" class="btn btn-primary w-100">Crear rol</button>
+            </form>
+        </div>
+    }
+</div>

@@ -1,0 +1,70 @@
+@model List<Promocion>
+@inject ServicioPermisos Permisos
+@inject TimeProvider Reloj
+@{
+    ViewData["Title"] = "Promociones y cupones";
+    var crear = await Permisos.TieneAsync(User, Modulos.Promociones, AccionPermiso.Crear);
+    var editar = await Permisos.TieneAsync(User, Modulos.Promociones, AccionPermiso.Editar);
+    var eliminar = await Permisos.TieneAsync(User, Modulos.Promociones, AccionPermiso.Eliminar);
+    var cupones = ViewData["Cupones"] as List<Cupon> ?? [];
+    var ahora = Reloj.GetUtcNow().UtcDateTime;
+    string Estado(bool activa, DateTime ini, DateTime fin) => !activa ? "Pausada" : ahora < ini ? "Programada" : ahora >= fin ? "Vencida" : "Vigente";
+    string Clase(string e) => e switch { "Vigente" => "ls-estado-entregado", "Programada" => "ls-estado-confirmado", _ => "ls-estado-cancelado" };
+}
+<section aria-labelledby="t-promos" class="mb-4">
+    <div class="ls-admin-cabecera"><h2 class="ls-filtro-titulo mb-0" id="t-promos">Promociones automáticas</h2>
+        @if (crear) { <a class="btn btn-primary btn-sm" href="/admin/promociones/nueva">Nueva promoción</a> }</div>
+    <p class="small text-body-secondary">Descuento que se aplica solo en el catálogo. El cliente paga el menor entre el precio de oferta y la mejor promoción (no se acumulan).</p>
+    <div class="ls-panel p-0">
+        <table class="table align-middle mb-0 ls-tabla-admin">
+            <thead><tr><th scope="col">Promoción</th><th scope="col">Aplica a</th><th scope="col" class="text-end">Descuento</th><th scope="col">Vigencia</th><th scope="col">Estado</th><th scope="col"><span class="visually-hidden">Acciones</span></th></tr></thead>
+            <tbody>
+                @if (Model.Count == 0) { <tr><td colspan="6" class="text-center text-body-secondary py-4">Sin promociones.</td></tr> }
+                @foreach (var p in Model)
+                {
+                    var est = Estado(p.Activa, p.FechaInicio, p.FechaFin);
+                    <tr>
+                        <td><strong>@p.Nombre</strong><small class="d-block text-body-secondary">@p.Descripcion</small></td>
+                        <td>@(p.Categoria is not null ? $"Categoría {p.Categoria.Nombre}" : p.Marca is not null ? $"Marca {p.Marca.Nombre}" : p.Producto?.Nombre)</td>
+                        <td class="text-end ls-numero">@p.Porcentaje.ToString("0.##")%</td>
+                        <td class="small text-nowrap">@p.FechaInicio.ToString("dd/MM/yyyy") – @p.FechaFin.ToString("dd/MM/yyyy")</td>
+                        <td><span class="ls-estado @Clase(est)">@est</span></td>
+                        <td class="text-end text-nowrap">
+                            @if (editar) { <a class="btn btn-outline-secondary btn-sm" href="/admin/promociones/@p.Id">Editar</a> }
+                            @if (eliminar) { <form method="post" action="/admin/promociones/@p.Id/eliminar" asp-antiforgery="true" class="d-inline" data-confirmar="¿Eliminar «@p.Nombre»?"><button class="btn btn-link btn-sm text-body-secondary" type="submit">Eliminar</button></form> }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section aria-labelledby="t-cupones">
+    <div class="ls-admin-cabecera"><h2 class="ls-filtro-titulo mb-0" id="t-cupones">Cupones</h2>
+        @if (crear) { <a class="btn btn-primary btn-sm" href="/admin/promociones/cupones/nuevo">Nuevo cupón</a> }</div>
+    <div class="ls-panel p-0">
+        <table class="table align-middle mb-0 ls-tabla-admin">
+            <thead><tr><th scope="col">Código</th><th scope="col">Descuento</th><th scope="col">Mínimo</th><th scope="col" class="text-end">Usos</th><th scope="col">Vigencia</th><th scope="col">Estado</th><th scope="col"><span class="visually-hidden">Acciones</span></th></tr></thead>
+            <tbody>
+                @if (cupones.Count == 0) { <tr><td colspan="7" class="text-center text-body-secondary py-4">Sin cupones.</td></tr> }
+                @foreach (var c in cupones)
+                {
+                    var est = Estado(c.Activo, c.FechaInicio, c.FechaFin);
+                    <tr>
+                        <td><strong class="ls-numero">@c.Codigo</strong><small class="d-block text-body-secondary">@c.Descripcion</small></td>
+                        <td class="ls-numero">@(c.Tipo == TipoDescuento.Porcentaje ? $"{c.Valor:0.##}%" : Tienda.Dinero(c.Valor))</td>
+                        <td class="ls-numero">@Tienda.Dinero(c.MontoMinimo)</td>
+                        <td class="text-end ls-numero">@c.UsosActuales@(c.UsosMaximos is { } m ? $" / {m}" : "")</td>
+                        <td class="small text-nowrap">@c.FechaInicio.ToString("dd/MM/yyyy") – @c.FechaFin.ToString("dd/MM/yyyy")</td>
+                        <td><span class="ls-estado @Clase(est)">@est</span></td>
+                        <td class="text-end text-nowrap">
+                            @if (editar) { <a class="btn btn-outline-secondary btn-sm" href="/admin/promociones/cupones/@c.Id">Editar</a> }
+                            @if (eliminar) { <form method="post" action="/admin/promociones/cupones/@c.Id/eliminar" asp-antiforgery="true" class="d-inline" data-confirmar="¿Eliminar el cupón @c.Codigo?"><button class="btn btn-link btn-sm text-body-secondary" type="submit">Eliminar</button></form> }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

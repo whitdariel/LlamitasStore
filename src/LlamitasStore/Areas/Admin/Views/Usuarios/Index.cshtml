@@ -1,0 +1,60 @@
+@model Pagina<UsuariosController.FilaUsuario>
+@inject ServicioPermisos Permisos
+@{
+    ViewData["Title"] = "Usuarios";
+    var editar = await Permisos.TieneAsync(User, Modulos.Usuarios, AccionPermiso.Editar);
+    var roles = ViewData["Roles"] as List<string> ?? [];
+    var yo = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+<div class="ls-admin-cabecera">
+    <p class="text-body-secondary mb-0">@Model.Total usuario(s)</p>
+    <a class="btn btn-outline-secondary btn-sm" href="/admin/usuarios/roles">Roles y permisos</a>
+</div>
+<form method="get" class="ls-panel ls-filtros-admin" role="search">
+    <div class="flex-grow-1"><label for="q" class="form-label small">Buscar</label><input id="q" name="q" class="form-control form-control-sm" value="@ViewData["Q"]" placeholder="Nombre o correo" /></div>
+    <div><label for="rol" class="form-label small">Rol</label><select id="rol" name="rol" class="form-select form-select-sm"><option value="">Todos</option>
+        @foreach (var r in roles) { <option value="@r" selected="@((ViewData["Rol"] as string) == r)">@r</option> }</select></div>
+    <div class="align-self-end"><button class="btn btn-outline-secondary btn-sm" type="submit">Filtrar</button></div>
+</form>
+<div class="ls-panel p-0 mt-3">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0 ls-tabla-admin">
+            <thead><tr><th scope="col">Usuario</th><th scope="col">Alta / último acceso</th><th scope="col" class="text-end">Pedidos</th><th scope="col">Rol</th><th scope="col">Estado</th></tr></thead>
+            <tbody>
+                @foreach (var u in Model.Items)
+                {
+                    var esYo = u.Id.ToString() == yo;
+                    <tr>
+                        <td>@u.Nombre @if (esYo) { <span class="ls-badge-nuevo ms-1">Tú</span> }<small class="d-block text-body-secondary">@u.Email</small></td>
+                        <td class="small text-nowrap">@u.Alta.ToLocalTime().ToString("dd/MM/yyyy")<span class="d-block text-body-secondary">@(u.UltimoAcceso?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "nunca")</span></td>
+                        <td class="text-end ls-numero">@u.Pedidos</td>
+                        <td>
+                            @if (editar && !esYo)
+                            {
+                                <form method="post" action="/admin/usuarios/@u.Id/rol" asp-antiforgery="true" class="d-flex gap-1" data-autoenvio-admin>
+                                    <label class="visually-hidden" for="rol-@u.Id">Rol de @u.Nombre</label>
+                                    <select id="rol-@u.Id" name="rol" class="form-select form-select-sm">@foreach (var r in roles) { <option value="@r" selected="@(u.Rol == r)">@r</option> }</select>
+                                    <noscript><button class="btn btn-sm btn-outline-secondary" type="submit">OK</button></noscript>
+                                </form>
+                            }
+                            else { @(u.Rol ?? "—") }
+                        </td>
+                        <td>
+                            @if (editar && !esYo)
+                            {
+                                <form method="post" action="/admin/usuarios/@u.Id/estado" asp-antiforgery="true" class="d-flex gap-1" data-autoenvio-admin>
+                                    <label class="visually-hidden" for="estado-@u.Id">Estado de @u.Nombre</label>
+                                    <select id="estado-@u.Id" name="estado" class="form-select form-select-sm">@foreach (var e in Enum.GetValues<EstadoUsuario>()) { <option value="@e" selected="@(u.Estado == e)">@e</option> }</select>
+                                    <noscript><button class="btn btn-sm btn-outline-secondary" type="submit">OK</button></noscript>
+                                </form>
+                            }
+                            else { <span class="ls-estado @(u.Estado == EstadoUsuario.Activo ? "ls-estado-entregado" : "ls-estado-cancelado")">@u.Estado</span> }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<partial name="_Paginacion" model="(Model.Actual, Model.TotalPaginas)" />
+<p class="small text-body-secondary mt-2">Al cambiar el rol o desactivar una cuenta, su sesión abierta se actualiza o se cierra en unos minutos. Siempre debe quedar al menos un administrador activo.</p>

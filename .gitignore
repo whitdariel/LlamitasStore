@@ -483,3 +483,6 @@ $RECYCLE.BIN/
 
 # Correos guardados en desarrollo (contienen enlaces de recuperación válidos)
 **/App_Data/correos/
+
+# Imágenes subidas desde el panel (datos, no código)
+**/wwwroot/uploads/

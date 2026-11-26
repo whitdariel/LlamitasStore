@@ -1,0 +1,38 @@
+@model List<(Categoria Categoria, int Productos)>
+@inject ServicioPermisos Permisos
+@{
+    ViewData["Title"] = "Categorías";
+    var crear = await Permisos.TieneAsync(User, Modulos.Categorias, AccionPermiso.Crear);
+    var editar = await Permisos.TieneAsync(User, Modulos.Categorias, AccionPermiso.Editar);
+    var eliminar = await Permisos.TieneAsync(User, Modulos.Categorias, AccionPermiso.Eliminar);
+}
+<div class="ls-admin-cabecera">
+    <p class="text-body-secondary mb-0">@Model.Count categoría(s)</p>
+    @if (crear) { <a class="btn btn-primary btn-sm" href="/admin/categorias/nueva">Nueva categoría</a> }
+</div>
+<div class="ls-panel p-0">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0 ls-tabla-admin">
+            <thead><tr><th scope="col">Orden</th><th scope="col">Categoría</th><th scope="col">Tipo (PC Builder)</th><th scope="col" class="text-end">Productos</th><th scope="col">Estado</th><th scope="col"><span class="visually-hidden">Acciones</span></th></tr></thead>
+            <tbody>
+                @foreach (var (c, n) in Model)
+                {
+                    <tr>
+                        <td class="ls-numero">@c.Orden</td>
+                        <td><svg class="ls-icono me-2" aria-hidden="true"><use href="/images/iconos.svg#cat-@(c.Icono ?? "accesorio")"></use></svg><a href="/catalogo/@c.Slug" target="_blank" rel="noopener">@c.Nombre</a></td>
+                        <td>@(c.TipoComponente == TipoComponente.Ninguno ? "—" : c.TipoComponente.ToString())</td>
+                        <td class="text-end ls-numero">@n</td>
+                        <td><span class="ls-estado @(c.Activa ? "ls-estado-entregado" : "ls-estado-cancelado")">@(c.Activa ? "Visible" : "Oculta")</span></td>
+                        <td class="text-end text-nowrap">
+                            @if (editar) { <a class="btn btn-outline-secondary btn-sm" href="/admin/categorias/@c.Id">Editar</a> }
+                            @if (eliminar && n == 0)
+                            {
+                                <form method="post" action="/admin/categorias/@c.Id/eliminar" asp-antiforgery="true" class="d-inline" data-confirmar="¿Eliminar la categoría «@c.Nombre»?"><button class="btn btn-link btn-sm text-body-secondary" type="submit">Eliminar</button></form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

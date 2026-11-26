@@ -1,0 +1,56 @@
+@model Pagina<InventarioController.FilaStock>
+@inject ServicioPermisos Permisos
+@{
+    ViewData["Title"] = "Inventario";
+    var editar = await Permisos.TieneAsync(User, Modulos.Inventario, AccionPermiso.Editar);
+    var volver = Context.Request.Path + Context.Request.QueryString;
+}
+<div class="ls-admin-cabecera">
+    <p class="text-body-secondary mb-0">Ordenado por urgencia: primero lo agotado y bajo el mínimo.</p>
+    <div class="d-flex gap-2"><a class="btn btn-outline-secondary btn-sm" href="/admin/inventario/movimientos">Movimientos</a><a class="btn btn-outline-secondary btn-sm" href="/admin/inventario/precios">Historial de precios</a></div>
+</div>
+<form method="get" class="ls-panel ls-filtros-admin" role="search">
+    <div><label for="q" class="form-label small">Buscar</label><input id="q" name="q" class="form-control form-control-sm" value="@ViewData["Q"]" placeholder="Nombre o SKU" /></div>
+    <div class="form-check align-self-end mb-1"><input class="form-check-input" type="checkbox" id="soloBajo" name="soloBajo" value="true" checked="@((bool)ViewData["SoloBajo"]!)" /><label class="form-check-label small" for="soloBajo">Solo bajo el mínimo</label></div>
+    <div class="align-self-end"><button class="btn btn-outline-secondary btn-sm" type="submit">Filtrar</button></div>
+</form>
+<div class="ls-panel p-0 mt-3">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0 ls-tabla-admin">
+            <thead><tr><th scope="col">Producto</th><th scope="col" class="text-end">Stock</th><th scope="col" class="text-end">Mínimo</th>@if (editar) { <th scope="col">Registrar movimiento</th> }</tr></thead>
+            <tbody>
+                @if (Model.Items.Count == 0) { <tr><td colspan="4" class="text-center text-body-secondary py-4">Sin resultados.</td></tr> }
+                @foreach (var p in Model.Items)
+                {
+                    <tr>
+                        <td><a href="/admin/inventario/movimientos?producto=@p.Id">@p.Nombre</a><small class="d-block text-body-secondary">@p.Sku · @p.Categoria</small></td>
+                        <td class="text-end ls-numero"><strong class="@(p.Stock == 0 ? "ls-stock-agotado" : p.Stock <= p.Minimo ? "ls-stock-bajo" : "")">@p.Stock</strong></td>
+                        <td class="text-end ls-numero">@p.Minimo</td>
+                        @if (editar)
+                        {
+                            <td>
+                                <form method="post" action="/admin/inventario/ajustar" asp-antiforgery="true" class="ls-form-ajuste">
+                                    <input type="hidden" name="productoId" value="@p.Id" />
+                                    <input type="hidden" name="returnUrl" value="@volver" />
+                                    <label class="visually-hidden" for="tipo-@p.Id">Tipo</label>
+                                    <select id="tipo-@p.Id" name="tipo" class="form-select form-select-sm">
+                                        <option value="@TipoMovimiento.Entrada">+ Entrada</option>
+                                        <option value="@TipoMovimiento.Salida">− Salida</option>
+                                        <option value="@TipoMovimiento.Ajuste">= Conteo</option>
+                                    </select>
+                                    <label class="visually-hidden" for="cant-@p.Id">Cantidad</label>
+                                    <input id="cant-@p.Id" name="cantidad" type="number" min="0" class="form-control form-control-sm" required />
+                                    <label class="visually-hidden" for="mot-@p.Id">Motivo</label>
+                                    <input id="mot-@p.Id" name="motivo" class="form-control form-control-sm" maxlength="200" placeholder="Motivo" required />
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit">Guardar</button>
+                                </form>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<partial name="_Paginacion" model="(Model.Actual, Model.TotalPaginas)" />
+<p class="small text-body-secondary mt-2">«Conteo» fija el stock al número contado físicamente (diferencias por merma o error). Las compras a proveedores se registran desde <a href="/admin/proveedores">Proveedores → órdenes de compra</a>.</p>

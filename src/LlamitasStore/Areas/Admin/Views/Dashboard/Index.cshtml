@@ -1,0 +1,207 @@
+@model DashboardVm
+@{
+    ViewData["Title"] = "Dashboard";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("es-BO");
+
+    // ---- Gráfico de columnas: ventas diarias (una serie → sin leyenda; el título la nombra) ----
+    const double ancho = 720, alto = 240, margenIzq = 56, margenInf = 28, margenSup = 12;
+    var serie = Model.Ultimos30Dias;
+    var maxVenta = serie.Count == 0 ? 0 : (double)serie.Max(s => s.Total);
+    var techo = maxVenta <= 0 ? 100 : Math.Ceiling(maxVenta / Math.Pow(10, Math.Floor(Math.Log10(maxVenta)))) * Math.Pow(10, Math.Floor(Math.Log10(maxVenta)));
+    var areaAncho = ancho - margenIzq - 8;
+    var areaAlto = alto - margenInf - margenSup;
+    var paso = areaAncho / Math.Max(1, serie.Count);
+    var anchoBarra = Math.Max(2, paso - 2); // 2px de separación entre barras
+    double Y(double v) => margenSup + areaAlto - v / techo * areaAlto;
+    string Columna(double x, double y, double w, double baseY)
+    {
+        var r = Math.Min(4, Math.Min(w / 2, baseY - y)); // extremo redondeado de 4px, anclado a la base
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        if (baseY - y < 0.5) return "";
+        return string.Create(inv, $"M{x:0.##},{baseY:0.##}V{y + r:0.##}Q{x:0.##},{y:0.##} {x + r:0.##},{y:0.##}H{x + w - r:0.##}Q{x + w:0.##},{y:0.##} {x + w:0.##},{y + r:0.##}V{baseY:0.##}Z");
+    }
+    var baseY = margenSup + areaAlto;
+
+    // ---- Barras horizontales: productos más vendidos ----
+    var maxUnidades = Model.TopProductos.Count == 0 ? 1 : Model.TopProductos.Max(t => t.Unidades);
+}
+
+<h1 class="visually-hidden">Dashboard</h1>
+
+<section aria-label="Indicadores principales" class="ls-kpis">
+    <article class="ls-kpi">
+        <p class="ls-kpi-etiqueta">Ventas del mes</p>
+        <p class="ls-kpi-valor ls-numero">@Tienda.Dinero(Model.VentasMes)</p>
+        <p class="ls-kpi-nota">
+            @if (Model.VariacionVentas is { } v)
+            {
+                <span class="@(v >= 0 ? "ls-sube" : "ls-baja")">@(v >= 0 ? "▲" : "▼") @Math.Abs(v).ToString("0.0", cultura)%</span> <text>vs. mes anterior</text>
+            }
+            else { <text>Sin ventas el mes anterior</text> }
+        </p>
+    </article>
+    <article class="ls-kpi">
+        <p class="ls-kpi-etiqueta">Pedidos del mes</p>
+        <p class="ls-kpi-valor ls-numero">@Model.PedidosMes</p>
+        <p class="ls-kpi-nota">Ticket promedio @Tienda.Dinero(Model.TicketPromedio)</p>
+    </article>
+    <article class="ls-kpi">
+        <p class="ls-kpi-etiqueta">Por atender</p>
+        <p class="ls-kpi-valor ls-numero">@Model.PendientesAtencion</p>
+        <p class="ls-kpi-nota"><a href="/admin/pedidos?estado=Pendiente">Ver pendientes</a></p>
+    </article>
+    <article class="ls-kpi">
+        <p class="ls-kpi-etiqueta">Stock bajo</p>
+        <p class="ls-kpi-valor ls-numero">@Model.ProductosStockBajo</p>
+        <p class="ls-kpi-nota">de @Model.ProductosActivos productos activos</p>
+    </article>
+    <article class="ls-kpi">
+        <p class="ls-kpi-etiqueta">Clientes</p>
+        <p class="ls-kpi-valor ls-numero">@Model.Clientes</p>
+        <p class="ls-kpi-nota">@Model.ClientesNuevosMes nuevos este mes</p>
+    </article>
+</section>
+
+<div class="row g-3 mt-1">
+    <section class="col-xl-8" aria-labelledby="titulo-ventas">
+        <div class="ls-panel h-100">
+            <h2 class="ls-filtro-titulo" id="titulo-ventas">Ventas diarias · últimos 30 días (Bs.)</h2>
+            @if (maxVenta <= 0)
+            {
+                <p class="text-body-secondary mb-0">Todavía no hay ventas en los últimos 30 días.</p>
+            }
+            else
+            {
+                <div class="ls-grafico" data-grafico>
+                    <svg viewBox="0 0 @ancho @alto" role="img" aria-labelledby="titulo-ventas" class="w-100 h-auto">
+                        @for (var i = 0; i <= 2; i++)
+                        {
+                            var valor = techo / 2 * i;
+                            var y = Y(valor);
+                            <line class="ls-grafico-grilla" x1="@margenIzq" x2="@(ancho - 8)" y1="@y.ToString(System.Globalization.CultureInfo.InvariantCulture)" y2="@y.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+                            @:<text class="ls-grafico-eje" x="@(margenIzq - 8)" y="@((y + 4).ToString(System.Globalization.CultureInfo.InvariantCulture))" text-anchor="end">@valor.ToString("N0", cultura)</text>
+                        }
+                        @for (var i = 0; i < serie.Count; i++)
+                        {
+                            var p = serie[i];
+                            var x = margenIzq + i * paso + 1;
+                            var d = Columna(x, Y((double)p.Total), anchoBarra, baseY);
+                            <g class="ls-grafico-marca" tabindex="0"
+                               data-tooltip="@p.Dia.ToString("ddd dd/MM", cultura): @Tienda.Dinero(p.Total) · @p.Pedidos pedido(s)"
+                               aria-label="@p.Dia.ToString("dd/MM", cultura): @Tienda.Dinero(p.Total), @p.Pedidos pedidos">
+                                <rect class="ls-grafico-objetivo" x="@((x - 1).ToString(System.Globalization.CultureInfo.InvariantCulture))" y="@margenSup" width="@paso.ToString(System.Globalization.CultureInfo.InvariantCulture)" height="@areaAlto.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+                                @if (d != "") { <path class="ls-grafico-barra" d="@d" /> }
+                            </g>
+                            @if (i % 5 == 0 || i == serie.Count - 1)
+                            {
+                                @:<text class="ls-grafico-eje" x="@((x + anchoBarra / 2).ToString(System.Globalization.CultureInfo.InvariantCulture))" y="@(alto - 8)" text-anchor="middle">@p.Dia.ToString("dd/MM")</text>
+                            }
+                        }
+                        <line class="ls-grafico-base" x1="@margenIzq" x2="@(ancho - 8)" y1="@baseY.ToString(System.Globalization.CultureInfo.InvariantCulture)" y2="@baseY.ToString(System.Globalization.CultureInfo.InvariantCulture)" />
+                    </svg>
+                    <div class="ls-tooltip" role="status" hidden></div>
+                </div>
+                <details class="mt-2">
+                    <summary class="small text-body-secondary">Ver como tabla</summary>
+                    <table class="table table-sm small mt-2">
+                        <thead><tr><th scope="col">Día</th><th scope="col" class="text-end">Ventas</th><th scope="col" class="text-end">Pedidos</th></tr></thead>
+                        <tbody>
+                            @foreach (var p in serie.Where(s => s.Pedidos > 0))
+                            {
+                                <tr><td>@p.Dia.ToString("dd/MM/yyyy")</td><td class="text-end ls-numero">@Tienda.Dinero(p.Total)</td><td class="text-end ls-numero">@p.Pedidos</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </details>
+            }
+        </div>
+    </section>
+
+    <section class="col-xl-4" aria-labelledby="titulo-top">
+        <div class="ls-panel h-100">
+            <h2 class="ls-filtro-titulo" id="titulo-top">Más vendidos · 30 días (unidades)</h2>
+            @if (Model.TopProductos.Count == 0)
+            {
+                <p class="text-body-secondary mb-0">Sin ventas todavía.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled d-grid gap-3 mb-0">
+                    @foreach (var t in Model.TopProductos)
+                    {
+                        var pct = Math.Max(2, t.Unidades * 100.0 / maxUnidades);
+                        <li>
+                            <div class="d-flex justify-content-between gap-2 small">
+                                <a href="/producto/@t.Slug" class="text-truncate">@t.Nombre</a>
+                                <strong class="ls-numero text-nowrap">@t.Unidades u</strong>
+                            </div>
+                            <span class="d-block small text-body-secondary ls-numero">@Tienda.Dinero(t.Ingresos)</span>
+                            <svg class="ls-barra-h" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true">
+                                <rect class="ls-barra-h-fondo" x="0" y="0" width="100" height="8" rx="4" />
+                                <rect class="ls-grafico-barra" x="0" y="0" width="@pct.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" height="8" rx="4" />
+                            </svg>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </section>
+
+    <section class="col-xl-8" aria-labelledby="titulo-recientes">
+        <div class="ls-panel">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="ls-filtro-titulo" id="titulo-recientes">Pedidos recientes</h2>
+                <a class="small" href="/admin/pedidos">Ver todos</a>
+            </div>
+            @if (Model.Recientes.Count == 0)
+            {
+                <p class="text-body-secondary mb-0">Aún no hay pedidos.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th scope="col">Pedido</th><th scope="col">Cliente</th><th scope="col">Fecha</th><th scope="col">Estado</th><th scope="col" class="text-end">Total</th></tr></thead>
+                        <tbody>
+                            @foreach (var p in Model.Recientes)
+                            {
+                                <tr>
+                                    <td><a href="/admin/pedidos/@p.Numero" class="ls-numero">@p.Numero</a></td>
+                                    <td>@p.Cliente</td>
+                                    <td class="text-nowrap">@p.Fecha.ToLocalTime().ToString("dd/MM HH:mm")</td>
+                                    <td><span class="ls-estado ls-estado-@p.Estado.ToString().ToLowerInvariant()">@TextosPedido.Estado(p.Estado)</span></td>
+                                    <td class="text-end ls-numero text-nowrap">@Tienda.Dinero(p.Total)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="col-xl-4" aria-labelledby="titulo-stock">
+        <div class="ls-panel">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="ls-filtro-titulo" id="titulo-stock">Stock bajo</h2>
+                <a class="small" href="/admin/inventario?soloBajo=true">Ver inventario</a>
+            </div>
+            @if (Model.StockBajo.Count == 0)
+            {
+                <p class="text-body-secondary mb-0">Todo el stock está sobre el mínimo.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled d-grid gap-2 mb-0 small">
+                    @foreach (var s in Model.StockBajo)
+                    {
+                        <li class="d-flex justify-content-between gap-2">
+                            <span class="text-truncate">@s.Nombre</span>
+                            <span class="ls-stock @(s.Stock == 0 ? "ls-stock-agotado" : "ls-stock-bajo") text-nowrap">@(s.Stock == 0 ? "Agotado" : $"{s.Stock} / mín. {s.Minimo}")</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </section>
+</div>

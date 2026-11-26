@@ -1,0 +1,105 @@
+@inject ServicioPermisos Permisos
+@{
+    var ruta = Context.Request.Path.Value ?? "";
+    (string Modulo, string Url, string Icono, string Texto)[] menu =
+    [
+        (Modulos.Dashboard, "/admin", "tendencia", "Dashboard"),
+        (Modulos.Pedidos, "/admin/pedidos", "caja", "Pedidos"),
+        (Modulos.Productos, "/admin/productos", "cat-cpu", "Productos"),
+        (Modulos.Inventario, "/admin/inventario", "lista", "Inventario"),
+        (Modulos.Categorias, "/admin/categorias", "filtro", "Categorías"),
+        (Modulos.Marcas, "/admin/marcas", "etiqueta", "Marcas"),
+        (Modulos.Proveedores, "/admin/proveedores", "envio", "Proveedores"),
+        (Modulos.Promociones, "/admin/promociones", "rayo", "Promociones"),
+        (Modulos.Usuarios, "/admin/usuarios", "usuario", "Usuarios"),
+        (Modulos.Resenas, "/admin/resenas", "estrella", "Reseñas"),
+        (Modulos.Mensajes, "/admin/mensajes", "documento", "Mensajes"),
+        (Modulos.Configuracion, "/admin/configuracion", "candado", "Configuración")
+    ];
+    var visibles = new List<(string Modulo, string Url, string Icono, string Texto)>();
+    foreach (var m in menu)
+        if (await Permisos.TieneAsync(User, m.Modulo, AccionPermiso.Leer)) visibles.Add(m);
+    bool Activo(string url) => url == "/admin" ? ruta.TrimEnd('/') == "/admin" : ruta.StartsWith(url, StringComparison.OrdinalIgnoreCase);
+}
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>@ViewData["Title"] · Panel @Tienda.NombreTienda</title>
+    <link rel="icon" href="~/images/llamita-mark.svg" type="image/svg+xml" />
+    <link rel="preload" href="~/fonts/outfit/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <script src="~/js/tema.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/llamitas.css" asp-append-version="true" />
+</head>
+<body class="ls-admin">
+    <a class="visually-hidden-focusable btn btn-primary position-absolute m-2" href="#contenido">Saltar al contenido</a>
+
+    <aside class="ls-admin-lateral offcanvas-lg offcanvas-start" tabindex="-1" id="menu-admin" aria-labelledby="menu-admin-titulo">
+        <div class="ls-admin-marca">
+            <a class="ls-logo" href="/admin">
+                <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="" width="34" height="34" />
+                <span id="menu-admin-titulo">Panel</span>
+            </a>
+            <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#menu-admin" aria-label="Cerrar menú"></button>
+        </div>
+        <nav aria-label="Módulos del panel">
+            <ul class="list-unstyled ls-admin-menu">
+                @foreach (var m in visibles)
+                {
+                    <li>
+                        <a href="@m.Url" class="@(Activo(m.Url) ? "activo" : "")" aria-current="@(Activo(m.Url) ? "page" : null)">
+                            <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#@m.Icono"></use></svg>@m.Texto
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+        <div class="ls-admin-pie">
+            <a href="/"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#flecha-izq"></use></svg>Ver la tienda</a>
+        </div>
+    </aside>
+
+    <div class="ls-admin-principal">
+        <header class="ls-admin-barra">
+            <button class="ls-boton-icono d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#menu-admin" aria-controls="menu-admin" aria-label="Abrir menú del panel">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#menu"></use></svg>
+            </button>
+            <p class="ls-admin-titulo mb-0">@ViewData["Title"]</p>
+            <div class="ls-header-acciones">
+                <span class="d-none d-sm-inline text-body-secondary small">@User.FindFirst(UsuarioClaimsFactory.ClaimNombre)?.Value · @string.Join(", ", User.FindAll(System.Security.Claims.ClaimTypes.Role).Select(r => r.Value))</span>
+                <button class="ls-boton-icono" type="button" data-cambiar-tema aria-label="Cambiar tema">
+                    <svg class="ls-icono ls-solo-oscuro" aria-hidden="true"><use href="/images/iconos.svg#sol"></use></svg>
+                    <svg class="ls-icono ls-solo-claro" aria-hidden="true"><use href="/images/iconos.svg#luna"></use></svg>
+                </button>
+                <form method="post" action="/cuenta/logout" asp-antiforgery="true" class="m-0">
+                    <button type="submit" class="ls-boton-icono" aria-label="Cerrar sesión">
+                        <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#salir"></use></svg>
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <main id="contenido" tabindex="-1" class="ls-admin-contenido">
+            @if (TempData["Exito"] is string exito)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="status">@exito
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar mensaje"></button></div>
+            }
+            @if (TempData["Error"] is string error)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">@error
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar mensaje"></button></div>
+            }
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

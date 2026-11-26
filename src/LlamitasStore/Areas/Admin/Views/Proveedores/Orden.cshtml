@@ -1,0 +1,47 @@
+@model OrdenCompra
+@inject ServicioPermisos Permisos
+@{
+    ViewData["Title"] = $"Orden {Model.Numero}";
+    var editar = await Permisos.TieneAsync(User, Modulos.Proveedores, AccionPermiso.Editar);
+}
+<div class="ls-admin-cabecera">
+    <a class="btn btn-link btn-sm px-0" href="/admin/proveedores">← Proveedores</a>
+    <span class="ls-estado @(Model.Estado switch { EstadoOrdenCompra.Recibida => "ls-estado-entregado", EstadoOrdenCompra.Cancelada => "ls-estado-cancelado", _ => "ls-estado-pendiente" })">@Model.Estado</span>
+</div>
+<div class="row g-3">
+    <div class="col-xl-8">
+        <div class="ls-panel p-0">
+            <table class="table align-middle mb-0 ls-tabla-admin">
+                <thead><tr><th scope="col">Producto</th><th scope="col" class="text-end">Cantidad</th><th scope="col" class="text-end">Costo unit.</th><th scope="col" class="text-end">Subtotal</th></tr></thead>
+                <tbody>
+                    @foreach (var d in Model.Detalles)
+                    {
+                        <tr><td>@d.Producto.Nombre <small class="text-body-secondary">@d.Producto.Sku</small></td><td class="text-end ls-numero">@d.Cantidad</td>
+                            <td class="text-end ls-numero">@Tienda.Dinero(d.CostoUnitario)</td><td class="text-end ls-numero">@Tienda.Dinero(d.Cantidad * d.CostoUnitario)</td></tr>
+                    }
+                </tbody>
+                <tfoot><tr><th scope="row" colspan="3" class="text-end">Total</th><td class="text-end ls-numero"><strong>@Tienda.Dinero(Model.Total)</strong></td></tr></tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="ls-panel">
+            <dl class="ls-totales mb-3">
+                <div><dt>Proveedor</dt><dd>@Model.Proveedor.Nombre</dd></div>
+                <div><dt>Creada</dt><dd>@Model.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd></div>
+                @if (Model.FechaRecepcion is { } fr) { <div><dt>Recibida</dt><dd>@fr.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd></div> }
+                <div><dt>Registró</dt><dd>@(Model.Usuario?.NombreCompleto ?? "—")</dd></div>
+            </dl>
+            @if (!string.IsNullOrEmpty(Model.Notas)) { <p class="small">@Model.Notas</p> }
+            @if (editar && Model.Estado == EstadoOrdenCompra.Borrador)
+            {
+                <form method="post" action="/admin/proveedores/ordenes/@Model.Id/recibir" asp-antiforgery="true" data-confirmar="¿Confirmas que llegó la mercadería? Se sumará al stock.">
+                    <button class="btn btn-primary w-100" type="submit">Marcar como recibida</button>
+                </form>
+                <form method="post" action="/admin/proveedores/ordenes/@Model.Id/cancelar" asp-antiforgery="true" class="mt-2" data-confirmar="¿Cancelar la orden?">
+                    <button class="btn btn-outline-secondary w-100" type="submit">Cancelar orden</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

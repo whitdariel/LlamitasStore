@@ -1,0 +1,51 @@
+@model List<Proveedor>
+@inject ServicioPermisos Permisos
+@{
+    ViewData["Title"] = "Proveedores y compras";
+    var crear = await Permisos.TieneAsync(User, Modulos.Proveedores, AccionPermiso.Crear);
+    var editar = await Permisos.TieneAsync(User, Modulos.Proveedores, AccionPermiso.Editar);
+    var ordenes = ViewData["Ordenes"] as List<OrdenCompra> ?? [];
+}
+<div class="row g-3">
+    <section class="col-xl-5" aria-labelledby="t-prov">
+        <div class="ls-admin-cabecera"><h2 class="ls-filtro-titulo mb-0" id="t-prov">Proveedores</h2>
+            @if (crear) { <a class="btn btn-outline-secondary btn-sm" href="/admin/proveedores/nuevo">Nuevo proveedor</a> }</div>
+        <div class="ls-panel p-0">
+            <ul class="list-unstyled mb-0 ls-lista-admin">
+                @if (Model.Count == 0) { <li class="text-body-secondary p-3">Aún no hay proveedores.</li> }
+                @foreach (var p in Model)
+                {
+                    <li>
+                        <span><strong>@p.Nombre</strong> @if (!p.Activo) { <span class="ls-estado ls-estado-cancelado ms-1">Inactivo</span> }
+                            <small class="d-block text-body-secondary">@string.Join(" · ", new[] { p.Nit is null ? null : $"NIT {p.Nit}", p.Telefono, p.Email }.Where(x => x is not null))</small></span>
+                        @if (editar) { <a class="btn btn-link btn-sm" href="/admin/proveedores/@p.Id">Editar</a> }
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+    <section class="col-xl-7" aria-labelledby="t-oc">
+        <div class="ls-admin-cabecera"><h2 class="ls-filtro-titulo mb-0" id="t-oc">Órdenes de compra</h2>
+            @if (crear && Model.Any(p => p.Activo)) { <a class="btn btn-primary btn-sm" href="/admin/proveedores/ordenes/nueva">Nueva orden</a> }</div>
+        <div class="ls-panel p-0">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0 ls-tabla-admin">
+                    <thead><tr><th scope="col">Número</th><th scope="col">Proveedor</th><th scope="col">Fecha</th><th scope="col">Estado</th><th scope="col" class="text-end">Total</th></tr></thead>
+                    <tbody>
+                        @if (ordenes.Count == 0) { <tr><td colspan="5" class="text-center text-body-secondary py-4">Sin órdenes de compra.</td></tr> }
+                        @foreach (var o in ordenes)
+                        {
+                            <tr>
+                                <td><a href="/admin/proveedores/ordenes/@o.Id" class="ls-numero">@o.Numero</a></td>
+                                <td>@o.Proveedor.Nombre</td>
+                                <td class="text-nowrap">@o.Fecha.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                                <td><span class="ls-estado @(o.Estado switch { EstadoOrdenCompra.Recibida => "ls-estado-entregado", EstadoOrdenCompra.Cancelada => "ls-estado-cancelado", _ => "ls-estado-pendiente" })">@o.Estado</span></td>
+                                <td class="text-end ls-numero text-nowrap">@Tienda.Dinero(o.Total)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>

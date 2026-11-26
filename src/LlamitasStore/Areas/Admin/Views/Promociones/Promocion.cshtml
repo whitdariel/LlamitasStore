@@ -1,0 +1,23 @@
+@model PromocionFormVm
+@{
+    ViewData["Title"] = Model.Id is null ? "Nueva promoción" : "Editar promoción";
+    var accion = Model.Id is null ? "/admin/promociones/nueva" : $"/admin/promociones/{Model.Id}";
+}
+<a class="btn btn-link btn-sm px-0 mb-2" href="/admin/promociones">← Volver</a>
+<form method="post" action="@accion" asp-antiforgery="true" novalidate class="ls-panel ls-form-admin">
+    <div asp-validation-summary="ModelOnly" class="ls-errores" role="alert"></div>
+    <div class="row g-3">
+        <div class="col-md-8"><label asp-for="Nombre" class="form-label"></label><input asp-for="Nombre" class="form-control" /><span asp-validation-for="Nombre" class="ls-error-campo"></span></div>
+        <div class="col-md-4"><label asp-for="Porcentaje" class="form-label"></label><input asp-for="Porcentaje" type="number" step="0.5" min="1" max="90" class="form-control" /><span asp-validation-for="Porcentaje" class="ls-error-campo"></span></div>
+        <div class="col-12"><label asp-for="Descripcion" class="form-label"></label><input asp-for="Descripcion" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="FechaInicio" class="form-label"></label><input asp-for="FechaInicio" type="date" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="FechaFin" class="form-label"></label><input asp-for="FechaFin" type="date" class="form-control" /><span asp-validation-for="FechaFin" class="ls-error-campo"></span></div>
+        <div class="col-12"><p class="ls-filtro-titulo mb-1">Aplica a (elige solo uno)</p><span asp-validation-for="CategoriaId" class="ls-error-campo"></span></div>
+        <div class="col-md-4"><label asp-for="CategoriaId" class="form-label"></label><select asp-for="CategoriaId" class="form-select" asp-items="@(ViewData["Categorias"] as Microsoft.AspNetCore.Mvc.Rendering.SelectList)"><option value="">—</option></select></div>
+        <div class="col-md-4"><label asp-for="MarcaId" class="form-label"></label><select asp-for="MarcaId" class="form-select" asp-items="@(ViewData["Marcas"] as Microsoft.AspNetCore.Mvc.Rendering.SelectList)"><option value="">—</option></select></div>
+        <div class="col-md-4"><label asp-for="ProductoId" class="form-label"></label><select asp-for="ProductoId" class="form-select" asp-items="@(ViewData["Productos"] as Microsoft.AspNetCore.Mvc.Rendering.SelectList)"><option value="">—</option></select></div>
+        <div class="col-12"><div class="form-check"><input asp-for="Activa" class="form-check-input" /><label asp-for="Activa" class="form-check-label"></label></div></div>
+    </div>
+    <p class="small text-body-secondary mt-3 mb-0">Las fechas se interpretan en UTC; «hasta» no se incluye (una promoción del 1 al 8 termina al iniciar el día 8).</p>
+    <button type="submit" class="btn btn-primary mt-3">Guardar</button>
+</form>

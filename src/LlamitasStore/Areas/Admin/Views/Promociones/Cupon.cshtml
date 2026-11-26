@@ -1,0 +1,23 @@
+@model CuponFormVm
+@{
+    ViewData["Title"] = Model.Id is null ? "Nuevo cupón" : "Editar cupón";
+    var accion = Model.Id is null ? "/admin/promociones/cupones/nuevo" : $"/admin/promociones/cupones/{Model.Id}";
+}
+<a class="btn btn-link btn-sm px-0 mb-2" href="/admin/promociones">← Volver</a>
+<form method="post" action="@accion" asp-antiforgery="true" novalidate class="ls-panel ls-form-admin">
+    <div asp-validation-summary="ModelOnly" class="ls-errores" role="alert"></div>
+    @if (ViewData["Usos"] is int usos) { <p class="small text-body-secondary">Usado <strong>@usos</strong> vez/veces.</p> }
+    <div class="row g-3">
+        <div class="col-md-6"><label asp-for="Codigo" class="form-label"></label><input asp-for="Codigo" class="form-control text-uppercase" /><span asp-validation-for="Codigo" class="ls-error-campo"></span></div>
+        <div class="col-md-6"><label asp-for="Descripcion" class="form-label"></label><input asp-for="Descripcion" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="Tipo" class="form-label"></label><select asp-for="Tipo" class="form-select" asp-items="Html.GetEnumSelectList<TipoDescuento>()"></select></div>
+        <div class="col-md-4"><label asp-for="Valor" class="form-label"></label><input asp-for="Valor" type="number" step="0.01" min="0" class="form-control" /><span asp-validation-for="Valor" class="ls-error-campo"></span></div>
+        <div class="col-md-4"><label asp-for="MontoMinimo" class="form-label"></label><input asp-for="MontoMinimo" type="number" step="0.01" min="0" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="FechaInicio" class="form-label"></label><input asp-for="FechaInicio" type="date" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="FechaFin" class="form-label"></label><input asp-for="FechaFin" type="date" class="form-control" /><span asp-validation-for="FechaFin" class="ls-error-campo"></span></div>
+        <div class="col-md-6"><label asp-for="UsosMaximos" class="form-label"></label><input asp-for="UsosMaximos" type="number" min="1" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="UsosPorUsuario" class="form-label"></label><input asp-for="UsosPorUsuario" type="number" min="1" class="form-control" /></div>
+        <div class="col-12"><div class="form-check"><input asp-for="Activo" class="form-check-input" /><label asp-for="Activo" class="form-check-label"></label></div></div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Guardar</button>
+</form>

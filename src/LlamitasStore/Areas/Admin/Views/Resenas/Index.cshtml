@@ -1,0 +1,29 @@
+@model List<Resena>
+@inject ServicioPermisos Permisos
+@{
+    ViewData["Title"] = "Reseñas";
+    var editar = await Permisos.TieneAsync(User, Modulos.Resenas, AccionPermiso.Editar);
+}
+<p class="text-body-secondary">Las reseñas las escriben los clientes. Ocultar una reseña la saca de la ficha y recalcula el promedio del producto.</p>
+<div class="ls-panel p-0">
+    <ul class="list-unstyled mb-0 ls-lista-admin">
+        @if (Model.Count == 0) { <li class="text-body-secondary p-3">Todavía no hay reseñas.</li> }
+        @foreach (var r in Model)
+        {
+            <li class="align-items-start">
+                <span>
+                    <strong>@r.Titulo</strong> · @r.Calificacion ★ @if (!r.Aprobada) { <span class="ls-estado ls-estado-cancelado ms-1">Oculta</span> }
+                    <small class="d-block text-body-secondary">@r.Producto.Nombre · @r.Usuario.NombreCompleto · @r.Fecha.ToLocalTime().ToString("dd/MM/yyyy")</small>
+                    <span class="d-block mt-1">@r.Comentario</span>
+                </span>
+                @if (editar)
+                {
+                    <form method="post" action="/admin/resenas/@r.Id/visibilidad" asp-antiforgery="true">
+                        <input type="hidden" name="aprobada" value="@(!r.Aprobada ? "true" : "false")" />
+                        <button class="btn btn-outline-secondary btn-sm" type="submit">@(r.Aprobada ? "Ocultar" : "Mostrar")</button>
+                    </form>
+                }
+            </li>
+        }
+    </ul>
+</div>
