@@ -678,6 +678,38 @@ a.ls-chip:hover { border-color: var(--c-primario); color: var(--c-texto); }
 .ls-opcion-valor { font-size: 1.15rem; }
 .ls-opcion-ayuda { font-size: .8rem; color: var(--c-texto-2); line-height: 1.4; }
 
+/* PC Builder: estados de compatibilidad (siempre con ícono + texto, nunca solo color) */
+.ls-sev-ok { color: var(--c-exito); }
+.ls-sev-aviso { color: var(--c-acento-texto); }
+.ls-sev-error { color: var(--c-peligro); }
+.ls-sev-info { color: var(--c-texto-2); }
+a.ls-seccion-boton { text-decoration: none; }
+.ls-seccion-texto { display: flex; flex-direction: column; min-width: 0; }
+@media (max-width: 991.98px) {
+  .ls-seccion-texto { align-items: center; width: 6.5rem; }
+  .ls-seccion-texto small { max-width: 100%; }
+}
+.ls-seccion-texto small { text-transform: none; letter-spacing: 0; color: var(--c-texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ls-seccion-icono { position: relative; }
+.ls-seccion-marca {
+  position: absolute; right: -.25rem; bottom: -.25rem; display: grid; place-items: center;
+  width: 1.3rem; height: 1.3rem; border-radius: 50%; background: var(--noche-850); border: 1px solid currentColor;
+}
+.ls-seccion-marca .ls-icono { width: .8rem; height: .8rem; stroke-width: 2.5; }
+.ls-vitrina-vacia { opacity: .35; animation: none; }
+.ls-resumen-pc { display: grid; gap: .6rem; margin-bottom: 1rem; font-size: .9rem; }
+.ls-resumen-pc li { min-width: 0; padding-bottom: .6rem; border-bottom: 1px solid var(--c-borde); }
+.ls-resumen-pc .text-truncate { min-width: 0; }
+.ls-hallazgos { display: grid; gap: .5rem; margin-bottom: .75rem; font-size: .85rem; line-height: 1.35; }
+.ls-hallazgos li { display: flex; gap: .5rem; align-items: flex-start; }
+.ls-hallazgos .ls-icono { flex-shrink: 0; width: 1.05rem; height: 1.05rem; margin-top: .1rem; }
+.ls-opcion-pc.elegida { border-color: var(--c-primario); background: var(--c-primario-suave); }
+.ls-opcion-pc.incompatible { opacity: .75; }
+.ls-opcion-pc .ls-sello-elegido { color: var(--c-texto); border-color: var(--c-primario); }
+.ls-opcion-motivo { font-size: .75rem; line-height: 1.3; }
+.ls-opcion-ficha { position: relative; z-index: 1; margin-top: auto; padding-top: .25rem; }
+.ls-selector-cantidad { width: 4.5rem; }
+
 @media (max-width: 1199.98px) {
   .ls-escenario-grid { grid-template-columns: 12.5rem minmax(0, 1fr) 16.5rem; }
   .ls-seccion-boton { font-size: .85rem; }

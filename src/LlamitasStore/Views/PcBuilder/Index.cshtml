@@ -1,0 +1,238 @@
+@model LlamitasStore.Controllers.PcBuilderVm
+@using LlamitasStore.Services.PcBuilder
+@{
+    var a = Model.Armado;
+    var ev = a.Evaluacion;
+    var paso = Model.Paso;
+    var sel = a.Seleccion;
+    ViewData["Descripcion"] = "Arma tu PC componente por componente con verificación de compatibilidad: socket, memoria, formato, medidas y consumo.";
+    var errores = ev.Hallazgos.Count(h => h.Severidad == Severidad.Error);
+    var advertencias = ev.Hallazgos.Count(h => h.Severidad == Severidad.Advertencia);
+    var sinVerificar = ev.Hallazgos.Count(h => h.Severidad == Severidad.SinVerificar);
+    var elegidoPaso = a.De(paso.Tipo).ToList();
+    var principal = elegidoPaso.FirstOrDefault();
+    string Icono(Severidad s) => s switch { Severidad.Error or Severidad.Advertencia => "alerta", Severidad.SinVerificar => "info", _ => "check" };
+    string Clase(Severidad s) => s switch { Severidad.Error => "ls-sev-error", Severidad.Advertencia => "ls-sev-aviso", Severidad.SinVerificar => "ls-sev-info", _ => "ls-sev-ok" };
+}
+
+<section class="ls-ficha" data-bs-theme="dark" aria-labelledby="titulo-builder">
+    <div class="ls-ficha-barra mt-0">
+        <div class="ls-contenedor ls-ficha-barra-fila">
+            <a class="ls-boton-icono ls-boton-volver" href="/" aria-label="Volver al inicio">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#flecha-izq"></use></svg>
+            </a>
+            <div class="ls-ficha-barra-titulo">
+                <p class="ls-tarjeta-marca mb-1">Configurador @(Model.NombreConfiguracion is { } n ? $"· {n}" : "")</p>
+                <h1 class="ls-ficha-titulo" id="titulo-builder">PC Builder</h1>
+            </div>
+            <div class="ls-ficha-barra-precio">
+                <p class="ls-ficha-estado mb-0 @(errores > 0 ? "ls-stock-bajo" : ev.Completa ? "ls-stock-ok" : "text-body-secondary")" role="status">
+                    @if (a.Componentes.Count == 0) { <text>Elige tus componentes</text> }
+                    else if (errores > 0) { <text>@errores incompatibilidad(es)</text> }
+                    else if (!ev.Completa) { <text>Compatible hasta ahora · faltan @ev.Faltantes.Count</text> }
+                    else { <text>Configuración compatible</text> }
+                </p>
+                <div class="ls-ficha-precio ls-numero"><span class="ls-precio-final">@Tienda.Dinero(a.Total)</span></div>
+            </div>
+            @if (a.Componentes.Count > 0)
+            {
+                <form method="post" action="/pc-builder/al-carrito" asp-antiforgery="true" class="m-0">
+                    @foreach (var (k, v) in sel.Campos()) { <input type="hidden" name="@k" value="@v" /> }
+                    <button type="submit" class="btn btn-primary btn-lg" disabled="@(errores > 0)" aria-describedby="@(errores > 0 ? "aviso-incompatible" : null)">
+                        <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#carrito"></use></svg> Agregar todo
+                    </button>
+                </form>
+            }
+        </div>
+        @if (errores > 0) { <p id="aviso-incompatible" class="visually-hidden">Corrige las incompatibilidades para agregar el armado al carrito.</p> }
+    </div>
+
+    <div class="ls-escenario">
+        <div class="ls-contenedor ls-escenario-grid">
+            <nav class="ls-escenario-nav" aria-label="Componentes">
+                @foreach (var p in SeleccionPc.Pasos)
+                {
+                    var elegidos = a.De(p.Tipo).ToList();
+                    var estado = elegidos.Count == 0 ? (Severidad?)null : ev.PeorPara(p.Tipo);
+                    var activo = p.Tipo == paso.Tipo;
+                    <a class="ls-seccion-boton @(activo ? "active" : "")" href="@sel.Query(p.Clave)" aria-current="@(activo ? "step" : null)">
+                        <span class="ls-seccion-icono @(estado is null ? "" : Clase(estado.Value))">
+                            <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#@p.Icono"></use></svg>
+                            @if (estado is not null) { <span class="ls-seccion-marca" aria-hidden="true"><svg class="ls-icono"><use href="/images/iconos.svg#@Icono(estado.Value)"></use></svg></span> }
+                        </span>
+                        <span class="ls-seccion-texto">
+                            @p.Nombre
+                            <small>@(elegidos.Count == 0 ? (ev.Faltantes.Contains(p.Tipo) ? "Falta elegir" : "Opcional") : string.Join(" + ", elegidos.Select(e => e.Datos.Nombre)))</small>
+                        </span>
+                    </a>
+                }
+            </nav>
+
+            <div class="ls-escenario-centro">
+                <div class="ls-vitrina">
+                    @if (principal?.Imagen is not null)
+                    {
+                        <img class="ls-vitrina-imagen" src="@principal.Imagen" alt="@principal.Datos.Nombre" width="800" height="600" />
+                    }
+                    else
+                    {
+                        <img class="ls-vitrina-imagen ls-vitrina-vacia" src="/images/productos/@(paso.Icono.Replace("cat-", "")).svg" alt="" width="800" height="600" />
+                    }
+                    <span class="ls-plataforma" aria-hidden="true"></span>
+                </div>
+                <p class="text-center mb-0">
+                    @if (principal is not null) { <strong>@principal.Datos.Nombre</strong> }
+                    else { <span class="text-body-secondary">Elige un@(paso.Tipo is TipoComponente.MemoriaRam or TipoComponente.TarjetaGrafica or TipoComponente.PlacaMadre or TipoComponente.FuentePoder or TipoComponente.Refrigeracion ? "a" : "") @paso.Nombre.ToLowerInvariant() abajo</span> }
+                </p>
+            </div>
+
+            <aside class="ls-escenario-panel" aria-labelledby="titulo-resumen">
+                <h2 class="ls-escenario-panel-titulo" id="titulo-resumen">Tu PC</h2>
+                @if (a.Componentes.Count == 0)
+                {
+                    <p class="small text-body-secondary">Todavía no elegiste componentes. Empieza por el procesador: define el resto de la plataforma.</p>
+                }
+                else
+                {
+                    <ul class="list-unstyled ls-resumen-pc">
+                        @foreach (var c in a.Componentes)
+                        {
+                            <li>
+                                <span class="small text-body-secondary d-block">@SeleccionPc.Paso(c.Datos.Tipo).Nombre@(c.Cantidad > 1 ? $" × {c.Cantidad}" : "")</span>
+                                <span class="d-flex justify-content-between gap-2"><span class="text-truncate">@c.Datos.Nombre</span><strong class="ls-numero text-nowrap">@Tienda.Dinero(c.Subtotal)</strong></span>
+                                @if (c.SinStock) { <span class="small ls-stock-bajo">Stock insuficiente (@c.Stock disp.)</span> }
+                            </li>
+                        }
+                    </ul>
+                    <dl class="ls-totales small mb-3">
+                        <div><dt>Consumo estimado</dt><dd>@ev.ConsumoEstimadoW W</dd></div>
+                        <div><dt>Fuente sugerida</dt><dd>≥ @ev.FuenteSugeridaW W</dd></div>
+                        <div class="ls-totales-total"><dt>Total</dt><dd>@Tienda.Dinero(a.Total)</dd></div>
+                    </dl>
+                }
+
+                @if (ev.Hallazgos.Count > 0)
+                {
+                    <h3 class="ls-filtro-titulo mt-2">Compatibilidad</h3>
+                    <ul class="list-unstyled ls-hallazgos">
+                        @foreach (var h in ev.Hallazgos.Where(x => x.Severidad != Severidad.Correcto))
+                        {
+                            <li class="@Clase(h.Severidad)"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#@Icono(h.Severidad)"></use></svg>
+                                <span><span class="visually-hidden">@h.Severidad: </span>@h.Mensaje</span></li>
+                        }
+                    </ul>
+                    var correctos = ev.Hallazgos.Where(x => x.Severidad == Severidad.Correcto).ToList();
+                    @if (correctos.Count > 0)
+                    {
+                        <details class="small">
+                            <summary>@correctos.Count verificación(es) correcta(s)</summary>
+                            <ul class="list-unstyled ls-hallazgos mt-2">
+                                @foreach (var h in correctos)
+                                {
+                                    <li class="ls-sev-ok"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#check"></use></svg><span>@h.Mensaje</span></li>
+                                }
+                            </ul>
+                        </details>
+                    }
+                }
+                @foreach (var aviso in a.Avisos) { <p class="small ls-stock-bajo mb-1">@aviso</p> }
+
+                @if (a.Componentes.Count > 0)
+                {
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form method="post" action="/pc-builder/guardar" asp-antiforgery="true" class="mt-3">
+                            @foreach (var (k, v) in sel.Campos()) { <input type="hidden" name="@k" value="@v" /> }
+                            <label for="nombre-config" class="form-label small">Guardar como</label>
+                            <div class="d-flex gap-2">
+                                <input id="nombre-config" name="nombre" class="form-control form-control-sm" maxlength="100" required value="@(Model.NombreConfiguracion ?? "Mi PC")" />
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">Guardar</button>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-secondary btn-sm w-100 mt-3" href="/cuenta/login?returnUrl=@Uri.EscapeDataString(sel.Query(paso.Clave))">Ingresa para guardar tu PC</a>
+                    }
+                    <a class="btn btn-link btn-sm w-100 mt-1" href="/pc-builder">Empezar de cero</a>
+                }
+            </aside>
+        </div>
+    </div>
+</section>
+
+<div class="ls-contenedor">
+    <section class="ls-ficha-detalle" aria-labelledby="titulo-paso">
+        <div class="ls-detalle-grid">
+            <div>
+                <p class="ls-eyebrow mb-0">Paso @(Array.IndexOf(SeleccionPc.Pasos, paso) + 1) de @SeleccionPc.Pasos.Length</p>
+                <h2 class="ls-detalle-titulo" id="titulo-paso">@paso.Nombre</h2>
+                <p class="text-body-secondary">@paso.Descripcion</p>
+                @if (Model.MostrarTodas)
+                {
+                    <a class="btn btn-outline-secondary btn-sm" href="@sel.Query(paso.Clave)">Mostrar solo compatibles</a>
+                }
+                else
+                {
+                    <a class="btn btn-outline-secondary btn-sm" href="@sel.Query(paso.Clave, todos: true)">Mostrar también incompatibles</a>
+                }
+                @if (paso.Multiple) { <p class="small text-body-secondary mt-3 mb-0">Puedes elegir varias unidades (máximo @SeleccionPc.MaxUnidadesAlmacenamiento).</p> }
+                @if (paso.Tipo == TipoComponente.MemoriaRam && principal is not null)
+                {
+                    <form method="get" action="/pc-builder/cantidad" class="d-flex align-items-center gap-2 mt-3" data-autoenvio>
+                        @foreach (var (k, v) in sel.Campos()) { <input type="hidden" name="@k" value="@v" /> }
+                        <input type="hidden" name="tipo" value="ram" /><input type="hidden" name="id" value="@principal.Datos.ProductoId" />
+                        <label for="kits" class="small">Kits de este modelo</label>
+                        <select id="kits" name="cantidad" class="form-select form-select-sm ls-selector-cantidad">
+                            @for (var i = 1; i <= paso.MaxCantidad; i++) { <option value="@i" selected="@(principal.Cantidad == i)">@i</option> }
+                        </select>
+                        <noscript><button class="btn btn-sm btn-outline-secondary" type="submit">OK</button></noscript>
+                    </form>
+                }
+            </div>
+
+            @if (Model.Opciones.Count == 0)
+            {
+                <div class="ls-panel text-body-secondary">No hay opciones compatibles con lo que elegiste. Revisa otros componentes o <a href="@sel.Query(paso.Clave, todos: true)">mira todas las opciones</a>.</div>
+            }
+            else
+            {
+                <ul class="ls-opciones" aria-label="Opciones de @paso.Nombre.ToLowerInvariant()">
+                    @foreach (var o in Model.Opciones)
+                    {
+                        var c = o.Componente;
+                        <li class="ls-opcion ls-opcion-pc @(o.Elegida ? "elegida" : "") @(o.Estado == Severidad.Error ? "incompatible" : "")">
+                            @if (o.Elegida) { <span class="ls-opcion-sello ls-sello-elegido">Elegido</span> }
+                            else if (o.Sugerida) { <span class="ls-opcion-sello">Sugerido</span> }
+                            @if (c.Imagen is not null) { <img src="@c.Imagen" alt="" width="160" height="120" loading="lazy" /> }
+                            <a class="ls-opcion-nombre" href="@o.UrlElegir" aria-label="@(o.Elegida ? "Quitar" : paso.Multiple ? "Agregar" : "Elegir") @c.Datos.Nombre">@c.Datos.Nombre</a>
+                            <span class="ls-opcion-precio ls-numero">@Tienda.Dinero(c.Precio.PrecioFinal)</span>
+                            @if (o.Elegida)
+                            {
+                                <span class="ls-opcion-diferencia">Toca para quitar</span>
+                            }
+                            else if (!paso.Multiple && elegidoPaso.Count > 0)
+                            {
+                                <span class="ls-opcion-diferencia ls-numero @(o.Diferencia < 0 ? "menos" : o.Diferencia > 0 ? "mas" : "")">@(o.Diferencia == 0 ? "Mismo precio" : (o.Diferencia > 0 ? "+" : "−") + Tienda.Dinero(Math.Abs(o.Diferencia)))</span>
+                            }
+                            @if (c.Stock == 0) { <span class="small ls-stock-agotado">Agotado</span> }
+                            @foreach (var m in o.Motivos.Take(2))
+                            {
+                                <span class="ls-opcion-motivo @(o.Estado == Severidad.Error ? "ls-sev-error" : "ls-sev-aviso")">@m</span>
+                            }
+                            <a class="small ls-opcion-ficha" href="/producto/@c.Slug" target="_blank" rel="noopener">Ver ficha</a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </section>
+
+    <p class="small text-body-secondary mt-4">
+        Las verificaciones usan los datos técnicos de cada ficha (socket, tipo de memoria, ranuras, formato, medidas y consumo).
+        El consumo es una estimación: CPU + GPU + @ReglasCompatibilidad.ConsumoBaseW W para el resto del equipo, con @(Math.Round((ReglasCompatibilidad.MargenFuente - 1) * 100))% de margen sugerido.
+        Si una verificación dice «sin verificar», falta un dato en la ficha: escríbenos antes de comprar.
+    </p>
+</div>
+
+@section Scripts { <script src="~/js/catalogo.js" asp-append-version="true"></script> }

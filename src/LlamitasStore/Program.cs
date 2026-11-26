@@ -144,6 +144,7 @@ builder.Services.AddScoped<ServicioCupones>();
 builder.Services.AddScoped<ServicioCarrito>();
 builder.Services.AddScoped<CarritoActual>();
 builder.Services.AddScoped<ServicioPedidos>();
+builder.Services.AddScoped<LlamitasStore.Services.PcBuilder.ServicioPcBuilder>();
 
 builder.Services.Configure<OpcionesCorreo>(config.GetSection("Correo"));
 builder.Services.AddSingleton<PlantillasCorreo>();

@@ -215,6 +215,20 @@ public class MiCuentaController : Controller
         return RedirectToAction(nameof(Pedido), new { numero });
     }
 
+    // ---------- Configuraciones del PC Builder ----------
+
+    [HttpGet("configuraciones")]
+    public async Task<IActionResult> Configuraciones([FromServices] Services.PcBuilder.ServicioPcBuilder builder, CancellationToken ct) =>
+        View(await builder.ListarAsync(UsuarioId, ct));
+
+    [HttpPost("configuraciones/{id:int}/eliminar")]
+    public async Task<IActionResult> EliminarConfiguracion(int id, [FromServices] Services.PcBuilder.ServicioPcBuilder builder, CancellationToken ct)
+    {
+        if (!await builder.EliminarAsync(UsuarioId, id, ct)) return NotFound();
+        TempData["Exito"] = "Configuración eliminada.";
+        return RedirectToAction(nameof(Configuraciones));
+    }
+
     // ---------- Favoritos ----------
 
     [HttpGet("favoritos")]

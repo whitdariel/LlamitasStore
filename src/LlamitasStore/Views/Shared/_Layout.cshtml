@@ -70,6 +70,7 @@
                     </li>
                     <li><a class="ls-nav-enlace" href="/catalogo?oferta=true" aria-current="@(ruta == "/catalogo" && consulta.Contains("oferta=true") ? "page" : null)">Ofertas</a></li>
                     <li><a class="ls-nav-enlace" href="/catalogo?orden=nuevos" aria-current="@(ruta == "/catalogo" && consulta.Contains("orden=nuevos") ? "page" : null)">Novedades</a></li>
+                    <li><a class="ls-nav-enlace" href="/pc-builder" aria-current="@(ruta.StartsWith("/pc-builder") ? "page" : null)">PC Builder</a></li>
                 </ul>
             </nav>
 
@@ -114,6 +115,7 @@
                     <li><a class="ls-filtro-enlace" href="/catalogo">Todo el catálogo</a></li>
                     <li><a class="ls-filtro-enlace" href="/catalogo?oferta=true">Ofertas</a></li>
                     <li><a class="ls-filtro-enlace" href="/catalogo?orden=nuevos">Novedades</a></li>
+                    <li><a class="ls-filtro-enlace" href="/pc-builder">PC Builder</a></li>
                 </ul>
                 <p class="ls-filtro-titulo">Categorías</p>
                 @await Component.InvokeAsync("Categorias", new { vista = "Movil" })
@@ -153,6 +155,7 @@
                         <li><a href="/catalogo">Catálogo</a></li>
                         <li><a href="/catalogo?oferta=true">Ofertas</a></li>
                         <li><a href="/catalogo?orden=nuevos">Novedades</a></li>
+                        <li><a href="/pc-builder">PC Builder</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-lg-3">

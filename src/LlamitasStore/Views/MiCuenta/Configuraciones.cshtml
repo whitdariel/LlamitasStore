@@ -1,0 +1,39 @@
+@model List<LlamitasStore.Services.PcBuilder.ServicioPcBuilder.ResumenConfiguracion>
+@{
+    Layout = "_LayoutCuenta";
+    ViewData["Title"] = "Mis PCs";
+    ViewData["SeccionCuenta"] = "configuraciones";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <p class="text-body-secondary mb-0">Armados guardados desde el PC Builder (hasta 20).</p>
+    <a class="btn btn-primary btn-sm" href="/pc-builder">Armar una PC nueva</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="ls-panel text-center py-5">
+        <svg class="ls-icono ls-icono-grande mb-2" aria-hidden="true"><use href="/images/iconos.svg#cat-gabinete"></use></svg>
+        <p class="mb-3">Todavía no guardaste ninguna configuración.</p>
+        <a class="btn btn-primary" href="/pc-builder">Ir al PC Builder</a>
+    </div>
+}
+else
+{
+    <ul class="list-unstyled d-grid gap-3">
+        @foreach (var c in Model)
+        {
+            <li class="ls-tarjeta-cuenta">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#cat-gabinete"></use></svg>
+                <span class="flex-grow-1">
+                    <strong>@c.Nombre</strong>
+                    <small>@c.Componentes componente(s) · actualizado @c.Fecha.ToLocalTime().ToString("dd/MM/yyyy")</small>
+                </span>
+                <a class="btn btn-outline-secondary btn-sm" href="@c.Url">Abrir</a>
+                <form method="post" action="/cuenta/configuraciones/@c.Id/eliminar" asp-antiforgery="true" data-confirmar="¿Eliminar «@c.Nombre»?">
+                    <button type="submit" class="btn btn-link btn-sm text-body-secondary">Eliminar</button>
+                </form>
+            </li>
+        }
+    </ul>
+}
