@@ -29,12 +29,16 @@ public class CatalogoController : Controller
     }
 
     [HttpGet("producto/{slug}")]
-    public async Task<IActionResult> Producto(string slug, CancellationToken ct)
+    public async Task<IActionResult> Producto(string slug, [FromServices] Services.Comunidad.ServicioResenas resenas, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(slug) || slug.Length > 180) return NotFound();
 
         var ficha = await _catalogo.ObtenerFichaAsync(slug, ct);
         if (ficha is null) return NotFound();
+
+        // Reseña propia para precargar el formulario (el id sale de la sesión, nunca del navegador).
+        if (int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var usuarioId))
+            ViewData["ResenaPropia"] = await resenas.ObtenerPropiaAsync(usuarioId, ficha.Producto.Id, ct);
 
         return View(ficha);
     }

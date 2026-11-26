@@ -145,6 +145,12 @@ builder.Services.AddScoped<ServicioCarrito>();
 builder.Services.AddScoped<CarritoActual>();
 builder.Services.AddScoped<ServicioPedidos>();
 builder.Services.AddScoped<LlamitasStore.Services.PcBuilder.ServicioPcBuilder>();
+// ---------- Comunidad y extras ----------
+builder.Services.AddScoped<ServicioComparador>();
+builder.Services.AddScoped<ComparadorActual>();
+builder.Services.AddScoped<LlamitasStore.Services.Comunidad.ServicioResenas>();
+builder.Services.AddScoped<LlamitasStore.Services.Comunidad.ServicioNotificaciones>();
+builder.Services.AddScoped<LlamitasStore.Services.Comunidad.ServicioContacto>();
 
 builder.Services.Configure<OpcionesCorreo>(config.GetSection("Correo"));
 builder.Services.AddSingleton<PlantillasCorreo>();

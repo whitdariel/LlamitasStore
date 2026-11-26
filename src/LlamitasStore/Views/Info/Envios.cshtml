@@ -1,0 +1,34 @@
+@{
+    Layout = "_LayoutInfo";
+    ViewData["Title"] = "Envíos";
+    ViewData["Descripcion"] = "Costo de envío, envío gratis y seguimiento de tu pedido en LlamitasStore.";
+    var costo = Tienda.ObtenerDecimal(ClavesAjuste.CostoEnvio);
+    var gratis = Tienda.ObtenerDecimal(ClavesAjuste.EnvioGratisDesde);
+}
+
+<h2 class="h5 mt-4">Costo</h2>
+<ul>
+    <li>Envío: <strong>@(costo > 0 ? Tienda.Dinero(costo) : "sin costo")</strong> por pedido.</li>
+    @if (gratis > 0)
+    {
+        <li>Gratis cuando el subtotal (después de descuentos) llega a <strong>@Tienda.Dinero(gratis)</strong>.</li>
+    }
+    <li>El costo exacto lo ves en el carrito y en el checkout antes de confirmar.</li>
+</ul>
+
+<h2 class="h5 mt-4">Dónde enviamos</h2>
+<p>A los nueve departamentos de Bolivia. Al confirmar, guardamos una copia de la dirección elegida: si después editas tu libreta de direcciones, el pedido mantiene la original.</p>
+
+<h2 class="h5 mt-4">Plazos y seguimiento</h2>
+<p>
+    El plazo depende del departamento de destino y te lo confirmamos al preparar el pedido.
+    Cada cambio de estado (confirmado, en preparación, enviado, entregado) aparece en
+    <a href="/cuenta/pedidos">Mis pedidos</a> y en tus notificaciones.
+</p>
+
+<h2 class="h5 mt-4">Pago</h2>
+<ul>
+    <li><strong>Contra entrega:</strong> pagas al recibir.</li>
+    <li><strong>Transferencia bancaria:</strong> verás los datos al confirmar el pedido. Cuando verificamos la transferencia, el pago aparece como confirmado en tu pedido.</li>
+</ul>
+<p>No pedimos ni guardamos datos de tarjetas.</p>

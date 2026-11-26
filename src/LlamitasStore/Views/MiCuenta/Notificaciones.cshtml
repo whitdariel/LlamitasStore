@@ -1,0 +1,45 @@
+@model List<LlamitasStore.Services.Comunidad.NotificacionVista>
+@{
+    Layout = "_LayoutCuenta";
+    ViewData["Title"] = "Notificaciones";
+    ViewData["SeccionCuenta"] = "notificaciones";
+    var noLeidas = Model.Count(n => !n.Leida);
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <p class="text-body-secondary mb-0">Avisos sobre tus pedidos y pagos (últimos @LlamitasStore.Services.Comunidad.ServicioNotificaciones.Maximo).</p>
+    @if (noLeidas > 0)
+    {
+        <form method="post" action="/cuenta/notificaciones/leer-todas" asp-antiforgery="true">
+            <button type="submit" class="btn btn-outline-secondary btn-sm">Marcar todas como leídas</button>
+        </form>
+    }
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="ls-panel text-center py-5">
+        <svg class="ls-icono ls-icono-grande mb-2" aria-hidden="true"><use href="/images/iconos.svg#campana"></use></svg>
+        <p class="mb-0">No tienes notificaciones. Te avisaremos aquí cuando cambie el estado de un pedido.</p>
+    </div>
+}
+else
+{
+    <ul class="list-unstyled d-grid gap-2">
+        @foreach (var n in Model)
+        {
+            <li class="ls-notificacion @(n.Leida ? "" : "no-leida")">
+                <form method="post" action="/cuenta/notificaciones/@n.Id/abrir" asp-antiforgery="true">
+                    <button type="submit" class="ls-notificacion-boton">
+                        @if (!n.Leida) { <span class="ls-punto" aria-hidden="true"></span><span class="visually-hidden">Sin leer: </span> }
+                        <span class="flex-grow-1">
+                            <strong class="d-block">@n.Titulo</strong>
+                            <span class="d-block small text-body-secondary">@n.Mensaje</span>
+                        </span>
+                        <time class="small text-body-secondary text-nowrap" datetime="@n.Fecha.ToString("o")">@n.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</time>
+                    </button>
+                </form>
+            </li>
+        }
+    </ul>
+}

@@ -4,6 +4,8 @@
 @inject ServicioCarrito Carrito
 @inject CarritoActual CarritoActual
 @inject LlamitasStore.Infraestructura.ServicioPermisos Permisos
+@inject LlamitasStore.Services.Comunidad.ServicioNotificaciones Notificaciones
+@inject Microsoft.AspNetCore.Identity.UserManager<Usuario> Usuarios
 @{
     var rutaActual = Context.Request.Path + Context.Request.QueryString;
     var enCarrito = await Carrito.ContarAsync(CarritoActual.Dueno());
@@ -16,6 +18,12 @@
 {
     var nombre = User.FindFirst(LlamitasStore.Infraestructura.UsuarioClaimsFactory.ClaimNombre)?.Value ?? "Mi cuenta";
     var totalFavoritos = (await Favoritos.IdsAsync()).Count;
+    var sinLeer = int.TryParse(Usuarios.GetUserId(User), out var uid) ? await Notificaciones.ContarNoLeidasAsync(uid) : 0;
+
+    <a class="ls-boton-icono position-relative" href="/cuenta/notificaciones" aria-label="Notificaciones (@sinLeer sin leer)">
+        <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#campana"></use></svg>
+        <span class="ls-contador ls-numero @(sinLeer == 0 ? "d-none" : "")">@(sinLeer > 99 ? "99+" : sinLeer.ToString())</span>
+    </a>
 
     <a class="ls-boton-icono position-relative" href="/cuenta/favoritos" aria-label="Favoritos (@totalFavoritos)">
         <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#corazon"></use></svg>
@@ -37,6 +45,7 @@
             }
             <li><a class="dropdown-item" href="/cuenta">Mi cuenta</a></li>
             <li><a class="dropdown-item" href="/cuenta/pedidos">Mis pedidos</a></li>
+            <li><a class="dropdown-item" href="/cuenta/notificaciones">Notificaciones@(sinLeer > 0 ? $" ({sinLeer})" : "")</a></li>
             <li><a class="dropdown-item" href="/cuenta/favoritos">Favoritos</a></li>
             <li><a class="dropdown-item" href="/cuenta/direcciones">Direcciones</a></li>
             <li><a class="dropdown-item" href="/cuenta/seguridad">Seguridad</a></li>

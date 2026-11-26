@@ -1,0 +1,64 @@
+@model ContactoVm
+@{
+    Layout = "~/Views/Info/_LayoutInfo.cshtml";
+    ViewData["Title"] = "Contacto";
+    ViewData["Eyebrow"] = "Ayuda";
+    ViewData["Descripcion"] = "Escríbenos sobre productos, compatibilidad de componentes, pedidos o garantías.";
+    var email = Tienda.Obtener(ClavesAjuste.EmailContacto);
+    var telefono = Tienda.Obtener(ClavesAjuste.TelefonoContacto);
+    var direccion = Tienda.Obtener(ClavesAjuste.DireccionTienda);
+}
+
+<p class="text-body-secondary">Respondemos al correo que indiques. Si es sobre un pedido, incluye su número (lo ves en <a href="/cuenta/pedidos">Mis pedidos</a>).</p>
+
+<form method="post" action="/contacto" asp-antiforgery="true" novalidate class="ls-panel">
+    <div asp-validation-summary="ModelOnly" class="ls-errores" role="alert"></div>
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" autocomplete="name" />
+            <span asp-validation-for="Nombre" class="ls-error-campo"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" type="email" autocomplete="email" />
+            <span asp-validation-for="Email" class="ls-error-campo"></span>
+        </div>
+        <div class="col-sm-7">
+            <label asp-for="Asunto" class="form-label"></label>
+            <select asp-for="Asunto" class="form-select">
+                <option value="">Elige un asunto</option>
+                @foreach (var a in ContactoVm.Asuntos) { <option value="@a" selected="@(Model.Asunto == a)">@a</option> }
+            </select>
+            <span asp-validation-for="Asunto" class="ls-error-campo"></span>
+        </div>
+        <div class="col-sm-5">
+            <label asp-for="NumeroPedido" class="form-label"></label>
+            <input asp-for="NumeroPedido" class="form-control" placeholder="LS-20261126-00001" />
+            <span asp-validation-for="NumeroPedido" class="ls-error-campo"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Mensaje" class="form-label"></label>
+            <textarea asp-for="Mensaje" class="form-control" rows="6" maxlength="3000"></textarea>
+            <span asp-validation-for="Mensaje" class="ls-error-campo"></span>
+        </div>
+        @* Trampa para bots: invisible y fuera del orden de tabulación. *@
+        <div class="visually-hidden" aria-hidden="true">
+            <label for="SitioWeb">No completes este campo</label>
+            <input id="SitioWeb" name="SitioWeb" tabindex="-1" autocomplete="off" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary mt-4">Enviar mensaje</button>
+</form>
+
+@if (!string.IsNullOrEmpty(email) || !string.IsNullOrEmpty(telefono) || !string.IsNullOrEmpty(direccion))
+{
+    <h2 class="h5 mt-5">Otras formas de contacto</h2>
+    <ul>
+        @if (!string.IsNullOrEmpty(email)) { <li>Correo: <a href="mailto:@email">@email</a></li> }
+        @if (!string.IsNullOrEmpty(telefono)) { <li>Teléfono: <a href="tel:@telefono.Replace(" ", "")">@telefono</a></li> }
+        @if (!string.IsNullOrEmpty(direccion)) { <li>Dirección: @direccion</li> }
+    </ul>
+}
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

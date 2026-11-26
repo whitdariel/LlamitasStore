@@ -1,0 +1,17 @@
+@using LlamitasStore.Services.Catalogo
+@model (int ProductoId, string Nombre, string Clase)
+@inject ComparadorActual Comparador
+@{
+    var volver = Context.Request.Path + Context.Request.QueryString;
+    var esta = Comparador.Ids.Contains(Model.ProductoId);
+}
+@* Funciona sin JS (POST + redirección); con JS, site.js lo envía con fetch y actualiza el botón. *@
+<form method="post" action="/comparar/@(esta ? "quitar" : "agregar")" asp-antiforgery="true" class="ls-comparar-form @Model.Clase" data-comparar="@Model.ProductoId">
+    <input type="hidden" name="productoId" value="@Model.ProductoId" />
+    <input type="hidden" name="returnUrl" value="@volver" />
+    <button type="submit" class="ls-comparar @(esta ? "activo" : "")" aria-pressed="@(esta ? "true" : "false")"
+            aria-label="@(esta ? "Quitar del comparador" : "Agregar al comparador"): @Model.Nombre"
+            data-texto-agregar="Agregar al comparador: @Model.Nombre" data-texto-quitar="Quitar del comparador: @Model.Nombre">
+        <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#comparar"></use></svg>
+    </button>
+</form>

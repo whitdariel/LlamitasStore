@@ -1,0 +1,43 @@
+@{
+    Layout = "_Layout";
+    var actual = Context.Request.Path.Value ?? "";
+    (string Url, string Texto)[] menu =
+    [
+        ("/ayuda", "Preguntas frecuentes"),
+        ("/politicas/envios", "Envíos"),
+        ("/politicas/devoluciones", "Garantía y devoluciones"),
+        ("/politicas/terminos", "Términos y condiciones"),
+        ("/politicas/privacidad", "Privacidad"),
+        ("/contacto", "Contacto")
+    ];
+}
+<div class="ls-contenedor ls-cabecera-pagina">
+    <nav aria-label="Ruta de navegación">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="/ayuda">Ayuda</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+    <div class="row g-4">
+        <aside class="col-lg-3">
+            <nav class="ls-panel ls-menu-cuenta" aria-label="Ayuda e información">
+                <ul class="list-unstyled mb-0">
+                    @foreach (var (url, texto) in menu)
+                    {
+                        <li><a class="ls-filtro-enlace @(actual == url ? "activo" : "")" href="@url" aria-current="@(actual == url ? "page" : null)"><span>@texto</span></a></li>
+                    }
+                </ul>
+            </nav>
+        </aside>
+        <div class="col-lg-9">
+            <article class="ls-texto-legal">
+                <p class="ls-eyebrow">@(ViewData["Eyebrow"] ?? "Información")</p>
+                <h1 class="ls-titulo-seccion mb-4">@ViewData["Title"]</h1>
+                @RenderBody()
+            </article>
+        </div>
+    </div>
+</div>
+
+@section Scripts { @RenderSection("Scripts", required: false) }

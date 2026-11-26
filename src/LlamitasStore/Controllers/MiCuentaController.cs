@@ -229,6 +229,28 @@ public class MiCuentaController : Controller
         return RedirectToAction(nameof(Configuraciones));
     }
 
+    // ---------- Notificaciones ----------
+
+    [HttpGet("notificaciones")]
+    public async Task<IActionResult> Notificaciones([FromServices] Services.Comunidad.ServicioNotificaciones notificaciones, CancellationToken ct) =>
+        View(await notificaciones.ListarAsync(UsuarioId, ct));
+
+    /// <summary>Marca como leída y lleva a su destino (solo rutas locales).</summary>
+    [HttpPost("notificaciones/{id:int}/abrir")]
+    public async Task<IActionResult> AbrirNotificacion(int id, [FromServices] Services.Comunidad.ServicioNotificaciones notificaciones, CancellationToken ct)
+    {
+        var (encontrada, url) = await notificaciones.AbrirAsync(UsuarioId, id, ct);
+        if (!encontrada) return NotFound();
+        return !string.IsNullOrEmpty(url) && Url.IsLocalUrl(url) ? LocalRedirect(url) : RedirectToAction(nameof(Notificaciones));
+    }
+
+    [HttpPost("notificaciones/leer-todas")]
+    public async Task<IActionResult> LeerTodasNotificaciones([FromServices] Services.Comunidad.ServicioNotificaciones notificaciones, CancellationToken ct)
+    {
+        await notificaciones.MarcarTodasAsync(UsuarioId, ct);
+        return RedirectToAction(nameof(Notificaciones));
+    }
+
     // ---------- Favoritos ----------
 
     [HttpGet("favoritos")]

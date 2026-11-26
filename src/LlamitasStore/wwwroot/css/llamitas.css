@@ -760,6 +760,70 @@ a.ls-seccion-boton { text-decoration: none; }
 .ls-favorito-tarjeta .ls-favorito.activo, .ls-favorito-ficha .ls-favorito.activo,
 .ls-favorito-tarjeta .ls-favorito:hover, a.ls-favorito-tarjeta:hover { color: var(--lana-300); border-color: var(--lana-300); }
 
+/* Comparador: mismo botón redondo que favoritos, en violeta; en la tarjeta va debajo del corazón */
+.ls-comparar {
+  display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  border: 1px solid var(--c-borde); background: color-mix(in srgb, var(--c-superficie) 85%, transparent);
+  color: var(--c-texto); transition: transform var(--t-rapido) var(--curva), color var(--t-rapido), border-color var(--t-rapido), background-color var(--t-rapido);
+}
+.ls-comparar:hover { color: var(--violeta-300); border-color: var(--violeta-300); transform: scale(1.08); }
+.ls-comparar.activo { color: var(--noche-0); background: var(--violeta-500); border-color: var(--violeta-500); }
+.ls-comparar:disabled { opacity: .6; }
+.ls-comparar-form { margin: 0; }
+.ls-comparar-tarjeta { position: absolute; top: 3.15rem; right: .55rem; z-index: 2; }
+.ls-comparar-tarjeta .ls-comparar { width: 2.25rem; height: 2.25rem; background: rgb(13 11 19 / .55); color: var(--noche-50); border-color: var(--noche-600); }
+.ls-comparar-tarjeta .ls-comparar.activo { background: var(--violeta-500); border-color: var(--violeta-500); }
+.ls-comparar-ficha .ls-comparar { width: 3rem; height: 3rem; background: var(--noche-800); }
+.ls-comparar-ficha .ls-comparar.activo { background: var(--violeta-500); }
+
+.ls-tabla-comparar-marco { overflow-x: auto; border: 1px solid var(--c-borde); border-radius: var(--r-lg); background: var(--c-superficie); }
+.ls-tabla-comparar-marco:focus-visible { outline: 2px solid var(--c-primario); outline-offset: 2px; }
+.ls-tabla-comparar { margin: 0; min-width: 40rem; table-layout: fixed; --bs-table-bg: transparent; }
+.ls-tabla-comparar thead td:first-child { width: 12rem; }
+.ls-tabla-comparar th, .ls-tabla-comparar td { padding: .75rem 1rem; vertical-align: top; border-color: var(--c-borde); }
+.ls-tabla-comparar tbody th[scope="row"] { width: 12rem; font-weight: 500; color: var(--c-texto-2); position: sticky; left: 0; background: var(--c-superficie); }
+.ls-tabla-comparar thead th { min-width: 12rem; overflow-wrap: anywhere; }
+@media (max-width: 575.98px) {
+  .ls-tabla-comparar thead td:first-child, .ls-tabla-comparar tbody th[scope="row"] { width: 8rem; }
+}
+.ls-comparar-cabecera { display: flex; flex-direction: column; gap: .3rem; font-weight: 600; }
+.ls-comparar-cabecera img { width: 100%; max-width: 10rem; height: auto; border-radius: var(--r-md); background: var(--c-escenario); }
+.ls-comparar-cabecera a { color: var(--c-texto); text-decoration: none; line-height: 1.3; }
+.ls-comparar-cabecera a:hover { color: var(--c-enlace); }
+.ls-fila-grupo th { font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--c-acento-texto); background: var(--c-superficie-2); }
+.ls-fila-difiere td, .ls-fila-difiere th[scope="row"] { background: var(--c-primario-suave); }
+.ls-fila-difiere th[scope="row"] { color: var(--c-texto); box-shadow: inset 3px 0 0 var(--c-primario); }
+.ls-enlace-compartir { width: min(22rem, 100%); }
+
+/* Notificaciones */
+.ls-notificacion form { margin: 0; }
+.ls-notificacion-boton {
+  display: flex; align-items: flex-start; gap: .75rem; width: 100%; padding: .9rem 1rem; text-align: left;
+  border: 1px solid var(--c-borde); border-radius: var(--r-md); background: var(--c-superficie); color: var(--c-texto);
+  transition: border-color var(--t-rapido);
+}
+.ls-notificacion-boton:hover { border-color: var(--c-primario); }
+.ls-notificacion.no-leida .ls-notificacion-boton { background: var(--c-primario-suave); border-color: var(--c-primario); }
+.ls-punto { flex-shrink: 0; width: .55rem; height: .55rem; margin-top: .45rem; border-radius: 50%; background: var(--c-primario); }
+
+/* Reseñas: formulario con estrellas (radios accesibles; orden inverso para colorear hasta la elegida) */
+.ls-resena-form summary, .ls-faq-item summary { cursor: pointer; font-weight: 600; }
+.ls-resena-form { padding-bottom: 1rem; border-bottom: 1px solid var(--c-borde); }
+.ls-resena-cta { padding-bottom: 1rem; margin-bottom: 0; border-bottom: 1px solid var(--c-borde); }
+.ls-estrellas-input { display: inline-flex; flex-direction: row-reverse; gap: .15rem; }
+.ls-estrellas-input label { cursor: pointer; color: var(--c-borde-fuerte); padding: .1rem; border-radius: var(--r-sm, .35rem); }
+.ls-estrellas-input label .ls-icono { width: 1.75rem; height: 1.75rem; }
+.ls-estrellas-input input:checked ~ label,
+.ls-estrellas-input label:hover, .ls-estrellas-input label:hover ~ label { color: var(--lana-400); }
+.ls-estrellas-input input:checked ~ label .ls-icono, .ls-estrellas-input label:hover .ls-icono, .ls-estrellas-input label:hover ~ label .ls-icono { fill: currentColor; }
+.ls-estrellas-input input:focus-visible + label { outline: 2px solid var(--c-primario); outline-offset: 1px; }
+
+/* Preguntas frecuentes */
+.ls-faq { display: grid; gap: .5rem; }
+.ls-faq-item { padding: .9rem 1.1rem; border: 1px solid var(--c-borde); border-radius: var(--r-md); background: var(--c-superficie); }
+.ls-faq-item[open] { border-color: var(--c-primario); }
+.ls-faq-item p { margin: .6rem 0 0; color: var(--c-texto-2); }
+
 .ls-auth { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--c-borde); background: var(--c-superficie); max-width: 64rem; margin-inline: auto; }
 .ls-auth-marca {
   position: relative; overflow: hidden; padding: clamp(1.75rem, 4vw, 3rem); color: var(--c-texto);

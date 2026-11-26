@@ -1,0 +1,55 @@
+@{
+    Layout = "_LayoutInfo";
+    ViewData["Title"] = "Preguntas frecuentes";
+    ViewData["Eyebrow"] = "Ayuda";
+    ViewData["Descripcion"] = "Respuestas sobre compras, pagos, envíos, compatibilidad de componentes y tu cuenta en LlamitasStore.";
+    var costo = Tienda.ObtenerDecimal(ClavesAjuste.CostoEnvio);
+    var gratis = Tienda.ObtenerDecimal(ClavesAjuste.EnvioGratisDesde);
+
+    var grupos = new (string Titulo, (string Pregunta, string Html)[] Items)[]
+    {
+        ("Compras y pagos",
+        [
+            ("¿Qué formas de pago aceptan?", "Contra entrega y transferencia bancaria. Los datos para transferir aparecen al confirmar el pedido. No pedimos ni guardamos datos de tarjetas."),
+            ("¿Necesito una cuenta para comprar?", "Puedes armar tu carrito sin cuenta. Para confirmar el pedido te pedimos ingresar o registrarte (también con Google); tu carrito se conserva."),
+            ("¿Cómo uso un cupón?", "Escríbelo en el carrito. Si no aplica, te decimos el motivo: vencido, monto mínimo no alcanzado o límite de usos."),
+            ("¿Puedo cancelar un pedido?", "Sí, mientras esté pendiente, desde <a href=\"/cuenta/pedidos\">Mis pedidos</a>. Después, <a href=\"/contacto?asunto=Estado%20de%20mi%20pedido\">escríbenos</a>.")
+        ]),
+        ("Envíos",
+        [
+            ("¿Cuánto cuesta el envío?", (costo > 0 ? $"{Tienda.Dinero(costo)} por pedido" : "No tiene costo") + (gratis > 0 ? $", y es gratis desde {Tienda.Dinero(gratis)} de subtotal." : ".") + " Más detalles en <a href=\"/politicas/envios\">Envíos</a>."),
+            ("¿Cómo sigo mi pedido?", "En <a href=\"/cuenta/pedidos\">Mis pedidos</a> ves cada cambio de estado, y te llega una notificación cuando cambia.")
+        ]),
+        ("Componentes y compatibilidad",
+        [
+            ("¿Cómo sé si un componente es compatible con mi PC?", "Cada ficha tiene una sección Compatibilidad con socket, tipo de memoria, formato, medidas y consumo. El <a href=\"/pc-builder\">PC Builder</a> cruza esos datos automáticamente y explica cada problema que encuentra."),
+            ("¿Qué significa «sin verificar» en el PC Builder?", "Falta un dato técnico en alguna ficha, así que no podemos confirmar la compatibilidad. Nunca lo damos por compatible: <a href=\"/contacto?asunto=Compatibilidad%20de%20componentes\">consúltanos</a> antes de comprar."),
+            ("¿Qué fuente de poder necesito?", "El PC Builder estima el consumo (procesador + tarjeta gráfica + 75 W para el resto) y sugiere una fuente con 30 % de margen. También avisa si la fuente está por debajo de lo que recomienda el fabricante de la gráfica."),
+            ("¿Cómo comparo productos?", "Toca «Comparar» en las tarjetas o en la ficha (hasta 4) y abre el <a href=\"/comparar\">comparador</a>: las filas con valores distintos quedan resaltadas.")
+        ]),
+        ("Tu cuenta",
+        [
+            ("Olvidé mi contraseña", "Usa <a href=\"/cuenta/olvide-contrasena\">¿Olvidaste tu contraseña?</a>: te enviamos un enlace válido por 3 horas y de un solo uso."),
+            ("¿Cómo escribo una reseña?", "Ingresa a tu cuenta y abre la ficha del producto, sección Reseñas. Si recibiste ese producto en un pedido entregado, tu reseña lleva la etiqueta «Compra verificada».")
+        ])
+    };
+}
+
+@foreach (var (titulo, items) in grupos)
+{
+    <h2 class="h5 mt-4">@titulo</h2>
+    <div class="ls-faq">
+        @foreach (var (pregunta, html) in items)
+        {
+            <details class="ls-faq-item">
+                <summary>@pregunta</summary>
+                <p>@Html.Raw(html)</p>
+            </details>
+        }
+    </div>
+}
+
+<div class="ls-panel mt-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <p class="mb-0">¿No encontraste tu respuesta?</p>
+    <a class="btn btn-primary" href="/contacto">Escríbenos</a>
+</div>

@@ -44,6 +44,11 @@
         });
     });
 
+    // ---------- Campos de solo lectura con un enlace: se seleccionan al enfocarlos para copiar ----------
+    document.querySelectorAll('input[data-seleccionar]').forEach(function (campo) {
+        campo.addEventListener('focus', function () { campo.select(); });
+    });
+
     // ---------- Confirmación antes de acciones destructivas ----------
     document.querySelectorAll('form[data-confirmar]').forEach(function (form) {
         form.addEventListener('submit', function (e) {
@@ -92,16 +97,53 @@
         aviso.replaceChildren();
         aviso.classList.toggle('ls-aviso-error', !!esError);
         aviso.appendChild(document.createTextNode(texto + ' '));
+        // true = enlace al carrito; un objeto { href, texto } = otro enlace (p. ej. el comparador).
         if (conEnlaceCarrito) {
             var a = document.createElement('a');
-            a.href = '/carrito';
-            a.textContent = 'Ver carrito';
+            a.href = conEnlaceCarrito === true ? '/carrito' : conEnlaceCarrito.href;
+            a.textContent = conEnlaceCarrito === true ? 'Ver carrito' : conEnlaceCarrito.texto;
             aviso.appendChild(a);
         }
         aviso.hidden = false;
         clearTimeout(temporizadorAviso);
         temporizadorAviso = setTimeout(function () { aviso.hidden = true; }, 5000);
     }
+
+    // ---------- Comparador sin recargar (si falla, el formulario se envía normal) ----------
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-comparar')) return;
+        e.preventDefault();
+        var boton = form.querySelector('button');
+        if (boton) boton.disabled = true;
+        var quitar = /\/quitar$/.test(form.action);
+
+        fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' } })
+            .then(function (r) {
+                var tipo = r.headers.get('content-type') || '';
+                if (!r.ok || r.redirected || tipo.indexOf('application/json') === -1) throw new Error('sin-json');
+                return r.json();
+            })
+            .then(function (datos) {
+                if (!datos.ok) {
+                    mostrarAviso('El comparador admite hasta ' + datos.maximo + ' productos.', { href: '/comparar', texto: 'Abrir comparador' }, true);
+                    return;
+                }
+                var activo = !quitar;
+                var id = form.getAttribute('data-comparar');
+                document.querySelectorAll('form[data-comparar="' + id + '"]').forEach(function (f) {
+                    f.action = activo ? '/comparar/quitar' : '/comparar/agregar';
+                    var b = f.querySelector('button');
+                    b.classList.toggle('activo', activo);
+                    b.setAttribute('aria-pressed', String(activo));
+                    b.setAttribute('aria-label', b.getAttribute(activo ? 'data-texto-quitar' : 'data-texto-agregar'));
+                });
+                mostrarAviso(activo ? 'Agregado al comparador (' + datos.total + ').' : 'Quitado del comparador.',
+                    datos.total > 0 ? { href: '/comparar', texto: 'Comparar ahora' } : false);
+            })
+            .catch(function () { HTMLFormElement.prototype.submit.call(form); })
+            .finally(function () { if (boton) boton.disabled = false; });
+    });
 
     // ---------- Agregar al carrito sin recargar (si falla, el formulario se envía normal) ----------
     document.addEventListener('submit', function (e) {

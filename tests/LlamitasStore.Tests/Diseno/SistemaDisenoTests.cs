@@ -120,7 +120,8 @@ public partial class SistemaDisenoTests
             if (Regex.IsMatch(texto, @"\sstyle\s*=")) problemas.Add($"{Rel(archivo)}: atributo style");
             if (Regex.IsMatch(texto, @"<style[\s>]")) problemas.Add($"{Rel(archivo)}: <style>");
             if (Regex.IsMatch(texto, @"\son(click|change|submit|load|input)\s*=", RegexOptions.IgnoreCase)) problemas.Add($"{Rel(archivo)}: manejador inline");
-            if (Regex.IsMatch(texto, @"<script(?![^>]*\ssrc=)[^>]*>", RegexOptions.IgnoreCase)) problemas.Add($"{Rel(archivo)}: <script> sin src");
+            // Excepción: bloques de datos JSON-LD para buscadores (no se ejecutan; la CSP no los bloquea).
+            if (Regex.IsMatch(texto, @"<script(?![^>]*\ssrc=)(?![^>]*type=""application/ld\+json"")[^>]*>", RegexOptions.IgnoreCase)) problemas.Add($"{Rel(archivo)}: <script> sin src");
         }
         Assert.True(problemas.Count == 0, string.Join('\n', problemas));
     }

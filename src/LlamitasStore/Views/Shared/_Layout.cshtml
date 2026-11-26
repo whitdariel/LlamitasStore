@@ -6,12 +6,29 @@
     <title>@ViewData["Title"] · @Tienda.NombreTienda</title>
     <meta name="description" content="@(ViewData["Descripcion"] as string ?? "LlamitasStore: componentes de PC, hardware y periféricos gaming.")" />
     <meta name="color-scheme" content="dark light" />
-    @if (ViewData["Canonical"] is string canonical)
+    @{
+        var origen = $"{Context.Request.Scheme}://{Context.Request.Host}";
+        var urlCanonica = origen + (ViewData["Canonical"] as string ?? Context.Request.Path.Value);
+    }
+    @if (ViewData["Canonical"] is string)
     {
-        <link rel="canonical" href="@($"{Context.Request.Scheme}://{Context.Request.Host}{canonical}")" />
+        <link rel="canonical" href="@urlCanonica" />
+    }
+    @if (ViewData["NoIndexar"] is true)
+    {
+        <meta name="robots" content="noindex" />
     }
     <meta property="og:site_name" content="@Tienda.NombreTienda" />
     <meta property="og:title" content="@ViewData["Title"]" />
+    <meta property="og:description" content="@(ViewData["Descripcion"] as string ?? "LlamitasStore: componentes de PC, hardware y periféricos gaming.")" />
+    <meta property="og:type" content="@(ViewData["OgTipo"] as string ?? "website")" />
+    <meta property="og:url" content="@urlCanonica" />
+    <meta property="og:locale" content="es_BO" />
+    @if (ViewData["OgImagen"] is string ogImagen)
+    {
+        <meta property="og:image" content="@(ogImagen.StartsWith("http") ? ogImagen : origen + ogImagen)" />
+    }
+    @await RenderSectionAsync("Head", required: false)
     <link rel="icon" href="~/images/llamita-mark.svg" type="image/svg+xml" />
     <link rel="preload" href="~/fonts/outfit/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
     <script src="~/js/tema.js" asp-append-version="true"></script>
@@ -116,6 +133,9 @@
                     <li><a class="ls-filtro-enlace" href="/catalogo?oferta=true">Ofertas</a></li>
                     <li><a class="ls-filtro-enlace" href="/catalogo?orden=nuevos">Novedades</a></li>
                     <li><a class="ls-filtro-enlace" href="/pc-builder">PC Builder</a></li>
+                    <li><a class="ls-filtro-enlace" href="/comparar">Comparador</a></li>
+                    <li><a class="ls-filtro-enlace" href="/ayuda">Ayuda</a></li>
+                    <li><a class="ls-filtro-enlace" href="/contacto">Contacto</a></li>
                 </ul>
                 <p class="ls-filtro-titulo">Categorías</p>
                 @await Component.InvokeAsync("Categorias", new { vista = "Movil" })
@@ -156,12 +176,18 @@
                         <li><a href="/catalogo?oferta=true">Ofertas</a></li>
                         <li><a href="/catalogo?orden=nuevos">Novedades</a></li>
                         <li><a href="/pc-builder">PC Builder</a></li>
+                        <li><a href="/comparar">Comparador</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-lg-3">
                     <h2>Información</h2>
                     <ul>
-                        <li><a asp-controller="Home" asp-action="Privacy">Privacidad</a></li>
+                        <li><a href="/ayuda">Preguntas frecuentes</a></li>
+                        <li><a href="/contacto">Contacto</a></li>
+                        <li><a href="/politicas/envios">Envíos</a></li>
+                        <li><a href="/politicas/devoluciones">Garantía y devoluciones</a></li>
+                        <li><a href="/politicas/terminos">Términos y condiciones</a></li>
+                        <li><a href="/politicas/privacidad">Privacidad</a></li>
                     </ul>
                 </div>
             </div>

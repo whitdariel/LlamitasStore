@@ -11,5 +11,6 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index(CancellationToken ct) => View(await _inicio.ObtenerAsync(ct));
 
-    public IActionResult Privacy() => View();
+    /// <summary>La política de privacidad se movió junto a las demás políticas; se conservan los enlaces viejos.</summary>
+    public IActionResult Privacy() => RedirectPermanent("/politicas/privacidad");
 }

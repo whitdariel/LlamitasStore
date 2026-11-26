@@ -10,6 +10,50 @@
     var datosRapidos = FichaRapida(p, 7);
     var datosCompat = DatosCompatibilidad(c);
     var agotado = p.Stock == 0 || p.Estado != EstadoProducto.Activo;
+    ViewData["OgTipo"] = "product";
+    ViewData["OgImagen"] = principal?.Url;
+
+    // Sección abierta al cargar (?seccion=resenas tras publicar una reseña, por ejemplo).
+    var pedida = Context.Request.Query["seccion"].ToString();
+    var activa = pedida is "specs" or "resenas" || (pedida == "compat" && datosCompat.Count > 0) ? pedida : "desc";
+    string Tab(string k) => k == activa ? "active" : "";
+    string Sel(string k) => k == activa ? "true" : "false";
+    string Panel(string k) => k == activa ? "show active" : "";
+
+    var resenaPropia = ViewData["ResenaPropia"] as LlamitasStore.Services.Comunidad.ResenaPropia;
+    var autenticado = User.Identity?.IsAuthenticated == true;
+}
+
+@section Head {
+    @* Datos estructurados (schema.org/Product). Es un bloque de datos, no código: la CSP no lo ejecuta y JsonSerializer escapa < > &. *@
+    @* "<!script": sin tag helpers, para que el atributo type salga tal cual (si no, el "+" se codifica). *@
+    <!script type="application/ld+json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, object?>
+    {
+        ["@context"] = "https://schema.org",
+        ["@type"] = "Product",
+        ["name"] = p.Nombre,
+        ["sku"] = p.Sku,
+        ["mpn"] = p.Modelo,
+        ["description"] = p.DescripcionCorta,
+        ["image"] = Model.Imagenes.Select(i => $"{Context.Request.Scheme}://{Context.Request.Host}{i.Url}").ToArray(),
+        ["brand"] = new Dictionary<string, object> { ["@type"] = "Brand", ["name"] = p.Marca.Nombre },
+        ["category"] = p.Categoria.Nombre,
+        ["offers"] = new Dictionary<string, object>
+        {
+            ["@type"] = "Offer",
+            ["url"] = $"{Context.Request.Scheme}://{Context.Request.Host}/producto/{p.Slug}",
+            ["priceCurrency"] = "BOB",
+            ["price"] = Model.Precio.PrecioFinal.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture),
+            ["availability"] = agotado ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+            ["itemCondition"] = "https://schema.org/NewCondition"
+        },
+        ["aggregateRating"] = p.TotalResenas == 0 ? null : new Dictionary<string, object>
+        {
+            ["@type"] = "AggregateRating",
+            ["ratingValue"] = p.ValoracionPromedio.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture),
+            ["reviewCount"] = p.TotalResenas
+        }
+    }.Where(kv => kv.Value is not null).ToDictionary(kv => kv.Key, kv => kv.Value)))</!script>
 }
 
 @* ================= Escenario inmersivo (siempre en tono oscuro) ================= *@
@@ -36,6 +80,7 @@
                 <h1 class="ls-ficha-titulo" id="ficha-titulo">@p.Nombre</h1>
             </div>
             <partial name="_BotonFavorito" model="@((p.Id, p.Nombre, "ls-favorito-ficha"))" />
+            <partial name="_BotonComparar" model="@((p.Id, p.Nombre, "ls-comparar-ficha"))" />
             <div class="ls-ficha-barra-precio">
                 <p class="ls-ficha-estado mb-0 @(agotado ? "ls-stock-agotado" : p.StockBajo ? "ls-stock-bajo" : "ls-stock-ok")" role="status">
                     @if (p.Estado == EstadoProducto.Descontinuado) { <text>Descontinuado</text> }
@@ -64,22 +109,22 @@
 
             @* Navegación vertical de secciones *@
             <div class="ls-escenario-nav" role="tablist" aria-label="Secciones del producto" aria-orientation="vertical">
-                <button class="ls-seccion-boton active" id="tab-desc" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-desc" aria-controls="panel-desc" aria-selected="true">
+                <button class="ls-seccion-boton @Tab("desc")" id="tab-desc" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-desc" aria-controls="panel-desc" aria-selected="@Sel("desc")">
                     <span class="ls-seccion-icono"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#documento"></use></svg></span>
                     <span>Descripción</span>
                 </button>
-                <button class="ls-seccion-boton" id="tab-specs" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-specs" aria-controls="panel-specs" aria-selected="false">
+                <button class="ls-seccion-boton @Tab("specs")" id="tab-specs" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-specs" aria-controls="panel-specs" aria-selected="@Sel("specs")">
                     <span class="ls-seccion-icono"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#lista"></use></svg></span>
                     <span>Especificaciones</span>
                 </button>
                 @if (datosCompat.Count > 0)
                 {
-                    <button class="ls-seccion-boton" id="tab-compat" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-compat" aria-controls="panel-compat" aria-selected="false">
+                    <button class="ls-seccion-boton @Tab("compat")" id="tab-compat" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-compat" aria-controls="panel-compat" aria-selected="@Sel("compat")">
                         <span class="ls-seccion-icono"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#compatible"></use></svg></span>
                         <span>Compatibilidad</span>
                     </button>
                 }
-                <button class="ls-seccion-boton" id="tab-resenas" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-resenas" aria-controls="panel-resenas" aria-selected="false">
+                <button class="ls-seccion-boton @Tab("resenas")" id="tab-resenas" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-resenas" aria-controls="panel-resenas" aria-selected="@Sel("resenas")">
                     <span class="ls-seccion-icono"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#estrella"></use></svg></span>
                     <span>Reseñas <small class="ls-numero">(@totalResenas)</small></span>
                 </button>
@@ -136,7 +181,7 @@
 @* ================= Detalle de la sección elegida ================= *@
 <div class="ls-contenedor">
     <div class="tab-content ls-ficha-detalle" id="detalle">
-        <div class="tab-pane fade show active" id="panel-desc" role="tabpanel" aria-labelledby="tab-desc" tabindex="0">
+        <div class="tab-pane fade @Panel("desc")" id="panel-desc" role="tabpanel" aria-labelledby="tab-desc" tabindex="0">
             <div class="ls-detalle-grid">
                 <div>
                     <h2 class="ls-detalle-titulo">Descripción</h2>
@@ -153,7 +198,7 @@
             </div>
         </div>
 
-        <div class="tab-pane fade" id="panel-specs" role="tabpanel" aria-labelledby="tab-specs" tabindex="0">
+        <div class="tab-pane fade @Panel("specs")" id="panel-specs" role="tabpanel" aria-labelledby="tab-specs" tabindex="0">
             <div class="ls-detalle-grid">
                 <div>
                     <h2 class="ls-detalle-titulo">Especificaciones</h2>
@@ -182,7 +227,7 @@
 
         @if (datosCompat.Count > 0)
         {
-            <div class="tab-pane fade" id="panel-compat" role="tabpanel" aria-labelledby="tab-compat" tabindex="0">
+            <div class="tab-pane fade @Panel("compat")" id="panel-compat" role="tabpanel" aria-labelledby="tab-compat" tabindex="0">
                 <div class="ls-detalle-grid">
                     <div>
                         <h2 class="ls-detalle-titulo">Compatibilidad</h2>
@@ -202,7 +247,7 @@
             </div>
         }
 
-        <div class="tab-pane fade" id="panel-resenas" role="tabpanel" aria-labelledby="tab-resenas" tabindex="0">
+        <div class="tab-pane fade @Panel("resenas")" id="panel-resenas" role="tabpanel" aria-labelledby="tab-resenas" tabindex="0">
             <div class="ls-detalle-grid">
                 <div>
                     <h2 class="ls-detalle-titulo">Reseñas</h2>
@@ -229,9 +274,56 @@
                     }
                 </div>
                 <div class="ls-panel">
+                    @if (!autenticado)
+                    {
+                        <p class="ls-resena-cta">
+                            <a href="/cuenta/login?returnUrl=@Uri.EscapeDataString($"/producto/{p.Slug}?seccion=resenas")">Ingresa</a> para escribir una reseña.
+                        </p>
+                    }
+                    else
+                    {
+                        <details class="ls-resena-form" open="@(resenaPropia is null && Model.Resenas.Count == 0)">
+                            <summary>@(resenaPropia is null ? "Escribe tu reseña" : "Editar tu reseña")</summary>
+                            @if (resenaPropia is { Aprobada: false })
+                            {
+                                <p class="small ls-stock-bajo mt-2 mb-0" role="note">Tu reseña está oculta por moderación. Si la editas seguirá oculta hasta que la revisemos.</p>
+                            }
+                            <form method="post" action="/producto/@p.Id/resena" asp-antiforgery="true" class="mt-3">
+                                <fieldset class="mb-3">
+                                    <legend class="form-label fs-6">Calificación</legend>
+                                    <div class="ls-estrellas-input">
+                                        @for (var e = 5; e >= 1; e--)
+                                        {
+                                            <input type="radio" class="visually-hidden" name="Calificacion" id="calif-@e" value="@e" required checked="@(resenaPropia?.Calificacion == e)" />
+                                            <label for="calif-@e" title="@e de 5">
+                                                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#estrella"></use></svg>
+                                                <span class="visually-hidden">@e @(e == 1 ? "estrella" : "estrellas")</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </fieldset>
+                                <div class="mb-3">
+                                    <label for="resena-titulo" class="form-label">Título</label>
+                                    <input id="resena-titulo" name="Titulo" class="form-control" required minlength="@LlamitasStore.Services.Comunidad.ServicioResenas.TituloMin" maxlength="@LlamitasStore.Services.Comunidad.ServicioResenas.TituloMax" value="@resenaPropia?.Titulo" placeholder="Resume tu experiencia" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="resena-comentario" class="form-label">Tu opinión</label>
+                                    <textarea id="resena-comentario" name="Comentario" class="form-control" rows="4" required minlength="@LlamitasStore.Services.Comunidad.ServicioResenas.ComentarioMin" maxlength="@LlamitasStore.Services.Comunidad.ServicioResenas.ComentarioMax" aria-describedby="resena-ayuda">@resenaPropia?.Comentario</textarea>
+                                    <p id="resena-ayuda" class="form-text text-body-secondary">Cuenta cómo te funcionó: rendimiento, temperaturas, ruido, instalación. Se publica con tu nombre y la inicial de tu apellido.</p>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">@(resenaPropia is null ? "Publicar reseña" : "Guardar cambios")</button>
+                            </form>
+                            @if (resenaPropia is not null)
+                            {
+                                <form method="post" action="/producto/@p.Id/resena/eliminar" asp-antiforgery="true" class="mt-2" data-confirmar="¿Eliminar tu reseña?">
+                                    <button type="submit" class="btn btn-link btn-sm text-body-secondary p-0">Eliminar mi reseña</button>
+                                </form>
+                            }
+                        </details>
+                    }
                     @if (Model.Resenas.Count == 0)
                     {
-                        <p class="text-body-secondary mb-0">Sé el primero en opinar cuando compres este producto.</p>
+                        <p class="text-body-secondary mb-0 mt-3">Todavía nadie opinó sobre este producto.</p>
                     }
                     @foreach (var r in Model.Resenas)
                     {

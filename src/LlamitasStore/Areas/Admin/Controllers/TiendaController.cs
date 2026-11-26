@@ -29,16 +29,8 @@ public class ResenasController : AdminController
         if (r is null) return NotFound();
         r.Aprobada = aprobada;
         await _db.SaveChangesAsync(ct);
-        await RecalcularAsync(r.ProductoId, ct);
+        await Services.Comunidad.ServicioResenas.RecalcularAsync(_db, r.ProductoId, ct);
         return Resultado(null, aprobada ? "Reseña visible." : "Reseña oculta.", nameof(Index));
-    }
-
-    private async Task RecalcularAsync(int productoId, CancellationToken ct)
-    {
-        var visibles = await _db.Resenas.Where(x => x.ProductoId == productoId && x.Aprobada).Select(x => x.Calificacion).ToListAsync(ct);
-        var promedio = visibles.Count == 0 ? 0m : Math.Round((decimal)visibles.Average(), 2);
-        await _db.Productos.Where(p => p.Id == productoId)
-            .ExecuteUpdateAsync(s => s.SetProperty(p => p.ValoracionPromedio, promedio).SetProperty(p => p.TotalResenas, visibles.Count), ct);
     }
 }
 

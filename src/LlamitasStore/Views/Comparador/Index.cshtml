@@ -1,0 +1,155 @@
+@model LlamitasStore.Services.Catalogo.Comparacion
+@using LlamitasStore.Services.Catalogo
+@{
+    ViewData["Title"] = "Comparador";
+    ViewData["Descripcion"] = "Compara precio, disponibilidad y especificaciones técnicas de hasta 4 productos lado a lado.";
+    ViewData["Canonical"] = "/comparar";
+    ViewData["NoIndexar"] = Model.Productos.Count > 0; // las comparaciones son personales; se indexa solo la página vacía
+    var compartida = ViewData["Compartida"] is true;
+    var ids = string.Join(",", Model.Productos.Select(p => p.Id));
+    var enlace = $"{Context.Request.Scheme}://{Context.Request.Host}/comparar?ids={ids}";
+    var n = Model.Productos.Count;
+}
+
+<div class="ls-contenedor ls-cabecera-pagina">
+    <nav aria-label="Ruta de navegación">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Comparador</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+            <h1 class="ls-titulo-seccion mb-1">Comparador</h1>
+            <p class="text-body-secondary mb-0">
+                @if (n == 0) { <text>Agrega hasta @ServicioComparador.Maximo productos con el botón <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#comparar"></use></svg> de las tarjetas o la ficha.</text> }
+                else { <text>@n de @ServicioComparador.Maximo productos. Las filas con valores distintos están resaltadas.</text> }
+            </p>
+        </div>
+        @if (n > 0)
+        {
+            <div class="d-flex flex-wrap gap-2">
+                @if (compartida)
+                {
+                    <form method="post" action="/comparar/usar" asp-antiforgery="true">
+                        <input type="hidden" name="ids" value="@ids" />
+                        <button type="submit" class="btn btn-primary btn-sm">Usar esta comparación</button>
+                    </form>
+                }
+                else
+                {
+                    <label class="visually-hidden" for="enlace-comparar">Enlace para compartir esta comparación</label>
+                    <input id="enlace-comparar" class="form-control form-control-sm ls-enlace-compartir" value="@enlace" readonly data-seleccionar />
+                    <form method="post" action="/comparar/vaciar" asp-antiforgery="true">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Vaciar</button>
+                    </form>
+                }
+            </div>
+        }
+    </div>
+
+    @if (n == 0)
+    {
+        <div class="ls-panel text-center py-5">
+            <svg class="ls-icono ls-icono-grande mb-2" aria-hidden="true"><use href="/images/iconos.svg#comparar"></use></svg>
+            <p class="mb-3">Todavía no agregaste productos para comparar.</p>
+            <a class="btn btn-primary" href="/catalogo">Ir al catálogo</a>
+        </div>
+    }
+    else
+    {
+        @if (Model.CategoriasMezcladas)
+        {
+            <p class="ls-panel small mb-3" role="note">Estás comparando productos de distintas categorías: muchas especificaciones no coincidirán.</p>
+        }
+        @if (n == 1)
+        {
+            <p class="small text-body-secondary">Agrega al menos otro producto para ver las diferencias.</p>
+        }
+
+        <div class="ls-tabla-comparar-marco" tabindex="0" role="region" aria-label="Tabla comparativa (se desplaza horizontalmente)">
+            <table class="table ls-tabla-comparar">
+                <caption class="visually-hidden">Comparación de @n productos</caption>
+                <thead>
+                    <tr>
+                        <td></td>
+                        @foreach (var p in Model.Productos)
+                        {
+                            <th scope="col">
+                                <div class="ls-comparar-cabecera">
+                                    @if (p.ImagenUrl is not null) { <img src="@p.ImagenUrl" alt="" width="160" height="120" loading="lazy" /> }
+                                    <span class="ls-tarjeta-marca">@p.Marca</span>
+                                    <a href="/producto/@p.Slug">@p.Nombre</a>
+                                    @if (!compartida)
+                                    {
+                                        <form method="post" action="/comparar/quitar" asp-antiforgery="true">
+                                            <input type="hidden" name="productoId" value="@p.Id" />
+                                            <input type="hidden" name="returnUrl" value="/comparar" />
+                                            <button type="submit" class="btn btn-link btn-sm p-0" aria-label="Quitar @p.Nombre del comparador">Quitar</button>
+                                        </form>
+                                    }
+                                </div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="ls-fila-grupo"><th scope="rowgroup" colspan="@(n + 1)">General</th></tr>
+                    <tr>
+                        <th scope="row">Precio</th>
+                        @{ var minimo = Model.Productos.Min(p => p.Precio.PrecioFinal); }
+                        @foreach (var p in Model.Productos)
+                        {
+                            <td class="ls-numero">
+                                <partial name="_Precio" model="p.Precio" />
+                                @if (n > 1 && p.Precio.PrecioFinal == minimo) { <span class="ls-chip ls-chip-info mt-1">Más económico</span> }
+                            </td>
+                        }
+                    </tr>
+                    <tr>
+                        <th scope="row">Disponibilidad</th>
+                        @foreach (var p in Model.Productos)
+                        {
+                            <td><span class="ls-stock @(p.Disponible ? (p.UltimasUnidades ? "ls-stock-bajo" : "ls-stock-ok") : "ls-stock-agotado")">@(p.Disponible ? (p.UltimasUnidades ? $"Últimas {p.Stock}" : "En stock") : "Agotado")</span></td>
+                        }
+                    </tr>
+                    <tr>
+                        <th scope="row">Valoración</th>
+                        @foreach (var p in Model.Productos) { <td><partial name="_Estrellas" model="(p.Valoracion, p.TotalResenas)" /></td> }
+                    </tr>
+                    <tr>
+                        <th scope="row">Categoría</th>
+                        @foreach (var p in Model.Productos) { <td>@p.Categoria</td> }
+                    </tr>
+                    <tr>
+                        <th scope="row">Garantía</th>
+                        @foreach (var g in Model.GarantiaMeses) { <td>@g meses</td> }
+                    </tr>
+                    <tr>
+                        <th scope="row"><span class="visually-hidden">Comprar</span></th>
+                        @foreach (var p in Model.Productos)
+                        {
+                            <td><partial name="_AgregarCarrito" model="@((p.Id, p.Nombre, p.Stock, p.Disponible, true))" /></td>
+                        }
+                    </tr>
+
+                    @foreach (var grupo in Model.Filas.GroupBy(f => f.Grupo))
+                    {
+                        <tr class="ls-fila-grupo"><th scope="rowgroup" colspan="@(n + 1)">@grupo.Key</th></tr>
+                        @foreach (var fila in grupo)
+                        {
+                            <tr class="@(n > 1 && fila.Difiere ? "ls-fila-difiere" : "")">
+                                <th scope="row">@fila.Nombre @if (n > 1 && fila.Difiere) { <span class="visually-hidden">(difiere)</span> }</th>
+                                @foreach (var v in fila.Valores)
+                                {
+                                    if (v is null) { <td><span aria-hidden="true">—</span><span class="visually-hidden">Sin dato</span></td> }
+                                    else { <td>@v</td> }
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
