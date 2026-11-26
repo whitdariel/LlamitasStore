@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Memoria RAM">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#353049"/><stop offset="1" stop-color="#1B1727"/></linearGradient>
     <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#EE9450" stop-opacity=".35"/><stop offset="1" stop-color="#EE9450" stop-opacity="0"/></radialGradient>
     <linearGradient id="disip" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFD19A"/><stop offset=".5" stop-color="#EE9450"/><stop offset="1" stop-color="#E8724F"/></linearGradient>
   </defs>
-  <rect width="400" height="300" fill="url(#bg)"/>
   <ellipse cx="200" cy="150" rx="200" ry="110" fill="url(#glow)"/>
   <g transform="translate(0 -32)">
     <rect x="40" y="120" width="320" height="64" rx="6" fill="#353049" stroke="#D9D3EA" stroke-width="2"/>

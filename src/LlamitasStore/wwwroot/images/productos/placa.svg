@@ -1,9 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Placa madre">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#353049"/><stop offset="1" stop-color="#1B1727"/></linearGradient>
     <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7B5CE5" stop-opacity=".45"/><stop offset="1" stop-color="#7B5CE5" stop-opacity="0"/></radialGradient>
   </defs>
-  <rect width="400" height="300" fill="url(#bg)"/>
   <circle cx="200" cy="150" r="160" fill="url(#glow)"/>
   <rect x="80" y="30" width="240" height="240" rx="12" fill="#353049" stroke="#D3C5FF" stroke-width="2.5"/>
   <g stroke="#4D4766" stroke-width="2" fill="none"><path d="M95 60h60M95 75h40M250 250h55M260 236h45M95 250h90"/></g>

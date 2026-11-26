@@ -1,9 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Auriculares">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#353049"/><stop offset="1" stop-color="#1B1727"/></linearGradient>
     <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#E8724F" stop-opacity=".35"/><stop offset="1" stop-color="#E8724F" stop-opacity="0"/></radialGradient>
   </defs>
-  <rect width="400" height="300" fill="url(#bg)"/>
   <circle cx="200" cy="160" r="150" fill="url(#glow)"/>
   <path d="M108 170v-28c0-56 40-96 92-96s92 40 92 96v28" fill="none" stroke="#D9D3EA" stroke-width="14" stroke-linecap="round"/>
   <path d="M108 170v-28c0-56 40-96 92-96s92 40 92 96v28" fill="none" stroke="#4D4766" stroke-width="6" stroke-linecap="round"/>

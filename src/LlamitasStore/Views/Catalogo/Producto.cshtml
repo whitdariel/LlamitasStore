@@ -7,152 +7,216 @@
     ViewData["Canonical"] = $"/producto/{p.Slug}";
     var principal = Model.Imagenes.FirstOrDefault();
     var totalResenas = Model.DistribucionEstrellas.Values.Sum();
+    var datosRapidos = FichaRapida(p, 7);
+    var datosCompat = DatosCompatibilidad(c);
+    var agotado = p.Stock == 0 || p.Estado != EstadoProducto.Activo;
 }
 
-<div class="ls-contenedor ls-cabecera-pagina">
-<nav aria-label="Ruta de navegación">
-    <ol class="breadcrumb small">
-        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
-        <li class="breadcrumb-item"><a href="/catalogo">Catálogo</a></li>
-        <li class="breadcrumb-item"><a href="/catalogo/@p.Categoria.Slug">@p.Categoria.Nombre</a></li>
-        <li class="breadcrumb-item active text-truncate" aria-current="page">@p.Nombre</li>
-    </ol>
-</nav>
+@* ================= Escenario inmersivo (siempre en tono oscuro) ================= *@
+<section class="ls-ficha" data-bs-theme="dark" aria-labelledby="ficha-titulo">
+    <div class="ls-contenedor">
+        <nav aria-label="Ruta de navegación">
+            <ol class="breadcrumb mb-0 pt-3">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="/catalogo">Catálogo</a></li>
+                <li class="breadcrumb-item"><a href="/catalogo/@p.Categoria.Slug">@p.Categoria.Nombre</a></li>
+                <li class="breadcrumb-item active text-truncate" aria-current="page">@p.Nombre</li>
+            </ol>
+        </nav>
+    </div>
 
-<div class="row g-4 g-lg-5">
-    <section class="col-md-6" aria-label="Imágenes del producto">
-        <div class="ls-galeria">
-            <div class="ls-galeria-principal">
-                @if (principal is not null)
+    @* Barra del producto: volver · nombre · disponibilidad y precio *@
+    <div class="ls-ficha-barra">
+        <div class="ls-contenedor ls-ficha-barra-fila">
+            <a class="ls-boton-icono ls-boton-volver" href="/catalogo/@p.Categoria.Slug" aria-label="Volver a @p.Categoria.Nombre">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#flecha-izq"></use></svg>
+            </a>
+            <div class="ls-ficha-barra-titulo">
+                <p class="ls-tarjeta-marca mb-1"><a href="/catalogo?marca=@p.Marca.Slug">@p.Marca.Nombre</a> · @p.Categoria.Nombre</p>
+                <h1 class="ls-ficha-titulo" id="ficha-titulo">@p.Nombre</h1>
+            </div>
+            <div class="ls-ficha-barra-precio">
+                <p class="ls-ficha-estado mb-0 @(agotado ? "ls-stock-agotado" : p.StockBajo ? "ls-stock-bajo" : "ls-stock-ok")" role="status">
+                    @if (p.Estado == EstadoProducto.Descontinuado) { <text>Descontinuado</text> }
+                    else if (p.Stock == 0) { <text>Agotado</text> }
+                    else if (p.StockBajo) { <text>¡Últimas @p.Stock unidades!</text> }
+                    else { <text>En stock · @p.Stock unidades</text> }
+                </p>
+                <div class="ls-ficha-precio ls-numero">
+                    <span class="ls-precio-final">@Tienda.Dinero(Model.Precio.PrecioFinal)</span>
+                    @if (Model.Precio.TieneDescuento)
+                    {
+                        <span class="ls-precio-lista"><span class="visually-hidden">Antes </span>@Tienda.Dinero(Model.Precio.PrecioLista)</span>
+                    }
+                </div>
+                @if (Model.Precio.TieneDescuento)
                 {
-                    <img id="galeria-principal" src="@principal.Url" alt="@principal.TextoAlternativo" width="800" height="600" />
+                    <p class="ls-ahorro small mb-0">Ahorras @Tienda.Dinero(Model.Precio.Ahorro) (-@Model.Precio.PorcentajeDescuento%) · @Model.Precio.Motivo</p>
                 }
             </div>
-            @if (Model.Imagenes.Count > 1)
-            {
-                <ul class="ls-galeria-miniaturas list-unstyled" aria-label="Más imágenes">
-                    @foreach (var img in Model.Imagenes)
+        </div>
+    </div>
+
+    <div class="ls-escenario">
+        <div class="ls-contenedor ls-escenario-grid">
+
+            @* Navegación vertical de secciones *@
+            <div class="ls-escenario-nav" role="tablist" aria-label="Secciones del producto" aria-orientation="vertical">
+                <button class="ls-seccion-boton active" id="tab-desc" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-desc" aria-controls="panel-desc" aria-selected="true">
+                    <span class="ls-seccion-icono"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#documento"></use></svg></span>
+                    <span>Descripción</span>
+                </button>
+                <button class="ls-seccion-boton" id="tab-specs" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-specs" aria-controls="panel-specs" aria-selected="false">
+                    <span class="ls-seccion-icono"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#lista"></use></svg></span>
+                    <span>Especificaciones</span>
+                </button>
+                @if (datosCompat.Count > 0)
+                {
+                    <button class="ls-seccion-boton" id="tab-compat" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-compat" aria-controls="panel-compat" aria-selected="false">
+                        <span class="ls-seccion-icono"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#compatible"></use></svg></span>
+                        <span>Compatibilidad</span>
+                    </button>
+                }
+                <button class="ls-seccion-boton" id="tab-resenas" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#panel-resenas" aria-controls="panel-resenas" aria-selected="false">
+                    <span class="ls-seccion-icono"><svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#estrella"></use></svg></span>
+                    <span>Reseñas <small class="ls-numero">(@totalResenas)</small></span>
+                </button>
+            </div>
+
+            @* Producto sobre la plataforma *@
+            <div class="ls-escenario-centro">
+                <div class="ls-escenario-etiquetas">
+                    @if (Model.Precio.TieneDescuento) { <span class="ls-badge-oferta">@(Model.Precio.Motivo == "Oferta" ? "Oferta" : "Promo") -@Model.Precio.PorcentajeDescuento%</span> }
+                    @if (p.EsNuevo) { <span class="ls-badge-nuevo">Nuevo</span> }
+                </div>
+                <div class="ls-vitrina">
+                    @if (principal is not null)
                     {
-                        <li>
-                            <button type="button" class="ls-miniatura @(img == principal ? "activa" : "")" data-galeria-src="@img.Url" data-galeria-alt="@img.TextoAlternativo"
-                                    aria-label="Ver imagen: @img.TextoAlternativo">
-                                <img src="@img.Url" alt="" width="96" height="72" loading="lazy" />
-                            </button>
-                        </li>
+                        <img id="galeria-principal" class="ls-vitrina-imagen" src="@principal.Url" alt="@principal.TextoAlternativo" width="800" height="600" />
                     }
-                </ul>
-            }
+                    <span class="ls-plataforma" aria-hidden="true"></span>
+                </div>
+                @if (Model.Imagenes.Count > 1)
+                {
+                    <ul class="ls-galeria-miniaturas list-unstyled justify-content-center" aria-label="Más imágenes">
+                        @foreach (var img in Model.Imagenes)
+                        {
+                            <li>
+                                <button type="button" class="ls-miniatura @(img == principal ? "activa" : "")" data-galeria-src="@img.Url" data-galeria-alt="@img.TextoAlternativo"
+                                        aria-label="Ver imagen: @img.TextoAlternativo">
+                                    <img src="@img.Url" alt="" width="96" height="72" loading="lazy" />
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+
+            @* Ficha rápida *@
+            <aside class="ls-escenario-panel" aria-labelledby="ficha-rapida-titulo">
+                <h2 class="ls-escenario-panel-titulo" id="ficha-rapida-titulo">Ficha rápida</h2>
+                <p class="small text-body-secondary">@p.DescripcionCorta</p>
+                <dl class="ls-ficha-datos">
+                    @foreach (var (etiqueta, valor) in datosRapidos)
+                    {
+                        <div><dt>@etiqueta</dt><dd>@valor</dd></div>
+                    }
+                    <div><dt>Garantía</dt><dd>@p.GarantiaMeses meses</dd></div>
+                    <div><dt>SKU</dt><dd class="ls-numero">@p.Sku</dd></div>
+                </dl>
+                <partial name="_Estrellas" model="(p.ValoracionPromedio, p.TotalResenas)" />
+                <button type="button" class="btn btn-outline-secondary btn-sm w-100 mt-3" data-ls-abrir-tab="#tab-specs">Ver todas las especificaciones</button>
+            </aside>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="col-md-6">
-        <p class="ls-tarjeta-marca mb-1"><a href="/catalogo?marca=@p.Marca.Slug">@p.Marca.Nombre</a></p>
-        <h1 class="ls-ficha-titulo mb-2">@p.Nombre</h1>
-        <div class="d-flex flex-wrap gap-3 align-items-center small text-body-secondary mb-3">
-            <partial name="_Estrellas" model="(p.ValoracionPromedio, p.TotalResenas)" />
-            <span>SKU: <strong>@p.Sku</strong></span>
-            @if (!string.IsNullOrEmpty(p.Modelo)) { <span>Modelo: @p.Modelo</span> }
-        </div>
-
-        <div class="ls-caja-precio mb-3">
-            <partial name="_Precio" model="Model.Precio" />
-            @if (Model.Precio.TieneDescuento)
-            {
-                <p class="small mb-0 mt-1 ls-ahorro">Ahorras @Tienda.Dinero(Model.Precio.Ahorro) · @Model.Precio.Motivo</p>
-            }
-        </div>
-
-        @if (p.Estado == EstadoProducto.Descontinuado)
-        {
-            <div class="alert alert-secondary" role="status">Este producto fue descontinuado y ya no está a la venta. Mira las alternativas más abajo.</div>
-        }
-        else if (p.Stock == 0)
-        {
-            <div class="alert alert-warning" role="status">Agotado por ahora. Revisa los productos relacionados o vuelve pronto.</div>
-        }
-        else if (p.StockBajo)
-        {
-            <p class="ls-stock ls-stock-bajo" role="status">¡Últimas @p.Stock unidades disponibles!</p>
-        }
-        else
-        {
-            <p class="ls-stock ls-stock-ok" role="status">En stock · @p.Stock unidades disponibles</p>
-        }
-
-        <p>@p.DescripcionCorta</p>
-
-        @if (c is not null)
-        {
-            <ul class="list-inline mb-3" aria-label="Datos clave de compatibilidad">
-                @if (c.Socket is not null) { <li class="list-inline-item ls-chip ls-chip-info">Socket @c.Socket</li> }
-                @if (c.TiposMemoria is not null) { <li class="list-inline-item ls-chip ls-chip-info">@c.TiposMemoria.Replace(",", " / ")</li> }
-                @if (c.FactorForma is not null) { <li class="list-inline-item ls-chip ls-chip-info">@c.FactorForma</li> }
-                @if (c.LargoMm is not null) { <li class="list-inline-item ls-chip ls-chip-info">@c.LargoMm mm de largo</li> }
-                @if (c.PotenciaW is not null) { <li class="list-inline-item ls-chip ls-chip-info">@c.PotenciaW W</li> }
-                @if (c.AlturaMm is not null) { <li class="list-inline-item ls-chip ls-chip-info">@c.AlturaMm mm de alto</li> }
-            </ul>
-        }
-
-        <ul class="list-unstyled small text-body-secondary mb-0">
-            <li>Garantía: @p.GarantiaMeses meses</li>
-            <li>Categoría: <a href="/catalogo/@p.Categoria.Slug">@p.Categoria.Nombre</a></li>
-        </ul>
-    </section>
-</div>
-
-<section class="mt-5" aria-label="Información del producto">
-    <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="tab-desc" data-bs-toggle="tab" data-bs-target="#panel-desc" type="button" role="tab" aria-controls="panel-desc" aria-selected="true">Descripción</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-specs" data-bs-toggle="tab" data-bs-target="#panel-specs" type="button" role="tab" aria-controls="panel-specs" aria-selected="false">Especificaciones</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-resenas" data-bs-toggle="tab" data-bs-target="#panel-resenas" type="button" role="tab" aria-controls="panel-resenas" aria-selected="false">Reseñas (@totalResenas)</button>
-        </li>
-    </ul>
-    <div class="tab-content ls-tab-panel">
+@* ================= Detalle de la sección elegida ================= *@
+<div class="ls-contenedor">
+    <div class="tab-content ls-ficha-detalle" id="detalle">
         <div class="tab-pane fade show active" id="panel-desc" role="tabpanel" aria-labelledby="tab-desc" tabindex="0">
-            <p class="mb-0 ls-texto-largo">@p.Descripcion</p>
+            <div class="ls-detalle-grid">
+                <div>
+                    <h2 class="ls-detalle-titulo">Descripción</h2>
+                    <p class="text-body-secondary mb-0">@p.DescripcionCorta</p>
+                </div>
+                <div class="ls-panel">
+                    <p class="ls-texto-largo">@p.Descripcion</p>
+                    <ul class="list-unstyled small text-body-secondary mb-0">
+                        @if (!string.IsNullOrEmpty(p.Modelo)) { <li>Modelo del fabricante: <strong>@p.Modelo</strong></li> }
+                        <li>Garantía: @p.GarantiaMeses meses</li>
+                        <li>Categoría: <a href="/catalogo/@p.Categoria.Slug">@p.Categoria.Nombre</a> · Marca: <a href="/catalogo?marca=@p.Marca.Slug">@p.Marca.Nombre</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <div class="tab-pane fade" id="panel-specs" role="tabpanel" aria-labelledby="tab-specs" tabindex="0">
-            @if (Model.Especificaciones.Count == 0)
-            {
-                <p class="text-body-secondary mb-0">Este producto no tiene especificaciones cargadas.</p>
-            }
-            @foreach (var grupo in Model.Especificaciones)
-            {
-                <h2 class="h6 mt-3">@grupo.Grupo</h2>
-                <table class="table table-sm ls-tabla-specs">
-                    <tbody>
-                        @foreach (var (nombre, valor) in grupo.Filas)
-                        {
-                            <tr><th scope="row">@nombre</th><td>@valor</td></tr>
-                        }
-                    </tbody>
-                </table>
-            }
-            <p class="small text-body-secondary mb-0">Especificaciones según el fabricante. Verifica la compatibilidad antes de comprar o usa el PC Builder.</p>
+            <div class="ls-detalle-grid">
+                <div>
+                    <h2 class="ls-detalle-titulo">Especificaciones</h2>
+                    <p class="text-body-secondary mb-0">Datos según la ficha del fabricante. Si tienes dudas sobre la compatibilidad con tu equipo, revisa la sección Compatibilidad o escríbenos antes de comprar.</p>
+                </div>
+                <div class="ls-panel">
+                    @if (Model.Especificaciones.Count == 0)
+                    {
+                        <p class="text-body-secondary mb-0">Este producto no tiene especificaciones cargadas.</p>
+                    }
+                    @foreach (var grupo in Model.Especificaciones)
+                    {
+                        <h3 class="ls-filtro-titulo mt-2">@grupo.Grupo</h3>
+                        <table class="table table-sm ls-tabla-specs mb-3">
+                            <tbody>
+                                @foreach (var (nombre, valor) in grupo.Filas)
+                                {
+                                    <tr><th scope="row">@nombre</th><td>@valor</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
         </div>
 
+        @if (datosCompat.Count > 0)
+        {
+            <div class="tab-pane fade" id="panel-compat" role="tabpanel" aria-labelledby="tab-compat" tabindex="0">
+                <div class="ls-detalle-grid">
+                    <div>
+                        <h2 class="ls-detalle-titulo">Compatibilidad</h2>
+                        <p class="text-body-secondary mb-0">Los datos técnicos que tienes que cruzar con el resto de tu equipo: socket, tipo de memoria, formato, consumo y medidas.</p>
+                    </div>
+                    <ul class="ls-opciones">
+                        @foreach (var (etiqueta, valor, ayuda) in datosCompat)
+                        {
+                            <li class="ls-opcion ls-opcion-dato">
+                                <span class="ls-opcion-etiqueta">@etiqueta</span>
+                                <strong class="ls-opcion-valor">@valor</strong>
+                                <span class="ls-opcion-ayuda">@ayuda</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+
         <div class="tab-pane fade" id="panel-resenas" role="tabpanel" aria-labelledby="tab-resenas" tabindex="0">
-            @if (totalResenas == 0)
-            {
-                <p class="text-body-secondary mb-0">Este producto aún no tiene reseñas. Las reseñas las escriben clientes registrados.</p>
-            }
-            else
-            {
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <p class="display-6 mb-0">@p.ValoracionPromedio.ToString("0.0")</p>
+            <div class="ls-detalle-grid">
+                <div>
+                    <h2 class="ls-detalle-titulo">Reseñas</h2>
+                    @if (totalResenas == 0)
+                    {
+                        <p class="text-body-secondary mb-0">Este producto aún no tiene reseñas. Las escriben clientes registrados.</p>
+                    }
+                    else
+                    {
+                        <p class="ls-codigo-error ls-numero mb-0">@p.ValoracionPromedio.ToString("0.0")</p>
                         <partial name="_Estrellas" model="(p.ValoracionPromedio, p.TotalResenas)" />
-                        <ul class="list-unstyled small mt-3">
+                        <ul class="list-unstyled small mt-3 mb-0">
                             @for (var e = 5; e >= 1; e--)
                             {
                                 var n = Model.DistribucionEstrellas.GetValueOrDefault(e);
-                                var pct = totalResenas == 0 ? 0 : (int)Math.Round(n * 100.0 / totalResenas);
+                                var pct = (int)Math.Round(n * 100.0 / totalResenas);
                                 <li class="d-flex align-items-center gap-2">
                                     <span class="text-nowrap">@e ★</span>
                                     <progress class="ls-barra" max="100" value="@pct" aria-label="@pct % de reseñas con @e estrellas"></progress>
@@ -160,42 +224,117 @@
                                 </li>
                             }
                         </ul>
-                    </div>
-                    <div class="col-md-8">
-                        @foreach (var r in Model.Resenas)
-                        {
-                            <article class="ls-resena">
-                                <partial name="_Estrellas" model="((decimal)r.Calificacion, 1)" />
-                                <h3 class="h6 mt-1 mb-1">@r.Titulo</h3>
-                                <p class="small text-body-secondary mb-2">
-                                    @r.Autor · <time datetime="@r.Fecha.ToString("yyyy-MM-dd")">@r.Fecha.ToString("dd/MM/yyyy")</time>
-                                    @if (r.CompraVerificada) { <span class="ls-badge ls-chip-info ms-1">Compra verificada</span> }
-                                </p>
-                                <p class="mb-0">@r.Comentario</p>
-                            </article>
-                        }
-                    </div>
+                    }
                 </div>
-            }
+                <div class="ls-panel">
+                    @if (Model.Resenas.Count == 0)
+                    {
+                        <p class="text-body-secondary mb-0">Sé el primero en opinar cuando compres este producto.</p>
+                    }
+                    @foreach (var r in Model.Resenas)
+                    {
+                        <article class="ls-resena">
+                            <partial name="_Estrellas" model="((decimal)r.Calificacion, 1)" />
+                            <h3 class="h6 mt-1 mb-1">@r.Titulo</h3>
+                            <p class="small text-body-secondary mb-2">
+                                @r.Autor · <time datetime="@r.Fecha.ToString("yyyy-MM-dd")">@r.Fecha.ToString("dd/MM/yyyy")</time>
+                                @if (r.CompraVerificada) { <span class="ls-chip ls-chip-info ms-1">Compra verificada</span> }
+                            </p>
+                            <p class="mb-0">@r.Comentario</p>
+                        </article>
+                    }
+                </div>
+            </div>
         </div>
     </div>
-</section>
 
-@if (Model.Relacionados.Count > 0)
-{
-    <section class="mt-5" aria-labelledby="relacionados-titulo">
-        <h2 class="ls-titulo-seccion mb-3" id="relacionados-titulo">Productos relacionados</h2>
-        <ul class="list-unstyled row row-cols-2 row-cols-lg-4 g-2 g-sm-3">
-            @foreach (var r in Model.Relacionados)
-            {
-                <li class="col"><partial name="_TarjetaProducto" model="r" /></li>
-            }
-        </ul>
-    </section>
-}
-
+    @* ================= Alternativas con diferencia de precio ================= *@
+    @if (Model.Relacionados.Count > 0)
+    {
+        <section class="ls-seccion" aria-labelledby="relacionados-titulo">
+            <div class="ls-detalle-grid">
+                <div>
+                    <p class="ls-eyebrow mb-0">Compara</p>
+                    <h2 class="ls-detalle-titulo" id="relacionados-titulo">Alternativas</h2>
+                    <p class="text-body-secondary mb-0">Productos parecidos y cuánto cambia el precio respecto a este.</p>
+                </div>
+                <ul class="ls-opciones">
+                    @for (var i = 0; i < Model.Relacionados.Count; i++)
+                    {
+                        var r = Model.Relacionados[i];
+                        var diferencia = r.Precio.PrecioFinal - Model.Precio.PrecioFinal;
+                        <li class="ls-opcion">
+                            @if (i == 0) { <span class="ls-opcion-sello">Sugerido</span> }
+                            @if (r.ImagenUrl is not null) { <img src="@r.ImagenUrl" alt="" width="160" height="120" loading="lazy" /> }
+                            <a class="ls-opcion-nombre" href="/producto/@r.Slug">@r.Nombre</a>
+                            <span class="ls-opcion-precio ls-numero">@Tienda.Dinero(r.Precio.PrecioFinal)</span>
+                            <span class="ls-opcion-diferencia ls-numero @(diferencia < 0 ? "menos" : diferencia > 0 ? "mas" : "")">
+                                @(diferencia == 0 ? "Mismo precio" : (diferencia > 0 ? "+" : "−") + Tienda.Dinero(Math.Abs(diferencia)))
+                            </span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </section>
+    }
 </div>
 
 @section Scripts {
     <script src="~/js/catalogo.js" asp-append-version="true"></script>
+}
+
+@functions {
+    /// <summary>Datos clave para el panel derecho: primero los de compatibilidad, luego las primeras especificaciones.</summary>
+    private static List<(string, string)> FichaRapida(Producto p, int maximo)
+    {
+        var datos = new List<(string, string)>();
+        var c = p.Compatibilidad;
+        if (c is not null)
+        {
+            if (c.Socket is not null) datos.Add(("Socket", c.Socket));
+            if (c.TiposMemoria is not null) datos.Add(("Memoria", c.TiposMemoria.Replace(",", " / ")));
+            if (c.CapacidadGb is not null) datos.Add(("Capacidad", $"{c.CapacidadGb} GB" + (c.Modulos is > 1 ? $" ({c.Modulos} módulos)" : "")));
+            if (c.VelocidadMhz is not null) datos.Add(("Velocidad", $"{c.VelocidadMhz} MT/s"));
+            if (c.FactorForma is not null) datos.Add(("Formato", c.FactorForma));
+            if (c.FactoresFormaSoportados is not null) datos.Add(("Placas admitidas", c.FactoresFormaSoportados.Replace(",", ", ")));
+            if (c.ConsumoW is not null) datos.Add(("Consumo máx.", $"{c.ConsumoW} W"));
+            if (c.PotenciaW is not null) datos.Add(("Potencia", $"{c.PotenciaW} W"));
+            if (c.LargoMm is not null) datos.Add(("Largo", $"{c.LargoMm} mm"));
+            if (c.AlturaMm is not null) datos.Add(("Altura", $"{c.AlturaMm} mm"));
+            if (c.Interfaz is not null) datos.Add(("Interfaz", c.Interfaz));
+        }
+        foreach (var s in p.Especificaciones.OrderBy(e => e.Orden))
+        {
+            if (datos.Count >= maximo) break;
+            if (datos.Any(d => d.Item1.Equals(s.Nombre, StringComparison.OrdinalIgnoreCase))) continue;
+            datos.Add((s.Nombre, s.Valor));
+        }
+        return datos.Take(maximo).ToList();
+    }
+
+    /// <summary>Tarjetas de la sección Compatibilidad: dato + para qué sirve.</summary>
+    private static List<(string, string, string)> DatosCompatibilidad(ProductoCompatibilidad? c)
+    {
+        var d = new List<(string, string, string)>();
+        if (c is null) return d;
+        if (c.Socket is not null) d.Add(("Socket", c.Socket, "Debe coincidir entre procesador y placa madre."));
+        if (c.TiposMemoria is not null) d.Add(("Memoria", c.TiposMemoria.Replace(",", " / "), "La RAM debe ser del tipo que admite la placa."));
+        if (c.SlotsMemoria is not null) d.Add(("Ranuras de RAM", $"{c.SlotsMemoria} (máx. {c.MemoriaMaximaGb} GB)", "Cantidad de módulos y memoria total admitida."));
+        if (c.CapacidadGb is not null) d.Add(("Kit", $"{c.CapacidadGb} GB en {c.Modulos} módulos", "Ocupa tantas ranuras como módulos tenga."));
+        if (c.FactorForma is not null) d.Add(("Formato de placa", c.FactorForma, "El gabinete debe admitir este formato."));
+        if (c.FactoresFormaSoportados is not null) d.Add(("Placas admitidas", c.FactoresFormaSoportados.Replace(",", ", "), "Formatos de placa madre que entran en el gabinete."));
+        if (c.LargoGpuMaximoMm is not null) d.Add(("GPU máxima", $"{c.LargoGpuMaximoMm} mm", "Largo máximo de tarjeta gráfica."));
+        if (c.AlturaCoolerMaximaMm is not null) d.Add(("Disipador máximo", $"{c.AlturaCoolerMaximaMm} mm", "Altura máxima del disipador de CPU."));
+        if (c.LargoMm is not null) d.Add(("Largo", $"{c.LargoMm} mm", "Compáralo con la GPU máxima de tu gabinete."));
+        if (c.AlturaMm is not null) d.Add(("Altura", $"{c.AlturaMm} mm", "Compárala con el disipador máximo de tu gabinete."));
+        if (c.SocketsSoportados is not null) d.Add(("Sockets", c.SocketsSoportados.Replace(",", ", "), "Procesadores sobre los que se puede montar."));
+        if (c.ConsumoW is not null) d.Add(("Consumo máximo", $"{c.ConsumoW} W", "Suma para elegir la potencia de la fuente."));
+        if (c.FuenteRecomendadaW is not null) d.Add(("Fuente recomendada", $"{c.FuenteRecomendadaW} W", "Mínimo sugerido por el fabricante."));
+        if (c.PotenciaW is not null) d.Add(("Potencia", $"{c.PotenciaW} W", "Debe cubrir el consumo de todo el equipo con margen."));
+        if (c.Interfaz is not null) d.Add(("Interfaz", c.Interfaz, c.Interfaz == "M.2" ? "Necesita una ranura M.2 libre en la placa." : "Necesita un puerto SATA libre en la placa."));
+        if (c.SlotsM2 is not null) d.Add(("Ranuras M.2 / SATA", $"{c.SlotsM2} / {c.PuertosSata}", "Unidades de almacenamiento que puedes conectar."));
+        if (c.GraficosIntegrados is not null) d.Add(("Gráficos integrados", c.GraficosIntegrados.Value ? "Sí" : "No", c.GraficosIntegrados.Value ? "Puede dar imagen sin tarjeta gráfica." : "Necesita tarjeta gráfica dedicada."));
+        if (c.IncluyeCooler is not null) d.Add(("Disipador incluido", c.IncluyeCooler.Value ? "Sí" : "No", c.IncluyeCooler.Value ? "Trae disipador en la caja." : "Compra un disipador aparte."));
+        return d;
+    }
 }

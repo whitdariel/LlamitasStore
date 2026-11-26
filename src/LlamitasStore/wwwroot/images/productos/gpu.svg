@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Tarjeta gráfica">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#353049"/><stop offset="1" stop-color="#1B1727"/></linearGradient>
     <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#D3C5FF" stop-opacity=".35"/><stop offset="1" stop-color="#D3C5FF" stop-opacity="0"/></radialGradient>
     <linearGradient id="shroud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4D4766"/><stop offset="1" stop-color="#241F33"/></linearGradient>
   </defs>
-  <rect width="400" height="300" fill="url(#bg)"/>
   <ellipse cx="200" cy="150" rx="190" ry="120" fill="url(#glow)"/>
   <rect x="40" y="88" width="320" height="120" rx="16" fill="url(#shroud)" stroke="#D3C5FF" stroke-width="2.5"/>
   <rect x="40" y="88" width="320" height="10" rx="5" fill="#E8724F"/>

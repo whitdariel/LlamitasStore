@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Ratón">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#353049"/><stop offset="1" stop-color="#1B1727"/></linearGradient>
     <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7B5CE5" stop-opacity=".5"/><stop offset="1" stop-color="#7B5CE5" stop-opacity="0"/></radialGradient>
     <linearGradient id="cuerpo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4D4766"/><stop offset="1" stop-color="#241F33"/></linearGradient>
   </defs>
-  <rect width="400" height="300" fill="url(#bg)"/>
   <circle cx="200" cy="150" r="140" fill="url(#glow)"/>
   <path d="M200 40c-52 0-80 40-80 96v34c0 52 34 94 80 94s80-42 80-94v-34c0-56-28-96-80-96z" fill="url(#cuerpo)" stroke="#D9D3EA" stroke-width="2.5"/>
   <path d="M200 40v84M120 124h160" stroke="#1B1727" stroke-width="3"/>

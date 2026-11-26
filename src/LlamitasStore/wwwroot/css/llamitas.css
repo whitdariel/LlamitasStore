@@ -552,6 +552,150 @@ a.ls-chip:hover { border-color: var(--c-primario); color: var(--c-texto); }
 .ls-resena:last-child { border-bottom: 0; }
 .ls-barra { flex: 1; height: .5rem; accent-color: var(--lana-400); }
 
+/* ---------- 10b. Ficha inmersiva (escenario) ---------- */
+.ls-ficha { position: relative; background: var(--noche-950); color: var(--c-texto); border-bottom: 1px solid var(--c-borde); }
+.ls-ficha-barra {
+  background: color-mix(in srgb, var(--noche-850) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-block: 1px solid var(--c-borde);
+  margin-top: .75rem;
+}
+@media (min-width: 992px) { .ls-ficha-barra { position: sticky; top: 4.5rem; z-index: 1020; } }
+.ls-ficha-barra-fila { display: flex; align-items: center; gap: 1.25rem; padding-block: 1rem; }
+.ls-boton-volver { width: 3rem; height: 3rem; flex-shrink: 0; background: var(--noche-800); }
+.ls-ficha-barra-titulo { flex: 1; min-width: 0; }
+.ls-ficha-barra .ls-ficha-titulo { font-size: clamp(1.35rem, 2.6vw, 2.25rem); font-weight: 700; letter-spacing: .01em; text-transform: uppercase; line-height: 1.1; margin: 0; }
+.ls-ficha-barra-precio { text-align: right; flex-shrink: 0; }
+.ls-ficha-estado { font-size: .7rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+.ls-ficha-precio { display: flex; align-items: baseline; justify-content: flex-end; gap: .6rem; }
+.ls-ficha-precio .ls-precio-final { font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
+
+.ls-escenario {
+  position: relative; overflow: hidden; isolation: isolate;
+  background:
+    radial-gradient(38% 55% at 50% 48%, rgb(123 92 229 / .38), transparent 70%),
+    radial-gradient(22% 45% at 8% 70%, rgb(232 114 79 / .16), transparent 70%),
+    radial-gradient(22% 45% at 92% 30%, rgb(232 114 79 / .12), transparent 70%),
+    linear-gradient(180deg, var(--noche-900), var(--noche-950));
+}
+/* Haces de luz verticales sutiles */
+.ls-escenario::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: .35;
+  background: repeating-linear-gradient(90deg, transparent 0 9%, rgb(238 148 80 / .07) 9% 9.4%, transparent 9.4% 18%);
+  mask-image: linear-gradient(180deg, black, transparent 75%);
+}
+/* Piso en perspectiva */
+.ls-escenario::after {
+  content: ""; position: absolute; z-index: -1; left: -50%; right: -50%; bottom: 0; height: 46%;
+  background-image: linear-gradient(var(--noche-700) 1px, transparent 1px), linear-gradient(90deg, var(--noche-700) 1px, transparent 1px);
+  background-size: 64px 64px;
+  transform: perspective(520px) rotateX(62deg); transform-origin: bottom;
+  mask-image: linear-gradient(0deg, black 10%, transparent 85%);
+  opacity: .55;
+}
+.ls-escenario-grid { display: grid; grid-template-columns: 15rem minmax(0, 1fr) 19rem; gap: 1.5rem; align-items: center; min-height: 34rem; padding-block: 2rem; }
+
+/* Navegación vertical de secciones */
+.ls-escenario-nav { display: flex; flex-direction: column; gap: .5rem; }
+.ls-seccion-boton {
+  display: flex; align-items: center; gap: .9rem; width: 100%;
+  padding: .5rem .25rem; border: 0; background: none; text-align: left;
+  color: var(--c-texto-2); font-weight: 600; font-size: .95rem; letter-spacing: .06em; text-transform: uppercase;
+  transition: color var(--t-rapido);
+}
+.ls-seccion-boton small { font-weight: 500; }
+.ls-seccion-icono {
+  display: grid; place-items: center; width: 3rem; height: 3rem; flex-shrink: 0; border-radius: 50%;
+  border: 1px solid var(--c-borde-fuerte); background: rgb(13 11 19 / .45);
+  transition: border-color var(--t-rapido), box-shadow var(--t-medio), background-color var(--t-rapido);
+}
+.ls-seccion-boton:hover { color: var(--c-texto); }
+.ls-seccion-boton:hover .ls-seccion-icono { border-color: var(--violeta-300); }
+.ls-seccion-boton.active { color: var(--c-texto); font-size: 1.05rem; }
+.ls-seccion-boton.active .ls-seccion-icono { border: 2px solid var(--lana-400); box-shadow: 0 0 0 4px rgb(238 148 80 / .15), 0 0 24px rgb(238 148 80 / .35); background: var(--noche-850); color: var(--lana-300); }
+
+/* Producto sobre la plataforma */
+.ls-escenario-centro { position: relative; display: flex; flex-direction: column; align-items: center; }
+.ls-escenario-etiquetas { position: absolute; top: 0; left: 0; display: flex; gap: .4rem; z-index: 2; }
+.ls-vitrina { position: relative; width: min(100%, 34rem); display: grid; place-items: center; padding-bottom: 2.5rem; }
+.ls-vitrina-imagen {
+  position: relative; z-index: 1; width: 100%; height: auto; border-radius: var(--r-lg);
+  filter: drop-shadow(0 30px 30px rgb(13 11 19 / .7));
+  animation: ls-flotar 6s ease-in-out infinite;
+}
+@keyframes ls-flotar { 50% { transform: translateY(-10px); } }
+.ls-plataforma {
+  position: absolute; bottom: .5rem; left: 8%; right: 8%; height: 4.5rem; border-radius: 50%;
+  border: 2px dashed rgb(179 157 251 / .55);
+  background: radial-gradient(50% 50% at 50% 50%, rgb(123 92 229 / .35), transparent 75%);
+  box-shadow: 0 0 40px rgb(123 92 229 / .25);
+}
+.ls-escenario-centro .ls-galeria-miniaturas { margin-top: .5rem; }
+
+/* Panel derecho */
+.ls-escenario-panel {
+  align-self: stretch; padding: 1.5rem; border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--noche-850) 78%, transparent);
+  border: 1px solid var(--c-borde); backdrop-filter: blur(10px);
+}
+.ls-escenario-panel-titulo { font-size: 1.05rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; text-align: center; margin-bottom: .75rem; }
+.ls-ficha-datos { margin: 0 0 1rem; display: grid; gap: .65rem; }
+.ls-ficha-datos dt { font-size: .75rem; font-weight: 400; color: var(--c-texto-2); }
+.ls-ficha-datos dd { margin: 0; font-weight: 600; line-height: 1.3; }
+
+/* Detalle de la sección elegida */
+.ls-ficha-detalle { padding-top: clamp(2rem, 5vw, 3.5rem); scroll-margin-top: 12rem; }
+@media (max-width: 991.98px) { .ls-ficha-detalle { scroll-margin-top: 9rem; } }
+.ls-detalle-grid { display: grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
+/* El tamaño se limita para que la palabra más larga ("COMPATIBILIDAD") quepa en la columna de 22rem. */
+.ls-detalle-titulo { font-size: clamp(1.75rem, 2.3vw, 2.35rem); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; line-height: 1.05; margin: .25rem 0 1rem; overflow-wrap: anywhere; }
+
+/* Tarjetas de opción (alternativas y datos de compatibilidad) */
+.ls-opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr)); gap: 1rem; list-style: none; margin: 0; padding: 0; }
+.ls-opcion {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: .35rem; text-align: center;
+  padding: 1.25rem 1rem 1.1rem; border-radius: var(--r-lg);
+  background: var(--c-superficie); border: 1px solid var(--c-borde);
+  transition: border-color var(--t-rapido), transform var(--t-medio) var(--curva), box-shadow var(--t-medio);
+}
+.ls-opcion:hover, .ls-opcion:focus-within { border-color: var(--c-primario); transform: translateY(-3px); box-shadow: 0 14px 30px -16px var(--c-brillo); }
+.ls-opcion img { width: 100%; max-width: 9rem; height: auto; border-radius: var(--r-md); background: var(--c-escenario); }
+.ls-opcion-nombre { color: var(--c-texto); font-weight: 600; text-decoration: none; line-height: 1.3; font-size: .9rem; }
+.ls-opcion-nombre::after { content: ""; position: absolute; inset: 0; }
+.ls-opcion-precio { font-weight: 700; }
+.ls-opcion-diferencia { font-size: .85rem; font-weight: 600; color: var(--c-texto-2); }
+.ls-opcion-diferencia.menos { color: var(--c-exito); }
+.ls-opcion-diferencia.mas { color: var(--c-acento-texto); }
+.ls-opcion-sello {
+  position: absolute; top: -.7rem; left: 50%; transform: translateX(-50%); z-index: 1;
+  padding: .15rem .7rem; border-radius: var(--r-pill); white-space: nowrap;
+  font-size: .65rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  background: var(--c-fondo); color: var(--c-acento-texto); border: 1px solid var(--lana-400);
+}
+.ls-opcion-dato { align-items: flex-start; text-align: left; }
+.ls-opcion-dato:hover { transform: none; }
+.ls-opcion-etiqueta { font-size: .7rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--c-texto-2); }
+.ls-opcion-valor { font-size: 1.15rem; }
+.ls-opcion-ayuda { font-size: .8rem; color: var(--c-texto-2); line-height: 1.4; }
+
+@media (max-width: 1199.98px) {
+  .ls-escenario-grid { grid-template-columns: 12.5rem minmax(0, 1fr) 16.5rem; }
+  .ls-seccion-boton { font-size: .85rem; }
+}
+@media (max-width: 991.98px) {
+  .ls-ficha-barra-fila { flex-wrap: wrap; }
+  .ls-ficha-barra-precio { text-align: left; flex-basis: 100%; }
+  .ls-ficha-precio { justify-content: flex-start; }
+  .ls-escenario-grid { grid-template-columns: 1fr; min-height: 0; }
+  .ls-escenario-centro { order: -1; }
+  .ls-escenario-nav { flex-direction: row; overflow-x: auto; gap: .25rem; scrollbar-width: none; }
+  .ls-seccion-boton { flex-direction: column; gap: .35rem; min-width: 6.5rem; font-size: .7rem; text-align: center; }
+  .ls-seccion-boton.active { font-size: .7rem; }
+  .ls-detalle-grid { grid-template-columns: 1fr; }
+  .ls-detalle-titulo { font-size: clamp(1.75rem, 7vw, 2.35rem); }
+  .ls-ficha-datos { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1rem; }
+}
+
 /* ---------- 11. Footer ---------- */
 .ls-footer { margin-top: clamp(3rem, 8vw, 6rem); background: var(--c-fondo-alt); border-top: 1px solid var(--c-borde); color: var(--c-texto-2); font-size: .9rem; }
 .ls-footer h2 { font-size: .75rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--c-texto); margin-bottom: 1rem; }

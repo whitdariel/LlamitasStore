@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Procesador">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#353049"/><stop offset="1" stop-color="#1B1727"/></linearGradient>
     <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7B5CE5" stop-opacity=".55"/><stop offset="1" stop-color="#7B5CE5" stop-opacity="0"/></radialGradient>
     <linearGradient id="ihs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6F4FB"/><stop offset="1" stop-color="#B7AFD0"/></linearGradient>
   </defs>
-  <rect width="400" height="300" fill="url(#bg)"/>
   <circle cx="200" cy="150" r="150" fill="url(#glow)"/>
   <g stroke="#EE9450" stroke-width="4" stroke-linecap="round">
     <path d="M150 70v-14M175 70v-14M200 70v-14M225 70v-14M250 70v-14M150 244v-14M175 244v-14M200 244v-14M225 244v-14M250 244v-14"/>

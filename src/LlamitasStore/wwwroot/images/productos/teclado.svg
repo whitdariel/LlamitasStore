@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Teclado">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#353049"/><stop offset="1" stop-color="#1B1727"/></linearGradient>
     <linearGradient id="rgb" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7B5CE5"/><stop offset=".5" stop-color="#D3C5FF"/><stop offset="1" stop-color="#E8724F"/></linearGradient>
     <pattern id="teclas" width="24" height="24" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="20" height="20" rx="4" fill="#4D4766" stroke="#6A6387"/></pattern>
   </defs>
-  <rect width="400" height="300" fill="url(#bg)"/>
   <ellipse cx="200" cy="200" rx="180" ry="40" fill="url(#rgb)" opacity=".35"/>
   <g transform="rotate(-8 200 150)">
     <rect x="40" y="90" width="320" height="130" rx="14" fill="#241F33" stroke="url(#rgb)" stroke-width="3"/>
