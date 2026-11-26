@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Gabinete">
   <defs>
-    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7B5CE5" stop-opacity=".5"/><stop offset="1" stop-color="#7B5CE5" stop-opacity="0"/></radialGradient>
-    <linearGradient id="vidrio" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D3C5FF" stop-opacity=".22"/><stop offset="1" stop-color="#7B5CE5" stop-opacity=".08"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FF6B1A" stop-opacity=".5"/><stop offset="1" stop-color="#FF6B1A" stop-opacity="0"/></radialGradient>
+    <linearGradient id="vidrio" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD2B3" stop-opacity=".22"/><stop offset="1" stop-color="#FF6B1A" stop-opacity=".08"/></linearGradient>
   </defs>
   <circle cx="200" cy="150" r="150" fill="url(#glow)"/>
-  <rect x="120" y="25" width="170" height="250" rx="14" fill="#241F33" stroke="#D9D3EA" stroke-width="2.5"/>
-  <rect x="134" y="40" width="142" height="220" rx="8" fill="url(#vidrio)" stroke="#D3C5FF" stroke-width="1.5"/>
-  <g fill="none" stroke="#D3C5FF" stroke-width="5">
+  <rect x="120" y="25" width="170" height="250" rx="14" fill="#22201D" stroke="#DCD9D4" stroke-width="2.5"/>
+  <rect x="134" y="40" width="142" height="220" rx="8" fill="url(#vidrio)" stroke="#FFD2B3" stroke-width="1.5"/>
+  <g fill="none" stroke="#FFD2B3" stroke-width="5">
     <circle cx="245" cy="85" r="22"/><circle cx="245" cy="145" r="22"/><circle cx="245" cy="205" r="22"/>
   </g>
   <g fill="#E8724F"><circle cx="245" cy="85" r="6"/><circle cx="245" cy="145" r="6"/><circle cx="245" cy="205" r="6"/></g>
-  <rect x="148" y="60" width="62" height="70" rx="5" fill="#353049" stroke="#EE9450" stroke-width="1.5"/>
-  <rect x="148" y="150" width="70" height="16" rx="3" fill="#4D4766" stroke="#7B5CE5" stroke-width="1.5"/>
-  <rect x="148" y="222" width="62" height="28" rx="4" fill="#353049"/>
+  <rect x="148" y="60" width="62" height="70" rx="5" fill="#33302C" stroke="#EE9450" stroke-width="1.5"/>
+  <rect x="148" y="150" width="70" height="16" rx="3" fill="#4A4540" stroke="#FF6B1A" stroke-width="1.5"/>
+  <rect x="148" y="222" width="62" height="28" rx="4" fill="#33302C"/>
   <path d="M120 262h170" stroke="#EE9450" stroke-width="4"/>
 </svg>

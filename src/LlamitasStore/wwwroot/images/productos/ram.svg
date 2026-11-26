@@ -5,17 +5,17 @@
   </defs>
   <ellipse cx="200" cy="150" rx="200" ry="110" fill="url(#glow)"/>
   <g transform="translate(0 -32)">
-    <rect x="40" y="120" width="320" height="64" rx="6" fill="#353049" stroke="#D9D3EA" stroke-width="2"/>
+    <rect x="40" y="120" width="320" height="64" rx="6" fill="#33302C" stroke="#DCD9D4" stroke-width="2"/>
     <path d="M40 126h320v26H40z" fill="url(#disip)"/>
-    <path d="M40 120h320v6H40z" fill="#D3C5FF"/>
+    <path d="M40 120h320v6H40z" fill="#FFD2B3"/>
     <rect x="40" y="184" width="320" height="10" fill="#EE9450"/>
-    <rect x="196" y="184" width="10" height="10" fill="#1B1727"/>
+    <rect x="196" y="184" width="10" height="10" fill="#191715"/>
   </g>
   <g transform="translate(0 46)">
-    <rect x="40" y="120" width="320" height="64" rx="6" fill="#353049" stroke="#D9D3EA" stroke-width="2"/>
+    <rect x="40" y="120" width="320" height="64" rx="6" fill="#33302C" stroke="#DCD9D4" stroke-width="2"/>
     <path d="M40 126h320v26H40z" fill="url(#disip)"/>
-    <path d="M40 120h320v6H40z" fill="#7B5CE5"/>
+    <path d="M40 120h320v6H40z" fill="#FF6B1A"/>
     <rect x="40" y="184" width="320" height="10" fill="#EE9450"/>
-    <rect x="196" y="184" width="10" height="10" fill="#1B1727"/>
+    <rect x="196" y="184" width="10" height="10" fill="#191715"/>
   </g>
 </svg>

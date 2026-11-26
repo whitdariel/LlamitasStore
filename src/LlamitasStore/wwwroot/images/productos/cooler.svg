@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Disipador de CPU">
   <defs>
-    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#D3C5FF" stop-opacity=".35"/><stop offset="1" stop-color="#D3C5FF" stop-opacity="0"/></radialGradient>
-    <linearGradient id="aleta" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#B7AFD0"/><stop offset="1" stop-color="#F6F4FB"/></linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFD2B3" stop-opacity=".35"/><stop offset="1" stop-color="#FFD2B3" stop-opacity="0"/></radialGradient>
+    <linearGradient id="aleta" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#B9B4AD"/><stop offset="1" stop-color="#F7F6F4"/></linearGradient>
   </defs>
   <circle cx="200" cy="150" r="150" fill="url(#glow)"/>
   <g fill="none" stroke="#EE9450" stroke-width="7" stroke-linecap="round">
@@ -14,8 +14,8 @@
     <rect x="120" y="158" width="160" height="10" rx="2"/><rect x="120" y="176" width="160" height="10" rx="2"/>
     <rect x="120" y="194" width="160" height="10" rx="2"/><rect x="120" y="212" width="160" height="10" rx="2"/>
   </g>
-  <rect x="80" y="70" width="64" height="150" rx="10" fill="#353049" stroke="#7B5CE5" stroke-width="2.5"/>
-  <circle cx="112" cy="145" r="26" fill="#241F33" stroke="#D3C5FF" stroke-width="3"/>
+  <rect x="80" y="70" width="64" height="150" rx="10" fill="#33302C" stroke="#FF6B1A" stroke-width="2.5"/>
+  <circle cx="112" cy="145" r="26" fill="#22201D" stroke="#FFD2B3" stroke-width="3"/>
   <circle cx="112" cy="145" r="7" fill="#E8724F"/>
   <rect x="160" y="250" width="80" height="16" rx="4" fill="#EE9450"/>
 </svg>

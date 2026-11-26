@@ -106,7 +106,7 @@ public class EnviadorNoConfigurado : IEnviadorCorreo
 /// <summary>Plantillas HTML de correo. Los clientes de correo exigen estilos en línea; los colores son los de la paleta.</summary>
 public class PlantillasCorreo
 {
-    private const string Fondo = "#0D0B13", Superficie = "#1B1727", Texto = "#F6F4FB", Texto2 = "#B7AFD0", Primario = "#7B5CE5", Acento = "#F9B26A";
+    private const string Fondo = "#0A0908", Superficie = "#191715", Texto = "#F7F6F4", Texto2 = "#B9B4AD", Primario = "#FF6B1A", Acento = "#F9B26A";
     private readonly HtmlEncoder _html = HtmlEncoder.Default;
 
     public (string Asunto, string Html) RecuperarContrasena(string nombre, string enlace) => (
@@ -115,7 +115,7 @@ public class PlantillasCorreo
             <h1 style="margin:0 0 16px;font-size:22px;color:{Texto}">Hola, {_html.Encode(nombre)}</h1>
             <p style="color:{Texto2};line-height:1.6">Recibimos una solicitud para restablecer la contraseña de tu cuenta.
             El enlace vence en 3 horas y solo funciona una vez.</p>
-            <p style="margin:28px 0"><a href="{_html.Encode(enlace)}" style="background:{Primario};color:#FFFFFF;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">Restablecer contraseña</a></p>
+            <p style="margin:28px 0"><a href="{_html.Encode(enlace)}" style="background:{Primario};color:{Fondo};padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">Restablecer contraseña</a></p>
             <p style="color:{Texto2};font-size:13px;line-height:1.6">Si no fuiste tú, ignora este mensaje: tu contraseña no cambiará.</p>
             """));
 
@@ -124,7 +124,7 @@ public class PlantillasCorreo
         Envolver($"""
             <h1 style="margin:0 0 16px;font-size:22px;color:{Texto}">¡Hola, {_html.Encode(nombre)}!</h1>
             <p style="color:{Texto2};line-height:1.6">Tu cuenta fue creada. Ya puedes guardar favoritos y direcciones de envío.</p>
-            <p style="margin:28px 0"><a href="{_html.Encode(urlTienda)}" style="background:{Primario};color:#FFFFFF;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">Ir a la tienda</a></p>
+            <p style="margin:28px 0"><a href="{_html.Encode(urlTienda)}" style="background:{Primario};color:{Fondo};padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">Ir a la tienda</a></p>
             """));
 
     public (string Asunto, string Html) PedidoRecibido(string nombre, string numero, string total, string metodo, string enlace, string? instrucciones) => (
@@ -134,14 +134,14 @@ public class PlantillasCorreo
             <p style="color:{Texto2};line-height:1.6">Recibimos tu pedido <strong style="color:{Texto}">{_html.Encode(numero)}</strong>
             por <strong style="color:{Texto}">{_html.Encode(total)}</strong> ({_html.Encode(metodo)}).</p>
             {(instrucciones is null ? "" : $"<p style=\"color:{Texto2};line-height:1.6;white-space:pre-line\">{_html.Encode(instrucciones)}</p>")}
-            <p style="margin:28px 0"><a href="{_html.Encode(enlace)}" style="background:{Primario};color:#FFFFFF;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">Ver mi pedido</a></p>
+            <p style="margin:28px 0"><a href="{_html.Encode(enlace)}" style="background:{Primario};color:{Fondo};padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">Ver mi pedido</a></p>
             <p style="color:{Texto2};font-size:13px;line-height:1.6">Te avisaremos cuando cambie de estado.</p>
             """));
 
     public string Aviso(string nombre, string mensaje, string enlace, string textoBoton) => Envolver($"""
         <h1 style="margin:0 0 16px;font-size:22px;color:{Texto}">Hola, {_html.Encode(nombre)}</h1>
         <p style="color:{Texto2};line-height:1.6">{_html.Encode(mensaje)}</p>
-        <p style="margin:28px 0"><a href="{_html.Encode(enlace)}" style="background:{Primario};color:#FFFFFF;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">{_html.Encode(textoBoton)}</a></p>
+        <p style="margin:28px 0"><a href="{_html.Encode(enlace)}" style="background:{Primario};color:{Fondo};padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">{_html.Encode(textoBoton)}</a></p>
         """);
 
     private static string Envolver(string cuerpo) => $"""

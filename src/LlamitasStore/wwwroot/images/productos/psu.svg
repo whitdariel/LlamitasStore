@@ -3,12 +3,12 @@
     <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#E8724F" stop-opacity=".3"/><stop offset="1" stop-color="#E8724F" stop-opacity="0"/></radialGradient>
   </defs>
   <circle cx="200" cy="150" r="160" fill="url(#glow)"/>
-  <rect x="85" y="60" width="230" height="180" rx="14" fill="#353049" stroke="#D9D3EA" stroke-width="2.5"/>
-  <circle cx="180" cy="150" r="66" fill="#241F33" stroke="#7B5CE5" stroke-width="3"/>
-  <g fill="none" stroke="#4D4766" stroke-width="3"><circle cx="180" cy="150" r="52"/><circle cx="180" cy="150" r="38"/><circle cx="180" cy="150" r="24"/></g>
-  <path d="M114 150h132M180 84v132" stroke="#4D4766" stroke-width="3"/>
+  <rect x="85" y="60" width="230" height="180" rx="14" fill="#33302C" stroke="#DCD9D4" stroke-width="2.5"/>
+  <circle cx="180" cy="150" r="66" fill="#22201D" stroke="#FF6B1A" stroke-width="3"/>
+  <g fill="none" stroke="#4A4540" stroke-width="3"><circle cx="180" cy="150" r="52"/><circle cx="180" cy="150" r="38"/><circle cx="180" cy="150" r="24"/></g>
+  <path d="M114 150h132M180 84v132" stroke="#4A4540" stroke-width="3"/>
   <circle cx="180" cy="150" r="10" fill="#EE9450"/>
-  <g fill="#241F33" stroke="#D3C5FF" stroke-width="1.5">
+  <g fill="#22201D" stroke="#FFD2B3" stroke-width="1.5">
     <rect x="266" y="90" width="32" height="18" rx="3"/><rect x="266" y="118" width="32" height="18" rx="3"/>
     <rect x="266" y="146" width="32" height="18" rx="3"/><rect x="266" y="174" width="32" height="18" rx="3"/>
   </g>

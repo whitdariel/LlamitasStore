@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Placa madre">
   <defs>
-    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#7B5CE5" stop-opacity=".45"/><stop offset="1" stop-color="#7B5CE5" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FF6B1A" stop-opacity=".45"/><stop offset="1" stop-color="#FF6B1A" stop-opacity="0"/></radialGradient>
   </defs>
   <circle cx="200" cy="150" r="160" fill="url(#glow)"/>
-  <rect x="80" y="30" width="240" height="240" rx="12" fill="#353049" stroke="#D3C5FF" stroke-width="2.5"/>
-  <g stroke="#4D4766" stroke-width="2" fill="none"><path d="M95 60h60M95 75h40M250 250h55M260 236h45M95 250h90"/></g>
-  <rect x="110" y="60" width="78" height="78" rx="6" fill="#D9D3EA"/>
-  <rect x="124" y="74" width="50" height="50" rx="4" fill="none" stroke="#7B5CE5" stroke-width="3"/>
-  <g fill="#4D4766" stroke="#EE9450" stroke-width="1.5">
+  <rect x="80" y="30" width="240" height="240" rx="12" fill="#33302C" stroke="#FFD2B3" stroke-width="2.5"/>
+  <g stroke="#4A4540" stroke-width="2" fill="none"><path d="M95 60h60M95 75h40M250 250h55M260 236h45M95 250h90"/></g>
+  <rect x="110" y="60" width="78" height="78" rx="6" fill="#DCD9D4"/>
+  <rect x="124" y="74" width="50" height="50" rx="4" fill="none" stroke="#FF6B1A" stroke-width="3"/>
+  <g fill="#4A4540" stroke="#EE9450" stroke-width="1.5">
     <rect x="214" y="48" width="10" height="110" rx="3"/><rect x="232" y="48" width="10" height="110" rx="3"/>
     <rect x="250" y="48" width="10" height="110" rx="3"/><rect x="268" y="48" width="10" height="110" rx="3"/>
   </g>
-  <rect x="100" y="172" width="200" height="14" rx="4" fill="#4D4766" stroke="#E8724F" stroke-width="2"/>
-  <rect x="100" y="206" width="200" height="10" rx="3" fill="#4D4766" stroke="#D3C5FF" stroke-width="1.5"/>
-  <rect x="210" y="226" width="34" height="34" rx="5" fill="#353049" stroke="#D9D3EA" stroke-width="1.5"/>
-  <circle cx="98" cy="48" r="5" fill="#D3C5FF"/><circle cx="302" cy="252" r="5" fill="#D3C5FF"/>
+  <rect x="100" y="172" width="200" height="14" rx="4" fill="#4A4540" stroke="#E8724F" stroke-width="2"/>
+  <rect x="100" y="206" width="200" height="10" rx="3" fill="#4A4540" stroke="#FFD2B3" stroke-width="1.5"/>
+  <rect x="210" y="226" width="34" height="34" rx="5" fill="#33302C" stroke="#DCD9D4" stroke-width="1.5"/>
+  <circle cx="98" cy="48" r="5" fill="#FFD2B3"/><circle cx="302" cy="252" r="5" fill="#FFD2B3"/>
 </svg>

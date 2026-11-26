@@ -4,7 +4,7 @@ namespace LlamitasStore.Tests.Diseno;
 
 /// <summary>
 /// Reglas del sistema de diseño pedidas para el proyecto:
-///   1) UNA sola paleta de colores ("Llamitas Noche").
+///   1) UNA sola paleta de colores ("Llamitas Fuego", la del logo: negro + naranja).
 ///   2) UNA sola tipografía (Outfit).
 /// Revisa CSS propio, todas las vistas Razor y todos los SVG del sitio (Bootstrap en /lib queda fuera).
 /// </summary>
@@ -12,10 +12,10 @@ public partial class SistemaDisenoTests
 {
     private static readonly HashSet<string> Paleta = new(StringComparer.OrdinalIgnoreCase)
     {
-        // Noche
-        "FFFFFF", "F6F4FB", "ECE8F6", "D9D3EA", "B7AFD0", "8E86AB", "6A6387", "4D4766", "353049", "241F33", "1B1727", "14111D", "0D0B13",
-        // Violeta
-        "EAE3FF", "D3C5FF", "B39DFB", "957AF2", "7B5CE5", "6545CF", "5034AA",
+        // Noche (negros neutros del logo)
+        "FFFFFF", "F7F6F4", "EEECE9", "DCD9D4", "B9B4AD", "8F8982", "6B655E", "4A4540", "33302C", "22201D", "191715", "121110", "0A0908",
+        // Fuego (naranja del logo, color principal)
+        "FFEDE0", "FFD2B3", "FFA466", "FF8533", "FF6B1A", "C2410C", "9A3412",
         // Lana
         "FFF4E4", "FFE6C6", "FFD19A", "F9B26A", "EE9450", "E8724F", "C9553A", "8E5238",
         // Menta
