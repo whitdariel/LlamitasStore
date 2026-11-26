@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\LlamitasStore\LlamitasStore.csproj" />
+    <ProjectReference Include="..\..\LlamitasStore.csproj" />
   </ItemGroup>
 
 </Project>

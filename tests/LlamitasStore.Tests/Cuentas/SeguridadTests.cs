@@ -45,7 +45,9 @@ public sealed class SeguridadTests : IAsyncLifetime
         // El tag helper NO agrega el token cuando el action está escrito a mano: hay que pedirlo con asp-antiforgery="true".
         var raiz = new DirectoryInfo(AppContext.BaseDirectory);
         while (!File.Exists(Path.Combine(raiz.FullName, "LlamitasStore.sln"))) raiz = raiz.Parent!;
-        var vistas = Directory.EnumerateFiles(Path.Combine(raiz.FullName, "src", "LlamitasStore", "Views"), "*.cshtml", SearchOption.AllDirectories);
+        // Proyecto MVC en la raíz del repositorio: vistas de la tienda y del panel (Areas).
+        var vistas = new[] { "Views", "Areas" }
+            .SelectMany(c => Directory.EnumerateFiles(Path.Combine(raiz.FullName, c), "*.cshtml", SearchOption.AllDirectories));
 
         var sinToken = new List<string>();
         foreach (var archivo in vistas)
