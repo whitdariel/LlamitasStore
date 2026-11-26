@@ -55,6 +55,7 @@
                     <p class="ls-ahorro small mb-0">Ahorras @Tienda.Dinero(Model.Precio.Ahorro) (-@Model.Precio.PorcentajeDescuento%) · @Model.Precio.Motivo</p>
                 }
             </div>
+            <partial name="_AgregarCarrito" model="@((p.Id, p.Nombre, p.Stock, Model.Comprable, false))" />
         </div>
     </div>
 

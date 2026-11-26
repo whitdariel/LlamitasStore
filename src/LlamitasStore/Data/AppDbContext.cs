@@ -253,6 +253,7 @@ public class AppDbContext : IdentityDbContext<Usuario, Rol, int>
         {
             e.ToTable("carrito");
             e.Property(c => c.TokenAnonimo).HasMaxLength(36);
+            e.Property(c => c.CodigoCupon).HasMaxLength(40);
             e.HasIndex(c => c.UsuarioId).IsUnique();
             e.HasIndex(c => c.TokenAnonimo).IsUnique();
             e.HasOne(c => c.Usuario).WithMany().HasForeignKey(c => c.UsuarioId).OnDelete(DeleteBehavior.Cascade);

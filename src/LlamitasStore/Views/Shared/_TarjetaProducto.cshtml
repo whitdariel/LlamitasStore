@@ -23,7 +23,10 @@
             <a asp-controller="Catalogo" asp-action="Producto" asp-route-slug="@Model.Slug">@Model.Nombre</a>
         </h3>
         <partial name="_Estrellas" model="(Model.Valoracion, Model.TotalResenas)" />
-        <partial name="_Precio" model="Model.Precio" />
+        <div class="d-flex align-items-end justify-content-between gap-2 mt-auto">
+            <partial name="_Precio" model="Model.Precio" />
+            <partial name="_AgregarCarrito" model="@((Model.Id, Model.Nombre, Model.Stock, Model.Disponible, true))" />
+        </div>
         <p class="ls-stock @(Model.Disponible ? (Model.UltimasUnidades ? "ls-stock-bajo" : "ls-stock-ok") : "ls-stock-agotado")">
             @if (!Model.Disponible)
             {

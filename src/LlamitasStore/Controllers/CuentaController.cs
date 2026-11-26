@@ -3,6 +3,7 @@ using LlamitasStore.Infraestructura;
 using LlamitasStore.Models.Entities;
 using LlamitasStore.Services.Correo;
 using LlamitasStore.Services.Cuentas;
+using LlamitasStore.Services.Ventas;
 using LlamitasStore.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,9 +23,12 @@ public class CuentaController : Controller
     private readonly IEnviadorCorreo _correo;
     private readonly PlantillasCorreo _plantillas;
     private readonly ILogger<CuentaController> _logger;
+    private readonly ServicioCarrito _carrito;
+    private readonly CarritoActual _carritoActual;
 
     public CuentaController(UserManager<Usuario> usuarios, SignInManager<Usuario> sesion, ServicioLoginExterno externo,
-        IEnviadorCorreo correo, PlantillasCorreo plantillas, ILogger<CuentaController> logger)
+        IEnviadorCorreo correo, PlantillasCorreo plantillas, ILogger<CuentaController> logger,
+        ServicioCarrito carrito, CarritoActual carritoActual)
     {
         _usuarios = usuarios;
         _sesion = sesion;
@@ -32,6 +36,17 @@ public class CuentaController : Controller
         _correo = correo;
         _plantillas = plantillas;
         _logger = logger;
+        _carrito = carrito;
+        _carritoActual = carritoActual;
+    }
+
+    /// <summary>Pasa el carrito del visitante (cookie) al carrito del usuario que acaba de iniciar sesión.</summary>
+    private async Task FusionarCarritoAsync(int usuarioId)
+    {
+        var token = _carritoActual.TokenVisitante();
+        if (token is null) return;
+        await _carrito.FusionarAsync(token, usuarioId);
+        _carritoActual.BorrarCookie();
     }
 
     // ---------- Inicio de sesión ----------
@@ -58,7 +73,8 @@ public class CuentaController : Controller
         var resultado = await _sesion.PasswordSignInAsync(vm.Email.Trim(), vm.Password, vm.Recordarme, lockoutOnFailure: true);
         if (resultado.Succeeded)
         {
-            await RegistrarAccesoAsync(vm.Email);
+            var id = await RegistrarAccesoAsync(vm.Email);
+            if (id is not null) await FusionarCarritoAsync(id.Value);
             return Volver(vm.ReturnUrl);
         }
 
@@ -116,6 +132,7 @@ public class CuentaController : Controller
 
         await _usuarios.AddToRoleAsync(usuario, Roles.Cliente);
         await _sesion.SignInAsync(usuario, isPersistent: false);
+        await FusionarCarritoAsync(usuario.Id);
         await EnviarBienvenidaAsync(usuario);
         _logger.LogInformation("Nuevo cliente registrado: {Id}", usuario.Id);
 
@@ -150,7 +167,8 @@ public class CuentaController : Controller
         var resultado = await _sesion.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
         if (resultado.Succeeded)
         {
-            await RegistrarAccesoPorLoginAsync(info.LoginProvider, info.ProviderKey);
+            var id = await RegistrarAccesoPorLoginAsync(info.LoginProvider, info.ProviderKey);
+            if (id is not null) await FusionarCarritoAsync(id.Value);
             return Volver(returnUrl);
         }
         if (resultado.IsLockedOut || resultado.IsNotAllowed)
@@ -170,6 +188,7 @@ public class CuentaController : Controller
 
         await _sesion.SignInAsync(vinculo.Usuario, isPersistent: true, info.LoginProvider);
         await RegistrarAccesoAsync(vinculo.Usuario.Email!);
+        await FusionarCarritoAsync(vinculo.Usuario.Id);
         if (vinculo.EsNuevo)
         {
             await EnviarBienvenidaAsync(vinculo.Usuario);
@@ -269,18 +288,19 @@ public class CuentaController : Controller
     private async Task CargarProveedoresAsync() =>
         ViewData["Proveedores"] = (await _sesion.GetExternalAuthenticationSchemesAsync()).ToList();
 
-    private async Task RegistrarAccesoAsync(string email)
+    private async Task<int?> RegistrarAccesoAsync(string email)
     {
         var usuario = await _usuarios.FindByEmailAsync(email);
-        if (usuario is null) return;
+        if (usuario is null) return null;
         usuario.UltimoAcceso = DateTime.UtcNow;
         await _usuarios.UpdateAsync(usuario);
+        return usuario.Id;
     }
 
-    private async Task RegistrarAccesoPorLoginAsync(string proveedor, string clave)
+    private async Task<int?> RegistrarAccesoPorLoginAsync(string proveedor, string clave)
     {
         var usuario = await _usuarios.FindByLoginAsync(proveedor, clave);
-        if (usuario?.Email is not null) await RegistrarAccesoAsync(usuario.Email);
+        return usuario?.Email is null ? null : await RegistrarAccesoAsync(usuario.Email);
     }
 
     private async Task EnviarBienvenidaAsync(Usuario usuario)

@@ -54,6 +54,11 @@ namespace LlamitasStore.Data.Migraciones
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CodigoCupon")
+                        .HasMaxLength(40)
+                        .HasColumnType("varchar(40)")
+                        .HasColumnName("codigo_cupon");
+
                     b.Property<DateTime>("FechaActualizacion")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("fecha_actualizacion");

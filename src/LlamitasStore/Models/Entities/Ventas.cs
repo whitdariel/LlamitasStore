@@ -8,6 +8,8 @@ public class Carrito
     public Usuario? Usuario { get; set; }
     /// <summary>GUID de la cookie del visitante anónimo.</summary>
     public string? TokenAnonimo { get; set; }
+    /// <summary>Cupón aplicado (se vuelve a validar al mostrar el carrito y al confirmar el pedido).</summary>
+    public string? CodigoCupon { get; set; }
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
     public DateTime FechaActualizacion { get; set; } = DateTime.UtcNow;
 

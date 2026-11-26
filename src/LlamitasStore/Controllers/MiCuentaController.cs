@@ -18,15 +18,19 @@ public class MiCuentaController : Controller
     private readonly ServicioDirecciones _direcciones;
     private readonly ServicioFavoritos _favoritos;
     private readonly ServicioCatalogo _catalogo;
+    private readonly Services.Ventas.ServicioPedidos _pedidos;
+    private readonly Services.AjustesTienda _tienda;
 
     public MiCuentaController(UserManager<Usuario> usuarios, SignInManager<Usuario> sesion, ServicioDirecciones direcciones,
-        ServicioFavoritos favoritos, ServicioCatalogo catalogo)
+        ServicioFavoritos favoritos, ServicioCatalogo catalogo, Services.Ventas.ServicioPedidos pedidos, Services.AjustesTienda tienda)
     {
         _usuarios = usuarios;
         _sesion = sesion;
         _direcciones = direcciones;
         _favoritos = favoritos;
         _catalogo = catalogo;
+        _pedidos = pedidos;
+        _tienda = tienda;
     }
 
     private int UsuarioId => int.Parse(_usuarios.GetUserId(User)!);
@@ -124,14 +128,26 @@ public class MiCuentaController : Controller
     public async Task<IActionResult> Direcciones(CancellationToken ct) => View(await _direcciones.ListarAsync(UsuarioId, ct));
 
     [HttpGet("direcciones/nueva")]
-    public IActionResult NuevaDireccion() => View("Direccion", new DireccionVm());
+    public IActionResult NuevaDireccion(string? returnUrl = null)
+    {
+        ViewData["ReturnUrl"] = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
+        return View("Direccion", new DireccionVm());
+    }
 
     [HttpPost("direcciones/nueva")]
-    public async Task<IActionResult> NuevaDireccion(DireccionVm vm, CancellationToken ct)
+    public async Task<IActionResult> NuevaDireccion(DireccionVm vm, string? returnUrl, CancellationToken ct)
     {
         vm.Id = null;
+        ViewData["ReturnUrl"] = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
         if (!ModelState.IsValid) return View("Direccion", vm);
-        return Resultado(await _direcciones.CrearAsync(UsuarioId, vm, ct), vm, "Dirección guardada.");
+        var r = await _direcciones.CrearAsync(UsuarioId, vm, ct);
+        // Desde el checkout: volver allí con la dirección ya disponible.
+        if (r == ResultadoDireccion.Ok && Url.IsLocalUrl(returnUrl))
+        {
+            TempData["Exito"] = "Dirección guardada.";
+            return LocalRedirect(returnUrl);
+        }
+        return Resultado(r, vm, "Dirección guardada.");
     }
 
     [HttpGet("direcciones/{id:int}")]
@@ -173,6 +189,30 @@ public class MiCuentaController : Controller
                 ModelState.AddModelError(nameof(DireccionVm.Departamento), "Elige un departamento de la lista.");
                 return View("Direccion", vm);
         }
+    }
+
+    // ---------- Pedidos ----------
+
+    [HttpGet("pedidos")]
+    public async Task<IActionResult> Pedidos(CancellationToken ct) => View(await _pedidos.ListarAsync(UsuarioId, ct));
+
+    [HttpGet("pedidos/{numero}")]
+    public async Task<IActionResult> Pedido(string numero, CancellationToken ct)
+    {
+        var pedido = await _pedidos.ObtenerAsync(UsuarioId, numero, ct);
+        if (pedido is null) return NotFound();
+        ViewData["Instrucciones"] = _tienda.Obtener(Models.Entities.ClavesAjuste.DatosTransferencia);
+        return View(pedido);
+    }
+
+    [HttpPost("pedidos/{numero}/cancelar")]
+    public async Task<IActionResult> CancelarPedido(string numero, CancellationToken ct)
+    {
+        var ok = await _pedidos.CancelarPorClienteAsync(UsuarioId, numero, ct);
+        TempData[ok ? "Exito" : "Error"] = ok
+            ? $"Cancelaste el pedido {numero}."
+            : "Este pedido ya no se puede cancelar desde la tienda. Escríbenos si necesitas ayuda.";
+        return RedirectToAction(nameof(Pedido), new { numero });
     }
 
     // ---------- Favoritos ----------

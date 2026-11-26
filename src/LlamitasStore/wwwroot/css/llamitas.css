@@ -765,6 +765,86 @@ a.ls-chip:hover { border-color: var(--c-primario); color: var(--c-texto); }
 .ls-icono-grande { width: 3rem; height: 3rem; color: var(--c-enlace); }
 address { font-style: normal; line-height: 1.6; }
 
+/* ---------- 10d. Carrito, checkout y pedidos ---------- */
+.ls-boton-agregar {
+  position: relative; z-index: 2; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; flex-shrink: 0;
+  border: 0; border-radius: 50%; background: var(--c-primario); color: var(--noche-0);
+  transition: background-color var(--t-rapido), transform var(--t-rapido) var(--curva), box-shadow var(--t-medio);
+}
+.ls-boton-agregar:hover { background: var(--c-primario-hover); transform: scale(1.08); box-shadow: 0 8px 20px -6px var(--c-brillo); }
+.ls-boton-agregar:disabled { opacity: .6; }
+.ls-agregar-tarjeta { margin: 0; }
+.ls-agregar-ficha { display: flex; gap: .5rem; align-items: center; flex-shrink: 0; margin: 0; }
+.ls-selector-cantidad { width: 4.75rem; border-radius: var(--r-pill); }
+@media (max-width: 991.98px) { .ls-agregar-ficha { flex-basis: 100%; } .ls-agregar-ficha .btn { flex: 1; } }
+
+.ls-aviso {
+  position: fixed; z-index: 1080; left: 50%; bottom: 1.5rem; transform: translateX(-50%);
+  max-width: min(30rem, calc(100vw - 2rem)); padding: .85rem 1.25rem; border-radius: var(--r-pill);
+  background: var(--noche-850); color: var(--noche-50); border: 1px solid var(--menta-500); box-shadow: var(--c-sombra);
+  font-weight: 500;
+}
+.ls-aviso a { color: var(--violeta-300); font-weight: 700; margin-left: .25rem; }
+.ls-aviso-error { border-color: var(--lana-500); }
+
+.ls-item-carrito {
+  display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) auto; gap: 1rem; align-items: center;
+  padding: 1rem; border-radius: var(--r-lg); background: var(--c-superficie); border: 1px solid var(--c-borde);
+}
+.ls-item-problema { border-color: var(--c-acento); }
+.ls-item-imagen img { width: 100%; height: auto; border-radius: var(--r-md); background: var(--c-escenario); display: block; }
+.ls-miniatura-fondo { width: 4.5rem; height: auto; flex-shrink: 0; background: var(--c-escenario); display: block; }
+.ls-item-nombre { display: block; color: var(--c-texto); font-weight: 600; text-decoration: none; margin-bottom: .2rem; }
+.ls-item-nombre:hover { color: var(--c-enlace); }
+.ls-item-acciones { display: flex; flex-direction: column; align-items: flex-end; gap: .5rem; }
+@media (max-width: 575.98px) {
+  .ls-item-carrito { grid-template-columns: 5rem minmax(0, 1fr); }
+  .ls-item-acciones { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
+}
+
+.ls-resumen { position: sticky; top: 6rem; }
+.ls-totales { display: grid; gap: .5rem; margin: 0 0 .75rem; }
+.ls-totales > div { display: flex; justify-content: space-between; gap: 1rem; }
+.ls-totales dt { font-weight: 400; color: var(--c-texto-2); }
+.ls-totales dd { margin: 0; font-weight: 600; }
+.ls-totales .ls-ahorro dt, .ls-totales .ls-ahorro dd { color: var(--c-acento-texto); }
+.ls-totales-total { padding-top: .75rem; margin-top: .25rem; border-top: 1px solid var(--c-borde); }
+.ls-totales-total dt { color: var(--c-texto); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.ls-totales-total dd { font-size: 1.5rem; font-weight: 700; }
+
+.ls-paso { display: flex; align-items: center; gap: .6rem; font-size: 1rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 1rem; float: none; width: auto; }
+.ls-paso-numero { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--c-primario); color: var(--noche-0); font-size: .85rem; }
+.ls-opcion-radio {
+  display: flex; gap: .85rem; align-items: flex-start; padding: .9rem 1rem; border-radius: var(--r-md);
+  border: 1px solid var(--c-borde); background: var(--c-superficie-2); cursor: pointer;
+  transition: border-color var(--t-rapido), background-color var(--t-rapido);
+}
+.ls-opcion-radio:hover { border-color: var(--c-borde-fuerte); }
+.ls-opcion-radio:has(input:checked) { border-color: var(--c-primario); background: var(--c-primario-suave); }
+.ls-opcion-radio .form-check-input { margin-top: .2rem; flex-shrink: 0; }
+.ls-instrucciones { padding: 1rem; border-radius: var(--r-md); background: var(--c-superficie-2); border: 1px dashed var(--c-borde-fuerte); }
+
+.ls-estado {
+  display: inline-block; padding: .2rem .7rem; border-radius: var(--r-pill);
+  font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  background: var(--c-superficie-2); color: var(--c-texto); border: 1px solid var(--c-borde-fuerte);
+}
+.ls-estado-pendiente { border-color: var(--lana-400); color: var(--c-acento-texto); }
+.ls-estado-confirmado, .ls-estado-enpreparacion, .ls-estado-enviado { border-color: var(--c-primario); color: var(--c-enlace); }
+.ls-estado-entregado { border-color: var(--c-exito); color: var(--c-exito); }
+.ls-estado-cancelado { color: var(--c-texto-2); }
+
+.ls-linea-tiempo { display: grid; grid-template-columns: repeat(5, 1fr); list-style: none; padding: 0; margin: 0 0 1rem; counter-reset: paso; }
+.ls-linea-tiempo li { position: relative; display: flex; flex-direction: column; align-items: center; gap: .5rem; text-align: center; font-size: .8rem; color: var(--c-texto-2); }
+.ls-linea-tiempo li::before { content: ""; position: absolute; top: .55rem; left: -50%; width: 100%; height: 2px; background: var(--c-borde); z-index: 0; }
+.ls-linea-tiempo li:first-child::before { display: none; }
+.ls-linea-punto { position: relative; z-index: 1; width: 1.15rem; height: 1.15rem; border-radius: 50%; border: 2px solid var(--c-borde-fuerte); background: var(--c-fondo); }
+.ls-linea-tiempo li.hecho, .ls-linea-tiempo li.actual { color: var(--c-texto); }
+.ls-linea-tiempo li.hecho .ls-linea-punto { background: var(--c-primario); border-color: var(--c-primario); }
+.ls-linea-tiempo li.hecho::before, .ls-linea-tiempo li.actual::before { background: var(--c-primario); }
+.ls-linea-tiempo li.actual .ls-linea-punto { border-color: var(--lana-400); box-shadow: 0 0 0 4px rgb(238 148 80 / .2); }
+.ls-linea-tiempo li.actual { font-weight: 700; }
+
 /* ---------- 11. Footer ---------- */
 .ls-footer { margin-top: clamp(3rem, 8vw, 6rem); background: var(--c-fondo-alt); border-top: 1px solid var(--c-borde); color: var(--c-texto-2); font-size: .9rem; }
 .ls-footer h2 { font-size: .75rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--c-texto); margin-bottom: 1rem; }

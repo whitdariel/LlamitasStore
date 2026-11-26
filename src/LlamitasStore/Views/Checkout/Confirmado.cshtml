@@ -1,0 +1,27 @@
+@model Pedido
+@{
+    ViewData["Title"] = "Pedido confirmado";
+}
+
+<section class="ls-contenedor ls-pagina-centro">
+    <img src="~/images/llamita-shop.svg" asp-append-version="true" alt="" width="140" height="130" class="mb-3" />
+    <p class="ls-eyebrow">¡Gracias por tu compra!</p>
+    <h1 class="ls-titulo-seccion">Recibimos tu pedido</h1>
+    <p class="ls-codigo-error ls-numero fs-1 my-3">@Model.Numero</p>
+    <p class="text-body-secondary mx-auto ls-texto-legal">
+        Total: <strong class="text-body">@Tienda.Dinero(Model.Total)</strong> · @TextosPedido.Metodo(Model.MetodoPago).
+        Te enviamos el detalle a tu correo y te avisaremos cuando cambie de estado.
+    </p>
+    @if (Model.MetodoPago == MetodoPago.Transferencia)
+    {
+        <div class="ls-instrucciones mx-auto ls-texto-legal text-start mt-3">
+            <p class="ls-filtro-titulo mb-1">Datos para transferir</p>
+            <p class="small mb-0 ls-texto-largo">@ViewData["Instrucciones"]</p>
+            <p class="small mb-0 mt-2">Incluye el número <strong>@Model.Numero</strong> en la descripción de la transferencia.</p>
+        </div>
+    }
+    <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+        <a class="btn btn-primary" href="/cuenta/pedidos/@Model.Numero">Ver mi pedido</a>
+        <a class="btn btn-outline-secondary" href="/catalogo">Seguir comprando</a>
+    </div>
+</section>

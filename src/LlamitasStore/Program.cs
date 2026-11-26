@@ -7,6 +7,7 @@ using LlamitasStore.Services;
 using LlamitasStore.Services.Catalogo;
 using LlamitasStore.Services.Correo;
 using LlamitasStore.Services.Cuentas;
+using LlamitasStore.Services.Ventas;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -129,6 +130,12 @@ builder.Services.AddScoped<ServicioDirecciones>();
 builder.Services.AddScoped<ServicioFavoritos>();
 builder.Services.AddScoped<FavoritosDelUsuario>();
 builder.Services.AddScoped<ServicioLoginExterno>();
+// ---------- Carrito y pedidos ----------
+builder.Services.AddScoped<ServicioCupones>();
+builder.Services.AddScoped<ServicioCarrito>();
+builder.Services.AddScoped<CarritoActual>();
+builder.Services.AddScoped<ServicioPedidos>();
+
 builder.Services.Configure<OpcionesCorreo>(config.GetSection("Correo"));
 builder.Services.AddSingleton<PlantillasCorreo>();
 if (!string.IsNullOrWhiteSpace(config["Correo:Smtp:Host"]))

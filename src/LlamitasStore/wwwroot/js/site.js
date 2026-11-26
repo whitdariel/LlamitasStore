@@ -84,6 +84,53 @@
             .finally(function () { if (boton) boton.disabled = false; });
     });
 
+    // ---------- Aviso flotante (toast) ----------
+    var aviso = document.getElementById('aviso-global');
+    var temporizadorAviso = null;
+    function mostrarAviso(texto, conEnlaceCarrito, esError) {
+        if (!aviso) return;
+        aviso.replaceChildren();
+        aviso.classList.toggle('ls-aviso-error', !!esError);
+        aviso.appendChild(document.createTextNode(texto + ' '));
+        if (conEnlaceCarrito) {
+            var a = document.createElement('a');
+            a.href = '/carrito';
+            a.textContent = 'Ver carrito';
+            aviso.appendChild(a);
+        }
+        aviso.hidden = false;
+        clearTimeout(temporizadorAviso);
+        temporizadorAviso = setTimeout(function () { aviso.hidden = true; }, 5000);
+    }
+
+    // ---------- Agregar al carrito sin recargar (si falla, el formulario se envía normal) ----------
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-agregar-carrito')) return;
+        e.preventDefault();
+        var boton = form.querySelector('button[type=submit]');
+        if (boton) boton.disabled = true;
+
+        fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' } })
+            .then(function (r) {
+                var tipo = r.headers.get('content-type') || '';
+                if (!r.ok || r.redirected || tipo.indexOf('application/json') === -1) throw new Error('sin-json');
+                return r.json();
+            })
+            .then(function (datos) {
+                document.querySelectorAll('[data-contador-carrito]').forEach(function (c) {
+                    c.textContent = datos.total;
+                    c.classList.toggle('d-none', datos.total === 0);
+                });
+                document.querySelectorAll('[data-enlace-carrito]').forEach(function (a) {
+                    a.setAttribute('aria-label', 'Carrito (' + datos.total + ' productos)');
+                });
+                mostrarAviso(datos.mensaje, datos.ok, !datos.ok);
+            })
+            .catch(function () { HTMLFormElement.prototype.submit.call(form); })
+            .finally(function () { if (boton) boton.disabled = false; });
+    });
+
     // ---------- Buscador con sugerencias (combobox accesible) ----------
     var entrada = document.getElementById('busqueda-global');
     var lista = document.getElementById('busqueda-sugerencias');

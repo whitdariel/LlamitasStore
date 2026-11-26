@@ -127,6 +127,17 @@ public class PlantillasCorreo
             <p style="margin:28px 0"><a href="{_html.Encode(urlTienda)}" style="background:{Primario};color:#FFFFFF;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">Ir a la tienda</a></p>
             """));
 
+    public (string Asunto, string Html) PedidoRecibido(string nombre, string numero, string total, string metodo, string enlace, string? instrucciones) => (
+        $"Recibimos tu pedido {numero}",
+        Envolver($"""
+            <h1 style="margin:0 0 16px;font-size:22px;color:{Texto}">¡Gracias, {_html.Encode(nombre)}!</h1>
+            <p style="color:{Texto2};line-height:1.6">Recibimos tu pedido <strong style="color:{Texto}">{_html.Encode(numero)}</strong>
+            por <strong style="color:{Texto}">{_html.Encode(total)}</strong> ({_html.Encode(metodo)}).</p>
+            {(instrucciones is null ? "" : $"<p style=\"color:{Texto2};line-height:1.6;white-space:pre-line\">{_html.Encode(instrucciones)}</p>")}
+            <p style="margin:28px 0"><a href="{_html.Encode(enlace)}" style="background:{Primario};color:#FFFFFF;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:13px">Ver mi pedido</a></p>
+            <p style="color:{Texto2};font-size:13px;line-height:1.6">Te avisaremos cuando cambie de estado.</p>
+            """));
+
     private static string Envolver(string cuerpo) => $"""
         <!DOCTYPE html>
         <html lang="es"><body style="margin:0;background:{Fondo};font-family:Outfit,Segoe UI,Arial,sans-serif">

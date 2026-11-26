@@ -1,0 +1,29 @@
+@model (int ProductoId, string Nombre, int Stock, bool Comprable, bool Compacto)
+@{
+    var maximo = Math.Min(Model.Stock, LlamitasStore.Services.Ventas.ServicioCarrito.MaximoPorProducto);
+    var volver = Context.Request.Path + Context.Request.QueryString;
+}
+@if (Model.Comprable && maximo > 0)
+{
+    <form method="post" action="/carrito/agregar" asp-antiforgery="true" class="@(Model.Compacto ? "ls-agregar-tarjeta" : "ls-agregar-ficha")" data-agregar-carrito>
+        <input type="hidden" name="productoId" value="@Model.ProductoId" />
+        <input type="hidden" name="returnUrl" value="@volver" />
+        @if (Model.Compacto)
+        {
+            <input type="hidden" name="cantidad" value="1" />
+            <button type="submit" class="ls-boton-agregar" aria-label="Agregar al carrito: @Model.Nombre">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#carrito"></use></svg>
+            </button>
+        }
+        else
+        {
+            <label class="visually-hidden" for="cantidad-@Model.ProductoId">Cantidad</label>
+            <select id="cantidad-@Model.ProductoId" name="cantidad" class="form-select ls-selector-cantidad">
+                @for (var n = 1; n <= maximo; n++) { <option value="@n">@n</option> }
+            </select>
+            <button type="submit" class="btn btn-primary btn-lg">
+                <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#carrito"></use></svg> Agregar al carrito
+            </button>
+        }
+    </form>
+}

@@ -1,0 +1,21 @@
+@model CarritoVista
+@{ var t = Model.Totales; }
+<dl class="ls-totales ls-numero">
+    <div><dt>Subtotal</dt><dd>@Tienda.Dinero(t.Subtotal)</dd></div>
+    @if (t.Descuento > 0)
+    {
+        <div class="ls-ahorro"><dt>Descuento @(Model.CuponAplicado is { } c ? $"({c.Codigo})" : "")</dt><dd>−@Tienda.Dinero(t.Descuento)</dd></div>
+    }
+    <div><dt>Envío</dt><dd>@(t.CostoEnvio == 0 ? "Gratis" : Tienda.Dinero(t.CostoEnvio))</dd></div>
+    <div class="ls-totales-total"><dt>Total</dt><dd>@Tienda.Dinero(t.Total)</dd></div>
+</dl>
+@if (t.FaltaParaEnvioGratis > 0)
+{
+    var avance = (int)Math.Clamp(Math.Round((t.Subtotal - t.Descuento) / t.EnvioGratisDesde * 100), 0, 100);
+    <p class="small mb-1">Te faltan <strong>@Tienda.Dinero(t.FaltaParaEnvioGratis)</strong> para el envío gratis.</p>
+    <progress class="ls-barra w-100" max="100" value="@avance" aria-label="Avance hacia el envío gratis: @avance %"></progress>
+}
+else if (t.EnvioGratisDesde > 0 && t.CostoEnvio == 0 && t.Subtotal > 0)
+{
+    <p class="small ls-stock-ok mb-0">¡Tu pedido tiene envío gratis!</p>
+}

@@ -1,8 +1,16 @@
 @using LlamitasStore.Services.Cuentas
+@using LlamitasStore.Services.Ventas
 @inject FavoritosDelUsuario Favoritos
+@inject ServicioCarrito Carrito
+@inject CarritoActual CarritoActual
 @{
     var rutaActual = Context.Request.Path + Context.Request.QueryString;
+    var enCarrito = await Carrito.ContarAsync(CarritoActual.Dueno());
 }
+<a class="ls-boton-icono position-relative" href="/carrito" aria-label="Carrito (@enCarrito productos)" data-enlace-carrito>
+    <svg class="ls-icono" aria-hidden="true"><use href="/images/iconos.svg#carrito"></use></svg>
+    <span class="ls-contador ls-numero @(enCarrito == 0 ? "d-none" : "")" data-contador-carrito>@enCarrito</span>
+</a>
 @if (User.Identity?.IsAuthenticated == true)
 {
     var nombre = User.FindFirst(LlamitasStore.Infraestructura.UsuarioClaimsFactory.ClaimNombre)?.Value ?? "Mi cuenta";
@@ -22,6 +30,7 @@
         <ul class="dropdown-menu dropdown-menu-end">
             <li><h2 class="dropdown-header text-uppercase">Hola, @nombre</h2></li>
             <li><a class="dropdown-item" href="/cuenta">Mi cuenta</a></li>
+            <li><a class="dropdown-item" href="/cuenta/pedidos">Mis pedidos</a></li>
             <li><a class="dropdown-item" href="/cuenta/favoritos">Favoritos</a></li>
             <li><a class="dropdown-item" href="/cuenta/direcciones">Direcciones</a></li>
             <li><a class="dropdown-item" href="/cuenta/seguridad">Seguridad</a></li>
