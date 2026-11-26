@@ -1,3 +1,4 @@
+@model LlamitasStore.ViewModels.InicioViewModel
 @{
     ViewData["Title"] = "Inicio";
 }
@@ -9,8 +10,7 @@
             <h1>Enciende tu<br /><span>próximo setup.</span></h1>
             <p>Componentes, accesorios y todo lo que necesitas para llevar tus ideas más lejos.</p>
             <div class="home-hero-actions">
-                <a class="home-button home-button-primary" asp-controller="Home" asp-action="Categoria">Explorar categorías <span>↗</span></a>
-                <a class="home-button home-button-secondary" asp-controller="Home" asp-action="Marca">Ver marcas</a>
+                <a class="home-button home-button-primary" href="#categorias">Explorar categorías <span>↓</span></a>
             </div>
             <div class="home-hero-note"><span></span> Tecnología para cada forma de jugar y crear</div>
         </div>
@@ -26,35 +26,32 @@
         <div class="hero-pagination" aria-hidden="true"><span class="is-current"></span><span></span><span></span></div>
     </section>
 
-    <section class="home-section">
+    <section class="home-section" id="categorias">
         <div class="home-section-heading">
             <div>
                 <span class="home-eyebrow">HECHO PARA TU MUNDO</span>
                 <h2>¿Qué estás buscando?</h2>
             </div>
-            <a asp-controller="Home" asp-action="Categoria" class="home-text-link">Ver categorías <span>↗</span></a>
         </div>
 
-        <div class="home-promo-grid">
-            <a class="home-promo-card promo-components" asp-controller="Home" asp-action="Categoria">
-                <span class="promo-overline">POTENCIA PARA TUS IDEAS</span>
-                <h3>Arma algo<br />increíble.</h3>
-                <span class="promo-link">Componentes <b>↗</b></span>
-                <img src="~/images/llamita-tech.svg" asp-append-version="true" alt="Llamita junto a un teclado iluminado" />
-            </a>
-            <a class="home-promo-card promo-brands" asp-controller="Home" asp-action="Marca">
-                <span class="promo-overline">TUS FAVORITAS, AQUÍ</span>
-                <h3>Marcas que<br />van contigo.</h3>
-                <span class="promo-link">Descubrir marcas <b>↗</b></span>
-                <img src="~/images/llamita-shop.svg" asp-append-version="true" alt="Llamita con una bolsa de compras" />
-            </a>
-            <a class="home-promo-card promo-orders" asp-controller="Home" asp-action="OrdenCompra">
-                <span class="promo-overline">TODO EN UN SOLO LUGAR</span>
-                <h3>Tu tienda<br />en marcha.</h3>
-                <span class="promo-link">Ver órdenes <b>↗</b></span>
-                <img src="~/images/llamita-mark.svg" asp-append-version="true" alt="Ilustración de una llamita" />
-            </a>
-        </div>
+        @if (Model.Categorias.Count == 0)
+        {
+            <p class="text-muted">Todavía no hay categorías cargadas.</p>
+        }
+        else
+        {
+            <ul class="list-unstyled row g-3">
+                @foreach (var c in Model.Categorias)
+                {
+                    <li class="col-6 col-md-4 col-lg-3">
+                        <div class="border rounded-3 p-3 h-100">
+                            <strong class="d-block">@c.Nombre</strong>
+                            <span class="text-muted small">@c.TotalProductos productos</span>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
     </section>
 
     <section class="home-bottom-banner">
@@ -62,7 +59,7 @@
             <span class="home-eyebrow">PEQUEÑAS LLAMAS, GRANDES IDEAS</span>
             <h2>Encuentra lo que<br />enciende tu pasión.</h2>
             <p>Explora la tienda y prepara tu próximo proyecto.</p>
-            <a asp-controller="Home" asp-action="Categoria" class="bottom-banner-link">Empezar a explorar <span>→</span></a>
+            <a href="#categorias" class="bottom-banner-link">Empezar a explorar <span>↑</span></a>
         </div>
         <div class="bottom-banner-art">
             <span class="bottom-star bottom-star-one">✦</span>
